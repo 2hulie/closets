@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.items.ItemsFragment">
+
+    <!-- ImageView for lbl_current.png -->
+    <ImageView
+        android:id="@+id/current_items_image"
+        android:layout_width="350dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="-5dp"
+        android:contentDescription="@string/current_items_image"
+        android:scaleType="fitCenter"
+        android:src="@drawable/lbl_current"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Horizontal layout for "Filter by:" label and Spinner -->
+    <LinearLayout
+        android:id="@+id/filter_by_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/current_items_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="30dp">
+
+        <!-- TextView for "Filter by:" -->
+        <TextView
+            android:id="@+id/filter_by_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by:"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#CB8192"
+            android:layout_marginEnd="12dp" /> <!-- Space between label and dropdown -->
+
+        <Spinner
+            android:id="@+id/filter_by_spinner"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:background="@drawable/dropdown"
+            android:paddingEnd="20dp"
+            android:gravity="left" /> <!-- Aligns text to the left -->
+
+        <ImageView
+            android:id="@+id/spinner_arrow"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/icon_arrow"
+            android:layout_marginStart="-20dp"
+            android:layout_gravity="center_vertical" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView for displaying items -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_items"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="90dp"
+        android:background="@drawable/item_background"
+        android:clipToPadding="false"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/filter_by_layout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Add an empty message TextView -->
+    <TextView
+        android:id="@+id/emptyMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textColor="#5E4E4E"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintVertical_bias="0.5"
+        />
+
+    <TextView
+        android:id="@+id/text_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- RecyclerView for displaying items -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_current_items"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="90dp"
+        android:background="@drawable/item_background"
+        android:clipToPadding="false"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/filter_by_layout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Invisible spacer -->
+    <View
+        android:id="@+id/spacer"
+        android:layout_width="match_parent"
+        android:layout_height="650dp"
+        android:visibility="invisible"
+        tools:ignore="MissingConstraints" />
+
+    <!-- ImageView for save icon -->
+    <ImageView
+        android:id="@+id/save_icon"
+        android:layout_width="190dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/icon_save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spacer" />
+</androidx.constraintlayout.widget.ConstraintLayout>

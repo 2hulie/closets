@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F0EDED"
+    tools:context=".ui.fragments.ItemInfoCapFragment">
+
+    <!-- Background ImageView (bg_pink) -->
+    <ImageView
+        android:id="@+id/bg_image"
+        android:layout_width="2000dp"
+        android:layout_height="230dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_pink"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Back Button (icon_back) -->
+    <ImageView
+        android:id="@+id/icon_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/icon_back"
+        android:contentDescription="@string/back_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="18dp" />
+
+    <!-- TextView for the Dress Name -->
+    <TextView
+        android:id="@+id/dress_name_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flowy Dress"
+        android:textStyle="bold"
+        android:textSize="26sp"
+        android:textColor="#F0EDED"
+        app:layout_constraintTop_toTopOf="@id/bg_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:gravity="center" />
+
+    <!-- Foreground ImageView (card.png) that overlaps with bg_pink -->
+    <ImageView
+        android:id="@+id/card_image"
+        android:layout_width="290dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/card"
+        app:layout_constraintTop_toTopOf="@id/bg_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="65dp"
+        tools:ignore="MissingConstraints" />
+
+    <!-- Inner ImageView (dress.png) inside card.png -->
+    <ImageView
+        android:id="@+id/dress_image"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/dress"
+        app:layout_constraintTop_toTopOf="@id/card_image"
+        app:layout_constraintBottom_toBottomOf="@id/card_image"
+        app:layout_constraintStart_toStartOf="@id/card_image"
+        app:layout_constraintEnd_toEndOf="@id/card_image"/>
+
+    <!-- Favorite Icon (icon_favorite) at the lower right corner of the card -->
+    <ImageView
+        android:id="@+id/icon_favorite"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/icon_unfavorite"
+        android:contentDescription="@string/favorite_icon"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="@id/dress_image"
+        app:layout_constraintEnd_toEndOf="@id/card_image"
+        android:layout_marginBottom="-30dp"
+        android:layout_marginEnd="30dp" />
+
+    <TextView
+        android:id="@+id/worn_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="worn 3 times"
+        android:textSize="19sp"
+        android:textColor="#DF9097"
+        app:layout_constraintTop_toBottomOf="@id/card_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:gravity="center" />
+
+    <!-- Details Label -->
+    <TextView
+        android:id="@+id/details_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Details"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        android:textColor="#62444B"
+        app:layout_constraintTop_toBottomOf="@id/worn_text"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="40dp"
+        android:gravity="center" />
+
+    <!-- Table-like structure for Type, Color, and Last Worn -->
+    <LinearLayout
+        android:id="@+id/table_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/details_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp">
+
+        <!-- Type Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="40dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/type_label"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:text="Type:"
+                android:textSize="19sp"
+                android:textColor="#9D5666"
+                android:gravity="start"/>
+
+            <TextView
+                android:id="@+id/type_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Dress"
+                android:textSize="19sp"
+                android:textColor="#62444B"
+                android:layout_weight="1"
+            android:gravity="start"/>
+        </LinearLayout>
+
+        <!-- Color Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="40dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/color_label"
+                android:layout_width="130dp"
+                android:layout_height="wrap_content"
+                android:text="Color:"
+                android:textSize="19sp"
+                android:textColor="#9D5666"
+                android:gravity="start"/>
+
+            <!-- Color Circle -->
+            <View
+                android:id="@+id/color_circle"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="#188DAB"
+                android:layout_marginTop="3dp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/color_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="19sp"
+                android:textColor="#62444B"
+                android:layout_weight="1"
+                android:gravity="start"/>
+        </LinearLayout>
+
+        <!-- Last Worn Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="40dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/last_worn_label"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:text="Last worn:"
+                android:textSize="19sp"
+                android:textColor="#9D5666"
+                android:gravity="start"/>
+
+            <TextView
+                android:id="@+id/last_worn_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="September 2, 2023"
+                android:textSize="19sp"
+                android:textColor="#62444B"
+                android:layout_weight="1"
+                android:gravity="start"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Edit Item Button -->
+    <ImageView
+        android:id="@+id/icon_edit_item"
+        android:layout_width="350dp"
+        android:layout_height="71dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@string/edit_item"
+        android:src="@drawable/icon_edit_item"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/table_layout" />
+
+    <!-- Delete Item Button -->
+    <ImageView
+        android:id="@+id/icon_delete_item"
+        android:layout_width="350dp"
+        android:layout_height="71dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/icon_delete_item"
+        android:contentDescription="@string/delete_item"
+        app:layout_constraintTop_toBottomOf="@id/icon_edit_item"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

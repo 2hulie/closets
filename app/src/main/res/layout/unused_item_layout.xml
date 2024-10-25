@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_marginBottom="16dp">
+
+    <androidx.cardview.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+        android:layout_margin="5dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardElevation="0.5dp"
+    app:cardBackgroundColor="@color/white">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="3dp"
+        android:background="@drawable/card_background">
+
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/item_image"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Icon for favorite status -->
+        <ImageView
+            android:id="@+id/favorite_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="4dp"
+            android:contentDescription="@string/favorite_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:src="@drawable/icon_unfavorite" /> <!-- Default icon -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+
+    <!-- TextView for displaying the duration outside the card -->
+    <TextView
+        android:id="@+id/item_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#62444B"
+        android:textStyle="normal"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="center" />
+
+</LinearLayout>

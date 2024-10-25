@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Closets</string>
+    <string name="title_home">My Closet</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_items">Items</string>
+    <string name="title_unused">Idle Items</string>
+    <string name="desc_unused_image">Unused Clothes Description</string>
+    <string name="title_data">Data Transfer</string>
+    <string name="home_image">Home Image</string>
+    <string name="items_image">Items Image</string>
+    <string name="favorites_image">Favorites Image</string>
+    <string name="unused_image">Unused Items Image</string>
+    <string name="data_image">Data Transfer Image</string>
+    <string name="favorite_icon">Favorite Item</string>
+    <string name="no_items_available">No items found. Add a new item?</string>
+    <string name="add_item">Add clothing item</string>
+    <string name="show_all_image">Show All</string>
+    <string name="icon_current">Current Clothes</string>
+    <string name="icon_notif">Notifications</string>
+    <string name="icon_outfit">View Todays Outfit</string>
+    <string name="back_button">Back</string>
+    <string name="favorite_item_image">Favorites Fragment Image</string>
+    <string name="navigation_image">Navigation Background</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="item_image">Item Image</string>
+    <string name="edit_item">Edit Item Info</string>
+    <string name="delete_item">Delete Item Info</string>
+    <string name="cancel_item">Cancel</string>
+    <string name="splash_logo_description">Splash Logo</string>
+    <string name="edit_icon">Edit Todays Outfit</string>
+    <string name="current_items_image">Current Items</string>
+    <string name="checked_icon">Checked</string>
+
+
+    <string-array name="sort_options">
+        <item>None</item>
+        <item>Favorites</item>
+        <item>Longest to Recent</item>
+        <item>Recent to Longest</item>
+    </string-array>
+
+    <string-array name="filter_options">
+        <item>None</item>
+        <item>Top</item>
+        <item>Bottom</item>
+        <item>Outerwear</item>
+        <item>Dress</item>
+        <item>Shoes</item>
+        <item>Other</item>
+    </string-array>
+</resources>

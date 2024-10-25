@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="faded_pink">#F0EDED</color>
+    <color name="base_text">#5E4E4E</color>
+    <color name="color_home">#AB8B90</color>
+    <color name="color_items">#CB8192</color>
+    <color name="color_favorites">#9D5666</color>
+    <color name="color_unused">#7C6D6F</color>
+    <color name="color_data">#62444B</color>
+    <color name="lbl_home">#2F262A</color>
+    <color name="lbl_items">#3E2A2E</color>
+    <color name="lbl_favorites">#371E28</color>
+    <color name="lbl_unused">#312C2D</color>
+    <color name="lbl_data">#261B1D</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="pressed_black">#80000000</color> <!-- 50% Black -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="bottom_nav_color">#62444B</color>
+    <color name="colorAccent">#FF03DAC5</color> <!-- Add this line for accent color -->
+</resources>

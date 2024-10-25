@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight"> <!-- Change to your desired ripple color -->
+
+    <!-- Additional content can be defined here if needed -->
+</ripple>

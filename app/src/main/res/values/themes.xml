@@ -1,0 +1,29 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.Test" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">#AB8B90</item>
+
+        <!-- Remove ActionBar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- Set the status and navigation bar colors -->
+        <item name="android:statusBarColor">#231F1F</item>
+        <item name="android:navigationBarColor">@color/faded_pink</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:fitsSystemWindows">true</item>
+
+        <!-- Customize your theme here -->
+        <!-- Custom font for title -->
+        <item name="android:fontFamily">@font/comfortaa</item>
+
+        <!-- Set the Bottom Navigation Bar color -->
+        <item name="bottomNavigationStyle">@style/CustomBottomNavigation</item>
+    </style>
+
+    <!-- Custom Bottom Navigation style to change the background color -->
+    <style name="CustomBottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="backgroundTint">@color/bottom_nav_color</item>
+    </style>
+</resources>
