@@ -17,7 +17,7 @@
     <string name="show_all_image">Show All</string>
     <string name="icon_current">Current Clothes</string>
     <string name="icon_notif">Notifications</string>
-    <string name="icon_outfit">View Todays Outfit</string>
+    <string name="icon_outfit">View Today Outfit</string>
     <string name="back_button">Back</string>
     <string name="favorite_item_image">Favorites Fragment Image</string>
     <string name="navigation_image">Navigation Background</string>
@@ -27,9 +27,11 @@
     <string name="delete_item">Delete Item Info</string>
     <string name="cancel_item">Cancel</string>
     <string name="splash_logo_description">Splash Logo</string>
-    <string name="edit_icon">Edit Todays Outfit</string>
+    <string name="edit_icon">Edit Today Outfit</string>
     <string name="current_items_image">Current Items</string>
     <string name="checked_icon">Checked</string>
+    <string name="import_icon">Import</string>
+    <string name="export_icon">Export</string>
 
 
     <string-array name="sort_options">

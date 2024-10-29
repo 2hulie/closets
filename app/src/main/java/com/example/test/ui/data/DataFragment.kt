@@ -7,22 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.test.R
 import com.example.test.databinding.FragmentDataBinding
 
-
 class DataFragment : Fragment() {
 
     private var _binding: FragmentDataBinding? = null
     private val binding get() = _binding!!
 
-    // Declare TextView variables
-    private lateinit var importClosetTextView: TextView
-    private lateinit var exportClosetTextView: TextView
+    // Declare ImageView variables for the icons
+    private lateinit var importClosetIcon: ImageView
+    private lateinit var exportClosetIcon: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,14 +32,14 @@ class DataFragment : Fragment() {
         _binding = FragmentDataBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textData
+        val textView = binding.textData
         dataViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
 
-        // Initialize the clickable TextViews
-        importClosetTextView = binding.textImportCloset
-        exportClosetTextView = binding.textExportCloset
+        // Initialize the clickable ImageViews
+        importClosetIcon = binding.iconImport
+        exportClosetIcon = binding.iconExport
 
         return root
     }
@@ -61,7 +59,7 @@ class DataFragment : Fragment() {
         // Find the ImageView by ID (ensure the ID matches the layout)
         val dataImageView = view.findViewById<ImageView>(R.id.data_image)
 
-        // Apply the animation to the ImageView
+        // Apply the animation to the main ImageView
         dataImageView.startAnimation(slideDownAnimation)
 
         // Change status bar color for this fragment
@@ -70,14 +68,14 @@ class DataFragment : Fragment() {
         // Load the scale animation
         val scaleAnimation = AnimationUtils.loadAnimation(context, R.animator.scale_animation)
 
-        // Set click listener for Import Closet
-        importClosetTextView.setOnClickListener {
+        // Set click listener for Import Closet icon
+        importClosetIcon.setOnClickListener {
             it.startAnimation(scaleAnimation) // Start animation
             // Handle Import Closet action
         }
 
-        // Set click listener for Export Closet
-        exportClosetTextView.setOnClickListener {
+        // Set click listener for Export Closet icon
+        exportClosetIcon.setOnClickListener {
             it.startAnimation(scaleAnimation) // Start animation
             // Handle Export Closet action
         }

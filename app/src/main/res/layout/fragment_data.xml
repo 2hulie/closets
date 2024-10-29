@@ -19,57 +19,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Label for Data Management -->
-    <TextView
-        android:id="@+id/label_data_management"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Data Management"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#CB8192"
-        android:layout_marginTop="20dp"
-        android:textAlignment="viewStart"
-        android:gravity="start"
-        android:layout_marginStart="40dp"
+    <!-- ImageView for Import Closet icon -->
+    <ImageView
+        android:id="@+id/icon_import"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/icon_import"
+        android:contentDescription="@string/import_icon"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toStartOf="@+id/icon_export"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/data_image"
+        app:layout_constraintHorizontal_chainStyle="packed" />
+
+    <!-- ImageView for Export Closet icon -->
+    <ImageView
+        android:id="@+id/icon_export"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/icon_export"
+        android:contentDescription="@string/export_icon"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toEndOf="@id/icon_import"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/data_image" />
-
-    <!-- Clickable TextView for Import Closet -->
-    <TextView
-        android:id="@+id/text_import_closet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Import Closet"
-        android:textSize="18sp"
-        android:textColor="#9D5666"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_marginTop="16dp"
-        android:textAlignment="viewStart"
-        android:gravity="start"
-        android:textStyle="normal"
-        android:layout_marginStart="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/label_data_management" />
-
-    <!-- Clickable TextView for Export Closet -->
-    <TextView
-        android:id="@+id/text_export_closet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Export Closet"
-        android:textSize="18sp"
-        android:textColor="#9D5666"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_marginTop="10dp"
-        android:textAlignment="viewStart"
-        android:gravity="start"
-        android:textStyle="normal"
-        android:layout_marginStart="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_import_closet" />
 
     <TextView
         android:id="@+id/text_data"
