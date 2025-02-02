@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="items_count">
+        <item quantity="one">%d Item</item>
+        <item quantity="other">%d Items</item>
+    </plurals>
+    <plurals name="favorite_items_count">
+        <item quantity="one">%d Favorite</item>
+        <item quantity="other">%d Favorites</item>
+    </plurals>
+    <plurals name="unused_items_count">
+        <item quantity="one">%d Idle Item</item>
+        <item quantity="other">%d Idle Items</item>
+    </plurals>
+</resources>

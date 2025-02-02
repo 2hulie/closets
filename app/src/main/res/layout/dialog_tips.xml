@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="0dp"
+    android:background="@drawable/dialog_background">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dialog_background">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tips_title"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:paddingBottom="0dp"
+            android:textColor="#62444B"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="10dp"/>
+
+        <!-- Close Button -->
+        <TextView
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/close_button"
+            android:text="X Close"
+            android:padding="0dp"
+            android:textSize="14sp"
+            android:textColor="@color/color_unused"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="100dp"
+            tools:ignore="HardcodedText" />
+
+    </RelativeLayout>
+
+    <!-- Horizontal Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tips_info"
+        android:textSize="14sp"
+        android:layout_marginTop="10dp"
+        android:paddingBottom="10dp"
+        android:lineSpacingExtra="4dp"
+        android:textColor="#9D5666"/>
+
+    <!-- Horizontal Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <!-- Don't Show Again Checkbox -->
+    <CheckBox
+        android:id="@+id/checkbox_dont_show_again"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dont_show_again"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/color_unused"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="-10dp"
+        android:buttonTint="@color/color_unused"
+        android:background="@null" />
+</LinearLayout>

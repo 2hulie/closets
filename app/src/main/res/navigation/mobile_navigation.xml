@@ -8,9 +8,25 @@
     <!-- Home Fragment -->
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.test.ui.home.HomeFragment"
+        android:name="com.example.closets.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" >
+
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_items"
+            app:destination="@id/navigation_items" />
+
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_favorites"
+            app:destination="@id/navigation_favorites" />
+
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_unused"
+            app:destination="@id/navigation_unused" />
+
+        <action
+            android:id="@+id/action_navigation_home_to_addItemFragment"
+            app:destination="@id/addItemFragment" />
 
         <action
             android:id="@+id/action_navigation_home_to_currentItemFragment"
@@ -41,6 +57,10 @@
             app:destination="@id/itemInfoSkirtFragment" />
 
         <action
+            android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoCapFragment"
+            app:destination="@id/itemInfoCapFragment" />
+
+        <action
             android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoShirtFragment"
             app:destination="@id/itemInfoShirtFragment" />
 
@@ -56,13 +76,13 @@
     <!-- Todays Outfit Fragment -->
     <dialog
         android:id="@+id/todayOutfitBottomSheet"
-        android:name="com.example.test.ui.home.TodayOutfitBottomSheet"
+        android:name="com.example.closets.ui.home.TodayOutfitBottomSheet"
         tools:layout="@layout/fragment_today_outfit" />
 
     <!-- Current Item Fragment -->
     <fragment
         android:id="@+id/currentItemFragment"
-        android:name="com.example.test.ui.current.CurrentItemFragment"
+        android:name="com.example.closets.ui.current.CurrentItemFragment"
         android:label="Current Items"
         tools:layout="@layout/fragment_current_item" >
 
@@ -103,7 +123,7 @@
     <!-- Favorites Fragment -->
     <fragment
         android:id="@+id/navigation_favorites"
-        android:name="com.example.test.ui.favorites.FavoritesFragment"
+        android:name="com.example.closets.ui.favorites.FavoritesFragment"
         android:label="@string/title_favorites"
         tools:layout="@layout/fragment_favorites" >
 
@@ -140,7 +160,7 @@
     <!-- Items Fragment -->
     <fragment
         android:id="@+id/navigation_items"
-        android:name="com.example.test.ui.items.ItemsFragment"
+        android:name="com.example.closets.ui.items.ItemsFragment"
         android:label="@string/title_items"
         tools:layout="@layout/fragment_items" >
 
@@ -177,16 +197,43 @@
     <!-- Add Item Fragment -->
     <fragment
         android:id="@+id/addItemFragment"
-        android:name="com.example.test.ui.add.AddItemFragment"
+        android:name="com.example.closets.ui.add.AddItemFragment"
         android:label="Add Item"
-        tools:layout="@layout/fragment_add_item" />
+        tools:layout="@layout/fragment_add_item">
+
+        <!-- Bottom Navigation Actions to other fragments -->
+        <action
+            android:id="@+id/action_addItemFragment_to_favoritesFragment"
+            app:destination="@id/navigation_favorites" />
+
+        <action
+            android:id="@+id/action_addItemFragment_to_itemsFragment"
+            app:destination="@id/navigation_items" />
+
+        <action
+            android:id="@+id/action_addItemFragment_to_homeFragment"
+            app:destination="@id/navigation_home" />
+
+        <action
+            android:id="@+id/action_addItemFragment_to_unusedFragment"
+            app:destination="@id/navigation_unused" />
+
+        <action
+            android:id="@+id/action_addItemFragment_to_dataFragment"
+            app:destination="@id/navigation_data" />
+
+    </fragment>
 
     <!-- Unused Fragment -->
     <fragment
         android:id="@+id/navigation_unused"
-        android:name="com.example.test.ui.unused.UnusedFragment"
+        android:name="com.example.closets.ui.unused.UnusedFragment"
         android:label="@string/title_unused"
         tools:layout="@layout/fragment_unused" >
+
+        <action
+            android:id="@+id/action_navigation_unused_to_addItemFragment"
+            app:destination="@id/addItemFragment" />
 
         <!-- Actions to navigate to ItemInfoFragments from UnusedFragment -->
         <action
@@ -217,49 +264,91 @@
     <!-- Data Transfer Fragment -->
     <fragment
         android:id="@+id/navigation_data"
-        android:name="com.example.test.ui.data.DataFragment"
+        android:name="com.example.closets.ui.data.DataFragment"
         android:label="@string/title_data"
         tools:layout="@layout/fragment_data" />
 
     <!-- Shirt Info Fragment -->
     <fragment
         android:id="@+id/itemInfoShirtFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoShirtFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoShirtFragment"
         android:label="Shirt Info"
         tools:layout="@layout/fragment_item_info_shirt" />
 
     <!-- Cap Info Fragment -->
     <fragment
         android:id="@+id/itemInfoCapFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoCapFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoCapFragment"
         android:label="Cap Info"
-        tools:layout="@layout/fragment_item_info_cap" />
+        tools:layout="@layout/fragment_item_info_cap">
+
+    <action
+        android:id="@+id/action_itemInfoCapFragment_to_editItemInfoFragment"
+        app:destination="@id/editItemInfoFragment" />
+
+    </fragment>
 
     <!-- Dress Info Fragment -->
     <fragment
         android:id="@+id/itemInfoDressFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoDressFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoDressFragment"
         android:label="Dress Info"
         tools:layout="@layout/fragment_item_info_dress" />
 
     <!-- Shoes Info Fragment -->
     <fragment
         android:id="@+id/itemInfoShoesFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoShoesFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoShoesFragment"
         android:label="Shoes Info"
         tools:layout="@layout/fragment_item_info_shoes" />
 
     <!-- Shorts Info Fragment -->
     <fragment
         android:id="@+id/itemInfoShortsFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoShortsFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoShortsFragment"
         android:label="Shorts Info"
         tools:layout="@layout/fragment_item_info_shorts" />
 
     <!-- Skirt Info Fragment -->
     <fragment
         android:id="@+id/itemInfoSkirtFragment"
-        android:name="com.example.test.ui.fragments.ItemInfoSkirtFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoSkirtFragment"
         android:label="Skirt Info"
         tools:layout="@layout/fragment_item_info_skirt" />
+
+    <fragment
+        android:id="@+id/editItemInfoFragment"
+        android:name="com.example.closets.ui.edit.EditItemInfoFragment"
+        android:label="Edit Item Info">
+        <!-- Add Discard Changes and Save Changes Actions -->
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_itemInfoShirtFragment"
+            app:destination="@id/itemInfoShirtFragment" />
+
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_itemInfoCapFragment"
+            app:destination="@id/itemInfoCapFragment" />
+
+        <!-- Bottom Navigation Actions to other fragments -->
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_favoritesFragment"
+            app:destination="@id/navigation_favorites" />
+
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_itemsFragment"
+            app:destination="@id/navigation_items" />
+
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_homeFragment"
+            app:destination="@id/navigation_home" />
+
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_unusedFragment"
+            app:destination="@id/navigation_unused" />
+
+        <action
+            android:id="@+id/action_editItemInfoFragment_to_dataFragment"
+            app:destination="@id/navigation_data" />
+    </fragment>
+
 </navigation>

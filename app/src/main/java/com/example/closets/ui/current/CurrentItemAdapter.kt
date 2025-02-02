@@ -1,0 +1,75 @@
+package com.example.closets.ui.current
+
+import android.annotation.SuppressLint
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.R
+import com.example.closets.databinding.CurrentItemLayoutBinding
+
+data class CurrentItem(
+    val imageResId: Int, // Resource ID for the item image
+    val type: String, // Type of the item
+    val color: String, // Color of the item
+    var isChecked: Boolean, // Indicates if the item is checked
+    val name: String,
+)
+
+class CurrentItemAdapter(
+    private var items: List<CurrentItem>,
+    private val itemClickListener: (CurrentItem) -> Unit
+) : RecyclerView.Adapter<CurrentItemAdapter.CurrentItemViewHolder>() {
+
+    inner class CurrentItemViewHolder(private val binding: CurrentItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: CurrentItem) {
+            // Set item image
+            binding.itemImage.setImageResource(item.imageResId)
+
+            // Set the icon based on the checked status
+            binding.checkedIcon.setImageResource(
+                if (item.isChecked) R.drawable.icon_checked else R.drawable.icon_unchecked
+            )
+
+            // Set click listener for the check icon
+            binding.checkedIcon.setOnClickListener {
+                toggleCheckedStatus(item)
+            }
+
+            // Set the click listener for the entire CardView (root view)
+            binding.root.setOnClickListener {
+                toggleCheckedStatus(item)
+            }
+        }
+
+        private fun toggleCheckedStatus(item: CurrentItem) {
+            // Toggle the checked status
+            item.isChecked = !item.isChecked
+            // Update the icon based on the new checked status
+            binding.checkedIcon.setImageResource(
+                if (item.isChecked) R.drawable.icon_checked else R.drawable.icon_unchecked
+            )
+            // Notify the listener of the item click (optional, if needed)
+            itemClickListener(item)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrentItemViewHolder {
+        val binding = CurrentItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CurrentItemViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: CurrentItemViewHolder, position: Int) {
+        val item = items[position]
+        holder.bind(item)
+    }
+
+    override fun getItemCount(): Int = items.size
+
+    // Method to update the items in the adapter
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateItems(newItems: List<CurrentItem>) {
+        items = newItems
+        notifyDataSetChanged()
+    }
+}
