@@ -1,0 +1,103 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="25dp"
+    android:background="@drawable/dialog_background">
+
+    <!-- Title Row -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Title TextView -->
+        <TextView
+            android:id="@+id/dialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/pick_a_color_from_image"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#9D5666"
+            android:gravity="center" />
+    </RelativeLayout>
+
+    <!-- Main Content Layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/dialogTitle"
+        android:layout_marginTop="40dp"
+        tools:ignore="NotSibling">
+
+        <!-- Horizontal Line (Divider) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#9D5666"
+            android:alpha="0.3" />
+
+        <!-- FrameLayout for Image and Magnifier -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- ImageView for displaying the image -->
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/image_for_color_selection" />
+
+            <!-- Magnifier effect (ImageView) -->
+            <ImageView
+                android:id="@+id/magnifierView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="16dp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- View for displaying selected color -->
+        <View
+            android:id="@+id/selectedColorView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- Custom Buttons Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="16dp">
+
+            <!-- Custom Select Button -->
+            <ImageView
+                android:id="@+id/btn_select"
+                android:layout_width="130dp"
+                android:layout_height="50dp"
+                android:src="@drawable/icon_select_small"
+                android:contentDescription="@string/select_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginEnd="10dp" />
+
+            <!-- Custom Cancel Button -->
+            <ImageView
+                android:id="@+id/btn_cancel"
+                android:layout_width="130dp"
+                android:layout_height="50dp"
+                android:src="@drawable/icon_cancel_small"
+                android:contentDescription="@string/cancel_button"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

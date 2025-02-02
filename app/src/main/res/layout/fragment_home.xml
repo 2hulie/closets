@@ -7,18 +7,37 @@
     android:background="@color/faded_pink"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- ImageView for lbl_home.png (Fixed at the top) -->
-    <ImageView
-        android:id="@+id/home_image"
-        android:layout_width="350dp"
+    <!-- FrameLayout containing ImageView and dynamic TextView -->
+    <FrameLayout
+        android:id="@+id/home_image_frame"
+        android:layout_width="330dp"
         android:layout_height="70dp"
-        android:layout_marginTop="-5dp"
-        android:contentDescription="@string/home_image"
-        android:scaleType="fitXY"
-        android:src="@drawable/lbl_home"
+        android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView for lbl_home.png -->
+        <ImageView
+            android:id="@+id/home_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/home_image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/lbl_home" />
+
+        <!-- TextView to display dynamic text inside ImageView -->
+        <TextView
+            android:id="@+id/home_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Closet"
+            android:textSize="30sp"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </FrameLayout>
 
     <!-- ScrollView for the rest of the content (Starts below the ImageView) -->
     <ScrollView
@@ -27,7 +46,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="0dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/home_image"
+        app:layout_constraintTop_toBottomOf="@id/home_image_frame"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -40,20 +59,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Items (6)"
-                android:textColor="#AB8B90"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="20dp"
+                android:text="@string/items_title"
+                android:textColor="@color/color_items"
+                android:textSize="21sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/items_see_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="1dp"
+                android:text="@string/see_all"
+                android:textColor="#DF9097"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:drawablePadding="0dp"
+                app:drawableEndCompat="@drawable/icon_arrow_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/items_title" />
+
 
             <!-- RecyclerView for displaying items -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="16dp"
                 android:background="@drawable/item_background"
                 android:clipToPadding="false"
                 android:paddingStart="12dp"
@@ -66,14 +99,29 @@
                 android:id="@+id/favorites_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Favorites (4)"
-                android:textColor="#AB8B90"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:text="@string/favorites_title"
+                android:textColor="@color/color_items"
+                android:textSize="21sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+
+            <!-- "See all" TextView for Favorites -->
+            <TextView
+                android:id="@+id/favorites_see_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="1dp"
+                android:text="@string/see_all"
+                android:textColor="#DF9097"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:drawablePadding="0dp"
+                app:drawableEndCompat="@drawable/icon_arrow_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/favorites_title" />
 
             <!-- RecyclerView for displaying favorites -->
             <androidx.recyclerview.widget.RecyclerView
@@ -95,14 +143,29 @@
                 android:id="@+id/idle_items_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Idle Items (4)"
-                android:textColor="#AB8B90"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:text="@string/idle_items_title"
+                android:textColor="@color/color_items"
+                android:textSize="21sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/favorites_recycler_view" />
+
+            <!-- "See all" TextView for Items -->
+            <TextView
+                android:id="@+id/idle_items_see_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="1dp"
+                android:text="@string/see_all"
+                android:textColor="#DF9097"
+                android:textSize="15sp"
+                android:textStyle="normal"
+                android:drawablePadding="0dp"
+                app:drawableEndCompat="@drawable/icon_arrow_right"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/idle_items_title" />
 
             <!-- RecyclerView for displaying Idle Items -->
             <androidx.recyclerview.widget.RecyclerView
@@ -120,68 +183,78 @@
                 tools:layout_editor_absoluteX="0dp"
                 tools:ignore="MissingConstraints" />
 
-            <!-- Bottom Navigation View -->
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottom_nav_view"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_margin="7dp"
-                android:background="?android:attr/windowBackground"
-                android:visibility="visible"
-                android:alpha="0"
-                app:labelVisibilityMode="unlabeled"
-                app:menu="@menu/bottom_nav_menu"
-                tools:ignore="MissingConstraints" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <!-- Invisible spacer -->
-    <View
-        android:id="@+id/spacer"
-        android:layout_width="match_parent"
-        android:layout_height="755dp"
-        android:visibility="invisible"
-        tools:ignore="MissingConstraints" />
+    <!-- Empty message -->
+    <TextView
+        android:id="@+id/homeEmptyMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_items_available"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textColor="#5E4E4E"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintVertical_bias="0.5" />
 
     <!-- ImageView for icon_current -->
     <ImageView
         android:id="@+id/icon_current"
         android:layout_width="85dp"
         android:layout_height="85dp"
-        android:layout_marginStart="300dp"
+        android:layout_marginStart="320dp"
         android:contentDescription="@string/icon_current"
         android:src="@drawable/icon_current"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/spacer" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="110dp" />
 
     <!-- Notification Icon Button (Initially GONE) -->
     <ImageView
         android:id="@+id/icon_notif"
-        android:layout_width="250dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="5dp"
+        android:layout_width="315dp"
+        android:layout_height="100dp"
         android:visibility="gone"
-        android:layout_marginStart="-115dp"
+        android:layout_marginTop="-100dp"
         android:contentDescription="@string/icon_notif"
-        android:src="@drawable/icon_notif_on"
-        app:layout_constraintEnd_toEndOf="@id/icon_current"
-        app:layout_constraintStart_toStartOf="@id/icon_current"
-        app:layout_constraintBottom_toTopOf="@id/icon_current" />
+        android:src="@drawable/icon_notif_off"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Today's Outfit Icon Button (Initially GONE) -->
     <ImageView
         android:id="@+id/icon_outfit"
-        android:layout_width="250dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="315dp"
+        android:layout_height="100dp"
         android:visibility="gone"
-        android:layout_marginStart="-115dp"
+        android:layout_marginTop="15dp"
         android:contentDescription="@string/icon_outfit"
         android:src="@drawable/icon_today_outfit"
-        app:layout_constraintEnd_toEndOf="@id/icon_current"
-        app:layout_constraintStart_toStartOf="@id/icon_current"
-        app:layout_constraintBottom_toTopOf="@id/icon_notif" />
+        app:layout_constraintTop_toBottomOf="@id/icon_notif"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- "Tap anywhere to return" text (Initially GONE) -->
+    <TextView
+        android:id="@+id/tap_to_return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap anywhere to return"
+        android:textColor="@color/faded_pink"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:layout_marginBottom="140dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="HardcodedText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

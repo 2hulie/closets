@@ -24,7 +24,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="item_image">Item Image</string>
     <string name="edit_item">Edit Item Info</string>
-    <string name="delete_item">Delete Item Info</string>
+    <string name="delete_item">Confirm Deletion</string>
     <string name="cancel_item">Cancel</string>
     <string name="splash_logo_description">Splash Logo</string>
     <string name="edit_icon">Edit Today Outfit</string>
@@ -32,11 +32,65 @@
     <string name="checked_icon">Checked</string>
     <string name="import_icon">Import</string>
     <string name="export_icon">Export</string>
+    <string name="save_changes">Save changes</string>
+    <string name="cancel">Cancel</string>
+    <string name="discard_changes">Discard Changes</string>
+    <string name="discard_confirmation">Are you sure you want to discard your changes?</string>
+    <string name="discard_button">Discard Button</string>
+    <string name="cancel_button">Cancel Button</string>
+    <string name="image_for_color_selection">Image for color selection</string>
+    <string name="select_button">Select</string>
+    <string name="pick_a_color_from_image">Pick a Color from Image</string>
+    <string name="delete_confirmation">Are you sure you want to delete this item? This action cannot be undone.</string>
+    <string name="delete_button">Delete</string>
+    <string name="crop_image">Crop Image</string>
+    <string name="crop_button">Crop button</string>
+    <string name="tap_to_add_name">Tap to add name</string>
+    <string name="items_title">Recent <b>Items</b></string>
+    <string name="favorites_title">Recent <b>Favorites</b></string>
+    <string name="idle_items_title">Longest <b>Idle Items</b></string>
+    <string name="see_all">See all</string>
+    <string name="spinner_arrow">Spinner Arrow</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="remove_from_favorites_confirmation">Are you sure you want to remove this item from favorites?</string>
+    <string name="remove_favorites">Remove from Favorites</string>
+    <string name="remove_button">Remove</string>
+    <string name="search_hint">Search item</string>
+    <string name="search_field_description">Search input field</string>
+    <string name="search_icon_description">Search item</string>
+    <string name="filter_icon_description">Filter</string>
+    <string name="filter">Filter</string>
+    <string name="filter_options">Filter Options</string>
+    <string name="type">Type</string>
+    <string name="color">Color</string>
+    <string name="apply">Apply</string>
+    <string name="reset">Reset</string>
+    <string name="top">Top</string>
+    <string name="bottom">Bottom</string>
+    <string name="outerwear">Outerwear</string>
+    <string name="dress">Dress</string>
+    <string name="shoes">Shoes</string>
+    <string name="other">Other</string>
+    <string name="red">red</string>
+    <string name="blue">blue</string>
+    <string name="green">green</string>
+    <string name="yellow">yellow</string>
+    <string name="purple">purple</string>
+    <string name="black">black</string>
+    <string name="white">white</string>
+    <string name="beige">beige</string>
+    <string name="gray">gray</string>
+    <string name="brown">brown</string>
+    <string name="pink">pink</string>
+    <string name="orange">orange</string>
+    <string name="ellipsis_icon_description">Items Ellipsis</string>
+    <string name="select">Select</string>
+    <string name="select_all">All</string>
 
 
     <string-array name="sort_options">
         <item>None</item>
-        <item>Favorites</item>
+        <item>Favorites First</item>
         <item>Longest to Recent</item>
         <item>Recent to Longest</item>
     </string-array>
@@ -50,4 +104,30 @@
         <item>Shoes</item>
         <item>Other</item>
     </string-array>
+
+    <string-array name="ellipsis_items">
+        <item>Select Multiple</item>
+    </string-array>
+
+    <string name="select_multiple">Select Multiple</string>
+    <string name="close_select_multiple">Close Select Multiple</string>
+    <string name="delete_multiple_icon">Delete multiple items</string>
+    <string name="cancel_multiple_icon">Cancel multiple items</string>
+    <string name="show_unlist">Unlist</string>
+    <string name="sort_by">Sort by:</string>
+    <string name="info_icon">Info</string>
+    <string name="color_info">
+        <![CDATA[
+        The color filtering for items are meant to help you organize your wardrobe.<br /><br />
+        However, actual colors may vary due to lighting, screen settings, and color recognition limitations.<br /><br />
+        We recommend checking the physical item for the most accurate color.
+        ]]>
+    </string>
+    <string name="color_info_title">About Color Organization</string>
+    <string name="close_button">Close</string>
+    <string name="tips_title">Welcome to Closets!</string>
+    <string name="tips_info">Here are some quick tips to get you started:\n\n<b>🔔 Enable notifications to remind you daily to log your outfits.</b> \n- Make sure to wear something new compared to yesterday to prevent duplicate logging.\n\n<b>♥️ Highlight your most loved pieces by marking them as favorites.</b>\n- This makes it easier to quickly find and style your go-to items.\n\n<b>📤 Regularly export your wardrobe data to a cloud service or external drive to keep a backup.</b>\n- This is important since the app works offline!\n\n<b>Happy organizing! 🥳</b></string>
+    <string name="dont_show_again">Don\'t show again</string>
+    <string name="loading_cropped_image">Please wait while image is processing...</string>
+
 </resources>

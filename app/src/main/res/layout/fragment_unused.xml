@@ -6,18 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".ui.unused.UnusedFragment">
 
-    <!-- ImageView for lbl_unused.png -->
-    <ImageView
-        android:id="@+id/unused_image"
-        android:layout_width="350dp"
+    <!-- FrameLayout containing ImageView and dynamic TextView -->
+    <FrameLayout
+        android:id="@+id/unused_image_frame"
+        android:layout_width="330dp"
         android:layout_height="70dp"
-        android:layout_marginTop="-5dp"
-        android:contentDescription="@string/unused_image"
-        android:scaleType="fitCenter"
-        android:src="@drawable/lbl_unused"
+        android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView for lbl_unused.png -->
+        <ImageView
+            android:id="@+id/unused_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/unused_image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/lbl_unused" />
+
+        <!-- TextView to display dynamic text inside ImageView -->
+        <TextView
+            android:id="@+id/unused_items_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Idle Items"
+            android:textSize="30sp"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </FrameLayout>
 
     <!-- ImageView for desc_unused.png -->
     <ImageView
@@ -27,10 +46,11 @@
         android:contentDescription="@string/desc_unused_image"
         android:src="@drawable/desc_unused"
         android:scaleType="fitCenter"
-        app:layout_constraintTop_toBottomOf="@id/unused_image"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/unused_image_frame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="6dp" />
+        android:layout_marginTop="8dp" />
 
     <!-- Horizontal layout for "Sort by:" label and Spinner -->
     <LinearLayout
@@ -38,7 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/desc_unused_image"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,8 +70,8 @@
             android:id="@+id/sort_by_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sort by:"
-            android:textSize="20sp"
+            android:text="@string/sort_by"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#CB8192"
             android:layout_marginEnd="12dp" /> <!-- Space between label and dropdown -->
@@ -67,11 +87,20 @@
 
         <ImageView
             android:id="@+id/spinner_arrow"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="26dp"
+            android:layout_height="18dp"
             android:src="@drawable/icon_arrow"
-            android:layout_marginStart="-20dp"
+            android:layout_marginStart="-30dp"
             android:layout_gravity="center_vertical" /> <!-- Centers the arrow vertically -->
+
+        <ImageView
+            android:id="@+id/info"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:alpha="0.6"
+            android:layout_marginStart="18dp"
+            android:src="@drawable/icon_info"
+            android:layout_gravity="center_vertical" />
 
     </LinearLayout>
 
@@ -81,11 +110,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="0dp"
         android:background="@drawable/item_background"
         android:clipToPadding="false"
         android:paddingStart="25dp"
         android:paddingEnd="25dp"
+        android:paddingBottom="100dp"
         android:scrollbars="none"
         app:layout_constraintTop_toBottomOf="@id/sort_by_layout"
         app:layout_constraintBottom_toBottomOf="parent" /> <!-- Ensure it stretches to the bottom -->
@@ -104,4 +134,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

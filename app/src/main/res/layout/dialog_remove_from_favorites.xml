@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:background="@drawable/dialog_background">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_favorites"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        android:textColor="#62444B"/>
+
+    <!-- Horizontal Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_from_favorites_confirmation"
+        android:textSize="17sp"
+        android:paddingBottom="15dp"
+        android:textColor="#9D5666"/>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="5">
+
+        <!-- Delete Button -->
+        <ImageView
+            android:id="@+id/btn_remove"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_remove_small"
+            android:contentDescription="@string/remove_button"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="15dp" />
+
+        <!-- Cancel Button -->
+        <ImageView
+            android:id="@+id/btn_cancel"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_cancel_small"
+            android:contentDescription="@string/cancel_button"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+</LinearLayout>

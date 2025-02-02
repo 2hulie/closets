@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/faded_pink">
+
+    <!-- Title with FrameLayout -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:padding="16dp"
+        android:background="#DF9097">
+
+        <TextView
+            android:id="@+id/filter_title"
+            android:layout_width="381dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+
+            android:text="@string/filter_options"
+            android:textColor="@color/faded_pink"
+            android:textSize="23sp"
+            android:textStyle="bold" />
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/icon_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:contentDescription="@string/back_button"
+            android:src="@drawable/icon_back"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="2dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </FrameLayout>
+
+    <!-- Type Filter -->
+    <TextView
+        android:id="@+id/type_filter_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/type"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="left"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/color_unused"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp"
+        tools:ignore="RtlHardcoded" />
+
+
+    <!-- Type Checkboxes (GridLayout with 3 columns) -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        android:orientation="horizontal"
+        android:rowCount="2"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="16dp">
+
+        <CheckBox
+            android:id="@+id/type_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/top"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+
+        <CheckBox
+            android:id="@+id/type_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bottom"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+
+        <CheckBox
+            android:id="@+id/type_outerwear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/outerwear"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+
+        <CheckBox
+            android:id="@+id/type_dress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dress"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+
+        <CheckBox
+            android:id="@+id/type_shoes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shoes"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+
+        <CheckBox
+            android:id="@+id/type_other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/other"
+            android:textColor="@color/color_unused"
+            android:layout_marginBottom="8dp"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
+    </GridLayout>
+
+    <!-- Horizontal Line (Divider) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <!-- Color Filter (with info icon beside it) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="start|center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp">
+
+        <!-- Color Filter Text -->
+        <TextView
+            android:id="@+id/color_filter_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/color"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/color_unused"
+            android:layout_marginEnd="7dp"
+            tools:ignore="RtlHardcoded"/>
+
+        <!-- Info Icon beside Color Text -->
+        <ImageView
+            android:id="@+id/icon_info"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="2dp"
+            android:alpha="0.6"
+            android:src="@drawable/icon_info"
+            android:contentDescription="@string/info_icon"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <!-- Color Circles -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:columnCount="6"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/color_filter_checkboxes"
+        android:gravity="center">
+
+        <!-- Red Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_red"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_red"
+                android:contentDescription="@string/red"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_red"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Orange Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_orange"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_orange"
+                android:contentDescription="@string/orange"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_orange"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Yellow Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_yellow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_yellow"
+                android:contentDescription="@string/yellow"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_yellow"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Green Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_green"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_green"
+                android:contentDescription="@string/green"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_green"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Blue Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_blue"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_blue"
+                android:contentDescription="@string/blue"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_blue"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Pink Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_pink"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_pink"
+                android:contentDescription="@string/pink"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_pink"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Purple Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_purple"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_purple"
+                android:contentDescription="@string/purple"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_purple"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- White Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_white"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_white"
+                android:contentDescription="@string/white"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_white"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Beige Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_beige"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_beige"
+                android:contentDescription="@string/beige"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_beige"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Gray Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_gray"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_gray"
+                android:contentDescription="@string/gray"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_gray"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Brown Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_brown"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_brown"
+                android:contentDescription="@string/brown"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_brown"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Black Color Circle with Checkmark -->
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="11dp">
+            <ImageView
+                android:id="@+id/color_black"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/circle_black"
+                android:contentDescription="@string/black"
+                android:clickable="true"
+                android:focusable="true" />
+            <ImageView
+                android:id="@+id/checkmark_black"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/color_check"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+    </GridLayout>
+
+    <!-- Center the buttons by setting the gravity to center -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="15dp"
+        android:gravity="center"
+        android:weightSum="5">
+
+        <!-- Apply Button -->
+        <ImageView
+            android:id="@+id/btn_apply"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_apply_small"
+            android:contentDescription="@string/apply"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="15dp" />
+
+        <!-- Cancel Button -->
+        <ImageView
+            android:id="@+id/btn_reset"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_reset_small"
+            android:contentDescription="@string/reset"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+</LinearLayout>

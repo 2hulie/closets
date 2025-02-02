@@ -6,25 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".ui.data.DataFragment">
 
-    <!-- ImageView for lbl_data.png -->
-    <ImageView
-        android:id="@+id/data_image"
-        android:layout_width="350dp"
+    <!-- FrameLayout containing ImageView and dynamic TextView -->
+    <FrameLayout
+        android:id="@+id/data_image_frame"
+        android:layout_width="330dp"
         android:layout_height="70dp"
-        android:layout_marginTop="-5dp"
-        android:contentDescription="@string/data_image"
-        android:scaleType="fitCenter"
-        android:src="@drawable/lbl_data"
+        android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView for lbl_data.png -->
+        <ImageView
+            android:id="@+id/data_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/data_image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/lbl_data" />
+
+        <!-- TextView to display dynamic text inside ImageView -->
+        <TextView
+            android:id="@+id/data_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Data Transfer"
+            android:textSize="30sp"
+            android:textColor="#FFFFFF"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+    </FrameLayout>
 
     <!-- ImageView for Import Closet icon -->
     <ImageView
         android:id="@+id/icon_import"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:src="@drawable/icon_import"
         android:contentDescription="@string/import_icon"
@@ -32,7 +51,7 @@
         android:focusable="true"
         app:layout_constraintEnd_toStartOf="@+id/icon_export"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/data_image"
+        app:layout_constraintTop_toBottomOf="@id/data_image_frame"
         app:layout_constraintHorizontal_chainStyle="packed" />
 
     <!-- ImageView for Export Closet icon -->
@@ -40,7 +59,7 @@
         android:id="@+id/icon_export"
         android:layout_width="160dp"
         android:layout_height="160dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:layout_marginStart="10dp"
         android:src="@drawable/icon_export"
         android:contentDescription="@string/export_icon"
@@ -48,7 +67,7 @@
         android:focusable="true"
         app:layout_constraintStart_toEndOf="@id/icon_import"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/data_image" />
+        app:layout_constraintTop_toBottomOf="@id/data_image_frame" />
 
     <TextView
         android:id="@+id/text_data"

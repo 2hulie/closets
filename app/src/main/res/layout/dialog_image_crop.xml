@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:background="@drawable/dialog_background">
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:text="@string/crop_image"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#9D5666"
+        android:gravity="center" />
+
+    <!-- Horizontal Line (Divider) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3" /> <!-- Line color -->
+
+    <!-- FrameLayout for Image -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp">
+
+        <!-- ImageView for cropping -->
+        <com.canhub.cropper.CropImageView
+            android:id="@+id/cropImageView"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <!-- View for spacing or optional color information -->
+    <View
+        android:id="@+id/selectedAreaView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <!-- Loading ProgressBar -->
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:indeterminate="true" />
+
+    <TextView
+        android:id="@+id/loadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/loading_cropped_image"
+        android:textColor="@color/color_items"
+        android:visibility="gone"
+        android:textSize="14sp"
+        android:layout_gravity="center_horizontal" />
+
+    <!-- Custom Buttons Layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="16dp">
+
+        <!-- Crop Button -->
+        <ImageView
+            android:id="@+id/btn_crop"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_crop"
+            android:contentDescription="@string/crop_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="10dp" />
+
+        <!-- Cancel Button -->
+        <ImageView
+            android:id="@+id/btn_cancel"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_cancel_small"
+            android:contentDescription="@string/cancel_button"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+</LinearLayout>

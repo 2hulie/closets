@@ -1,64 +1,178 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.items.ItemsFragment">
 
-    <!-- ImageView for lbl_items.png -->
-    <ImageView
-        android:id="@+id/items_image"
-        android:layout_width="350dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="-5dp"
-        android:contentDescription="@string/items_image"
-        android:scaleType="fitCenter"
-        android:src="@drawable/lbl_items"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Horizontal layout for "Filter by:" label and Spinner -->
-    <LinearLayout
-        android:id="@+id/filter_by_layout"
+    <RelativeLayout
+        android:id="@+id/items_image_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints">
+
+        <!-- FrameLayout containing ImageView and dynamic TextView -->
+        <FrameLayout
+            android:id="@+id/items_image_frame"
+            android:layout_width="330dp"
+            android:layout_height="70dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="-10dp">
+
+            <!-- ImageView for lbl_items.png -->
+            <ImageView
+                android:id="@+id/items_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/items_image"
+                android:scaleType="fitCenter"
+                android:src="@drawable/lbl_items" />
+
+            <!-- TextView to display dynamic text inside ImageView -->
+            <TextView
+                android:id="@+id/items_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Items"
+                android:textSize="30sp"
+                android:textColor="#FFFFFF"
+                android:layout_gravity="center"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText" />
+        </FrameLayout>
+
+        <!-- FrameLayout to position ellipsis icon on the right -->
+        <FrameLayout
+            android:id="@+id/ellipsis_frame"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_toEndOf="@id/items_image_frame"
+            android:layout_marginStart="0dp"
+            android:layout_alignTop="@id/items_image_frame"
+            android:layout_alignBottom="@id/items_image_frame">
+
+            <!-- Ellipsis icon (three dots) centered inside the frame -->
+            <ImageView
+                android:id="@+id/ellipsis_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="2dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ellipsis_items"
+                android:contentDescription="@string/ellipsis_icon_description" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/search_and_filter_layout"
+        android:layout_width="370dp"
+        android:layout_height="50dp"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/items_image"
+        android:layout_marginTop="15dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/items_image_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="30dp">
 
-        <!-- TextView for "Filter by:" -->
-        <TextView
-            android:id="@+id/filter_by_label"
+        <!-- Add Icon -->
+        <ImageView
+            android:id="@+id/icon_add"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_add"
+            android:contentDescription="@string/add_item"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Checkbox for Select All -->
+        <CheckBox
+            android:id="@+id/select_all_checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filter by:"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#CB8192"
-            android:layout_marginEnd="12dp" /> <!-- Space between label and dropdown -->
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="10dp"
+            android:checked="false"
+            android:visibility="gone"
+            android:textSize="18sp"
+            android:text="@string/select_all"
+            android:textColor="@color/color_items"
+            android:buttonTint="@color/color_unused"
+            android:background="@null" />
 
-        <Spinner
-            android:id="@+id/filter_by_spinner"
-            android:layout_width="140dp"
+        <!-- Search Field with Background and Hint -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="40dp"
-            android:background="@drawable/dropdown"
-            android:paddingEnd="20dp"
-            android:gravity="left" /> <!-- Aligns text to the left -->
+            android:layout_weight="1"
+            android:background="@drawable/search_field"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
-        <ImageView
-            android:id="@+id/spinner_arrow"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/icon_arrow"
-            android:layout_marginStart="-20dp"
-            android:layout_gravity="center_vertical" />
+        <!-- Search Input Text -->
+        <EditText
+            android:id="@+id/search_input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="@string/search_hint"
+            android:background="@android:color/transparent"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:textSize="18sp"
+            android:textColor="@color/base_text"
+            android:textColorHint="#E1BBC2"
+            android:padding="0dp"
+            android:gravity="center_vertical"
+            tools:ignore="NestedWeights" />
+    </LinearLayout>
 
+    <!-- Search Icon -->
+    <ImageView
+        android:id="@+id/icon_search"
+        android:layout_width="55dp"
+        android:layout_height="50dp"
+        android:src="@drawable/icon_search"
+        android:contentDescription="@string/search_icon_description"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="10dp" />
+
+        <!-- Filter Icon with Text -->
+        <LinearLayout
+            android:id="@+id/btn_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <LinearLayout
+                android:id="@+id/filterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="2dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginBottom="2dp"
+                tools:ignore="UseCompoundDrawables,UselessParent">
+
+                <!-- Filter Icon -->
+                <ImageView
+                    android:id="@+id/filter_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/icon_filter"
+                    android:contentDescription="@string/filter_icon_description"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="7dp"
+                    android:layout_marginTop="1dp"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- RecyclerView for displaying items -->
@@ -67,13 +181,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="90dp"
+        android:layout_marginBottom="0dp"
         android:background="@drawable/item_background"
         android:clipToPadding="false"
         android:paddingStart="25dp"
         android:paddingEnd="25dp"
+        android:paddingBottom="100dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/filter_by_layout"
+        app:layout_constraintTop_toBottomOf="@id/search_and_filter_layout"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <!-- Add an empty message TextView -->
@@ -90,21 +205,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.5"
-        />
+        app:layout_constraintVertical_bias="0.5" />
 
-    <TextView
-        android:id="@+id/text_items"
+    <!-- Icons for Select All Actions (Delete & Cancel) -->
+    <LinearLayout
+        android:id="@+id/select_multiple_icons_layout"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:visibility="gone"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="100dp">
+
+        <!-- Delete Icon -->
+        <ImageView
+            android:id="@+id/icon_delete_multiple"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:src="@drawable/icon_delete_multiple"
+            android:contentDescription="@string/delete_multiple_icon"
+            android:layout_marginEnd="10dp"
+            android:layout_gravity="center" />
+
+        <!-- Cancel Icon -->
+        <ImageView
+            android:id="@+id/icon_cancel_multiple"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:src="@drawable/icon_cancel_multiple"
+            android:contentDescription="@string/cancel_multiple_icon"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

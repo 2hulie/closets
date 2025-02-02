@@ -12,7 +12,7 @@
     <ImageView
         android:id="@+id/bg_image"
         android:layout_width="2000dp"
-        android:layout_height="230dp"
+        android:layout_height="220dp"
         android:scaleType="fitXY"
         android:src="@drawable/bg_pink"
         app:layout_constraintTop_toTopOf="parent"
@@ -37,19 +37,19 @@
         android:layout_height="wrap_content"
         android:text="Olive Cap"
         android:textStyle="bold"
-        android:textSize="26sp"
+        android:textSize="21sp"
         android:textColor="#F0EDED"
         app:layout_constraintTop_toTopOf="@id/bg_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="19dp"
         android:gravity="center" />
 
     <!-- Foreground ImageView (card.png) that overlaps with bg_pink -->
     <ImageView
         android:id="@+id/card_image"
-        android:layout_width="290dp"
-        android:layout_height="0dp"
+        android:layout_width="250dp"
+        android:layout_height="300dp"
         android:scaleType="fitCenter"
         android:src="@drawable/card"
         app:layout_constraintTop_toTopOf="@id/bg_image"
@@ -61,9 +61,9 @@
     <!-- Inner ImageView (cap.png) inside card.png -->
     <ImageView
         android:id="@+id/cap_image"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
-        android:scaleType="centerCrop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
         android:src="@drawable/cap"
         app:layout_constraintTop_toTopOf="@id/card_image"
         app:layout_constraintBottom_toBottomOf="@id/card_image"
@@ -73,23 +73,23 @@
     <!-- Favorite Icon (icon_favorite) at the lower right corner of the card -->
     <ImageView
         android:id="@+id/icon_favorite"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:src="@drawable/icon_favorite"
         android:contentDescription="@string/favorite_icon"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintBottom_toBottomOf="@id/cap_image"
         app:layout_constraintEnd_toEndOf="@id/card_image"
-        android:layout_marginBottom="-30dp"
-        android:layout_marginEnd="30dp" />
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp" />
 
     <TextView
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="worn 12 times"
-        android:textSize="19sp"
+        android:textSize="17sp"
         android:textColor="#DF9097"
         app:layout_constraintTop_toBottomOf="@id/card_image"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,7 +103,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Details"
-        android:textSize="23sp"
+        android:textSize="19sp"
         android:textStyle="bold"
         android:textColor="#62444B"
         app:layout_constraintTop_toBottomOf="@id/worn_text"
@@ -112,138 +112,149 @@
         android:layout_marginStart="40dp"
         android:gravity="center" />
 
-    <!-- Table-like structure for Type, Color, and Last Worn -->
-    <LinearLayout
-        android:id="@+id/table_layout"
+    <!-- Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/details_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp">
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Type Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="40dp"
-            android:layout_marginBottom="8dp">
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
 
-            <TextView
-                android:id="@+id/type_label"
-                android:layout_width="140dp"
+            <!-- Table-like structure for Type, Color, and Last Worn -->
+            <LinearLayout
+                android:id="@+id/table_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Type:"
-                android:textSize="19sp"
-                android:textColor="#9D5666"
-                android:gravity="start"/>
+                android:orientation="vertical"
+                android:layout_marginTop="10dp">
 
-            <TextView
-                android:id="@+id/type_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Other"
-                android:textSize="19sp"
-                android:textColor="#62444B"
-                android:layout_weight="1"
-                android:gravity="start"/>
-        </LinearLayout>
+                <!-- Type Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginBottom="8dp">
 
-        <!-- Color Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="40dp"
-            android:layout_marginBottom="8dp">
+                    <TextView
+                        android:id="@+id/type_label"
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:text="Type:"
+                        android:textSize="15sp"
+                        android:textColor="#9D5666"
+                        android:gravity="start"/>
 
-            <TextView
-                android:id="@+id/color_label"
-                android:layout_width="130dp"
-                android:layout_height="wrap_content"
-                android:text="Color:"
-                android:textSize="19sp"
-                android:textColor="#9D5666"
-                android:gravity="start"/>
+                    <TextView
+                        android:id="@+id/type_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Other"
+                        android:textSize="15sp"
+                        android:textColor="#62444B"
+                        android:layout_weight="1"
+                        android:gravity="start"/>
+                </LinearLayout>
 
-            <!-- Color Circle -->
-            <View
-                android:id="@+id/color_circle"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="#868570"
+                <!-- Color Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/color_label"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:text="Color:"
+                        android:textSize="15sp"
+                        android:textColor="#9D5666"
+                        android:gravity="start"/>
+
+                    <!-- Color Circle -->
+                    <View
+                        android:id="@+id/color_circle"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:background="#868570"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginTop="3dp"
+                        android:layout_gravity="center_vertical"/>
+
+                    <TextView
+                        android:id="@+id/color_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="15sp"
+                        android:textColor="#62444B"
+                        android:layout_weight="1"
+                        android:gravity="start"/>
+                </LinearLayout>
+
+                <!-- Last Worn Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/last_worn_label"
+                        android:layout_width="140dp"
+                        android:layout_height="wrap_content"
+                        android:text="Last worn:"
+                        android:textSize="15sp"
+                        android:textColor="#9D5666"
+                        android:gravity="start"/>
+
+                    <TextView
+                        android:id="@+id/last_worn_value"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="July 15, 2024"
+                        android:textSize="15sp"
+                        android:textColor="#62444B"
+                        android:layout_weight="1"
+                        android:gravity="start"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Edit Item Button -->
+            <ImageView
+                android:id="@+id/icon_edit_item"
+                android:layout_width="350dp"
+                android:layout_height="71dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="3dp"
-                android:layout_gravity="center_vertical"/>
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/edit_item"
+                android:src="@drawable/icon_edit_item"
+                android:layout_gravity="center"/>
 
-            <TextView
-                android:id="@+id/color_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="19sp"
-                android:textColor="#62444B"
-                android:layout_weight="1"
-                android:gravity="start"/>
+            <!-- Delete Item Button -->
+            <ImageView
+                android:id="@+id/icon_delete_item"
+                android:layout_width="350dp"
+                android:layout_height="71dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/icon_delete_item"
+                android:contentDescription="@string/delete_item"
+                android:layout_gravity="center"/>
+
         </LinearLayout>
-
-        <!-- Last Worn Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="40dp"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:id="@+id/last_worn_label"
-                android:layout_width="140dp"
-                android:layout_height="wrap_content"
-                android:text="Last worn:"
-                android:textSize="19sp"
-                android:textColor="#9D5666"
-                android:gravity="start"/>
-
-            <TextView
-                android:id="@+id/last_worn_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="July 15, 2024"
-                android:textSize="19sp"
-                android:textColor="#62444B"
-                android:layout_weight="1"
-                android:gravity="start"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Edit Item Button -->
-    <ImageView
-        android:id="@+id/icon_edit_item"
-        android:layout_width="350dp"
-        android:layout_height="71dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@string/edit_item"
-        android:src="@drawable/icon_edit_item"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/table_layout" />
-
-    <!-- Delete Item Button -->
-    <ImageView
-        android:id="@+id/icon_delete_item"
-        android:layout_width="350dp"
-        android:layout_height="71dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="10dp"
-        android:src="@drawable/icon_delete_item"
-        android:contentDescription="@string/delete_item"
-        app:layout_constraintTop_toBottomOf="@id/icon_edit_item"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
