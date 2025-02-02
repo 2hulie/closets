@@ -1,2 +1,2 @@
-<H1>Closets Application</H1>
-Sprint 1: User Input Handling & Touch Events
+<h1>Closets Application</h1>
+<b>Sprint 1:</b> User Input Handling & Touch Events
