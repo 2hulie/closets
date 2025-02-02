@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Show the tips dialog
+        // Show tips dialog
         showTipsDialog()
 
         navView = binding.navView
