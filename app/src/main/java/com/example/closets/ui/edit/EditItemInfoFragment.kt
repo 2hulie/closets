@@ -35,9 +35,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.ViewModelProvider
 import com.example.closets.R
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.add.AddItemFragment
 import com.example.closets.ui.add.AddItemFragment.Companion
+import com.example.closets.ui.entities.Item
+import com.example.closets.ui.items.ClothingItem
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.eren.removebg.RemoveBg
@@ -50,18 +57,21 @@ import kotlin.math.min
 
 class EditItemInfoFragment : Fragment() {
     // View declarations
-    private lateinit var capNameEditText: EditText
+    private lateinit var nameEditText: EditText
     private lateinit var wornTimesTextView: TextView
     private lateinit var typeSpinner: Spinner
     private lateinit var colorCircle: View
     private lateinit var lastWornTextView: TextView
-    private lateinit var capImageView: ImageView
+    private lateinit var imageView: ImageView
 
     // Current view reference for safe interaction
     private var currentView: View? = null
 
     // To hold the current selected type of the item
     private var selectedItemType: String = ""
+    private lateinit var itemViewModel: ItemViewModel
+    private var itemId: Int? = null // To hold the passed item ID
+    private var item: ClothingItem? = null // To hold the item data
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private var imageUri: Uri? = null // This will store the URI of the image captured by the camera
@@ -204,8 +214,8 @@ class EditItemInfoFragment : Fragment() {
 
         cropImageView.setImageUriAsync(uri)
 
-        val targetWidth = capImageView.width
-        val targetHeight = capImageView.height
+        val targetWidth = imageView.width
+        val targetHeight = imageView.height
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
@@ -299,8 +309,8 @@ class EditItemInfoFragment : Fragment() {
         val scaledBitmap = scaleBitmapToFit(paddedBitmap, targetWidth, targetHeight)
 
         // Set the scaled bitmap to the ImageView
-        capImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        capImageView.setImageBitmap(scaledBitmap)
+        imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        imageView.setImageBitmap(scaledBitmap)
 
         // Dismiss the dialog after processing
         dialog.dismiss()
@@ -343,6 +353,27 @@ class EditItemInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         currentView = inflater.inflate(R.layout.fragment_item_info_edit, container, false)
+
+        // Initialize the ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(
+            this,
+            ItemViewModelFactory(repository)
+        )[ItemViewModel::class.java]
+
+        // Get the item ID from the arguments
+        itemId = arguments?.getInt("item_id")
+
+        // Load the item data
+        itemId?.let { id ->
+            itemViewModel.getItem(id).observe(viewLifecycleOwner) { item: Item? ->
+                item?.let {
+                    this.item = convertToClothingItem(it) // Convert Item to ClothingItem
+                    populateExistingData() // Populate the UI with the item data
+                }
+            }
+        }
 
         // Initialize all views
         initializeViews(currentView!!)
@@ -403,19 +434,19 @@ class EditItemInfoFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
-        capNameEditText = view.findViewById(R.id.cap_name_text)
+        nameEditText = view.findViewById(R.id.edit_name_text)
         wornTimesTextView = view.findViewById(R.id.worn_text)
         typeSpinner = view.findViewById(R.id.sort_by_spinner)
         colorCircle = view.findViewById(R.id.color_circle)
         lastWornTextView = view.findViewById(R.id.last_worn_value)
-        capImageView = view.findViewById(R.id.cap_image)
+        imageView = view.findViewById(R.id.item_image)
     }
 
     private fun setupInteractions() {
         setupSortSpinner()
 
         // Add image click listener for photo upload
-        capImageView.setOnClickListener {
+        imageView.setOnClickListener {
             pickImageFromGalleryOrCamera()
         }
 
@@ -487,22 +518,17 @@ class EditItemInfoFragment : Fragment() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_image_color_picker, null)
 
-        val imageView = dialogView.findViewById<ImageView>(R.id.imageView)
+        val colorPickerImageView = dialogView.findViewById<ImageView>(R.id.imageView)
         val selectedColorView = dialogView.findViewById<View>(R.id.selectedColorView)
         val magnifierView = dialogView.findViewById<View>(R.id.magnifierView)
         val selectButton = dialogView.findViewById<ImageView>(R.id.btn_select)
         val cancelButton = dialogView.findViewById<ImageView>(R.id.btn_cancel)
 
-        val defaultImage = ContextCompat.getDrawable(requireContext(), R.drawable.add_item_image)
-        if (capImageView.drawable.constantState == defaultImage?.constantState) {
-            AddItemFragment.showToast(requireContext(), "Please upload an image first")
-            return
-        }
-
-        val drawable = capImageView.drawable
+        // Check if the imageView has a drawable
+        val drawable = imageView.drawable
         if (drawable is BitmapDrawable) {
             val bitmap = drawable.bitmap
-            imageView.setImageBitmap(bitmap)
+            colorPickerImageView.setImageBitmap(bitmap) // Set the existing image to the color picker
 
             val currentColor = (colorCircle.background as? ColorDrawable)?.color ?: Color.TRANSPARENT
             selectedColorView.setBackgroundColor(currentColor)
@@ -511,14 +537,14 @@ class EditItemInfoFragment : Fragment() {
             val touchOffsetX = -20 // Negative moves the sampling point left of the touch
             val touchOffsetY = -50 // Negative moves the sampling point above the touch
 
-            imageView.setOnTouchListener { view, event ->
+            colorPickerImageView.setOnTouchListener { view, event ->
                 when (event.action) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                         // Calculate the actual dimensions of the displayed image
                         val imageRect = RectF()
-                        val drawable = imageView.drawable
+                        val drawable = colorPickerImageView.drawable
                         if (drawable != null) {
-                            imageView.imageMatrix.mapRect(imageRect, RectF(0f, 0f,
+                            colorPickerImageView.imageMatrix.mapRect(imageRect, RectF(0f, 0f,
                                 drawable.intrinsicWidth.toFloat(),
                                 drawable.intrinsicHeight.toFloat())
                             )
@@ -620,15 +646,44 @@ class EditItemInfoFragment : Fragment() {
     fun saveItemChanges() {
         if (validateInputs()) {
             try {
-                val itemName = capNameEditText.text.toString()
+                val itemName = nameEditText.text.toString()
                 val itemType = typeSpinner.selectedItem.toString()
-                val wornTimes = wornTimesTextView.text.toString().substringAfter("worn ").substringBefore(" times").toInt()
+
+                // Extract the worn times correctly by removing all non-digit characters
+                val wornTimesString = wornTimesTextView.text.toString().replace(Regex("[^0-9]"), "")
+
+                // Convert to integer, default to 0 if empty
+                val wornTimes = if (wornTimesString.isNotEmpty()) {
+                    wornTimesString.toInt()
+                } else {
+                    0
+                }
+
                 val lastWornDate = lastWornTextView.text.toString()
 
                 val itemColor = (colorCircle.background as? ColorDrawable)?.color ?: Color.GRAY
                 val formattedColor = String.format("#%06X", (0xFFFFFF and itemColor))
 
-                val imageBitmap = (capImageView.drawable as? BitmapDrawable)?.bitmap
+                // Get the image URI from the ClothingItem object
+                val imageUriString = item?.imageUri ?: run {
+                    showToast(requireContext(), "Error: No image selected")
+                    return
+                }
+
+                // Create a new Item object
+                val newItem = Item(
+                    id = item?.id ?: 0,
+                    name = itemName,
+                    type = itemType,
+                    color = formattedColor,
+                    wornTimes = wornTimes,
+                    lastWornDate = lastWornDate,
+                    imageUri = imageUriString,
+                    isFavorite = item?.isFavorite ?: false // Keep the favorite status
+                )
+
+                // Update the item using the ViewModel
+                itemViewModel.update(newItem)
 
                 Log.d(
                     "SaveItemChanges",
@@ -649,46 +704,73 @@ class EditItemInfoFragment : Fragment() {
     }
 
     private fun populateExistingData() {
-        capNameEditText.setText("Olive Cap")
-        typeSpinner.setSelection(6)
-        colorCircle.background = ColorDrawable(Color.parseColor("#868570"))
-        wornTimesTextView.text = "worn 12 times"
-        lastWornTextView.text = "July 15, 2024"
+        item?.let {
+            nameEditText.setText(it.name) // Update the name field
+            // Set the spinner selection based on the item type
+            val typePosition = resources.getStringArray(R.array.filter_options).indexOf(it.type)
+            typeSpinner.setSelection(typePosition)
+
+            // Set the color circle based on the item's color
+            colorCircle.setBackgroundColor(Color.parseColor(it.color))
+
+            wornTimesTextView.text = getString(R.string.worn_times, it.wornTimes)
+            lastWornTextView.text = it.lastWornDate ?: "N/A" // Handle null case if necessary
+
+            // Set the image URI
+            imageView.setImageURI(it.getImageUri())
+        }
     }
 
     // Validate inputs and show Toast messages
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun validateInputs(): Boolean {
         // Check if item name is empty
-        if (capNameEditText.text.isBlank()) {
-            showToast(
-                requireContext(),
-                "Item name cannot be empty"
-            )
+        if (nameEditText.text.isBlank()) {
+            showToast(requireContext(), "Item name cannot be empty")
             return false
         }
 
-        // Check if an item type is selected (assuming position 0 is "Please select")
+        // Check if an item type is selected
         if (typeSpinner.selectedItemPosition == 0) {
-            showToast(
-                requireContext(),
-                "Please select an item type"
-            )
+            showToast(requireContext(), "Please select an item type")
             return false
         }
 
-        // Check if an image is selected and if it's not the default image
-        val drawable = capImageView.drawable
+        // Check if an image is selected
+        val drawable = imageView.drawable
         if (drawable == null || drawable.constantState == resources.getDrawable(R.drawable.add_item_image).constantState) {
-            showToast(
-                requireContext(),
-                "Please upload a valid image"
-            )
+            showToast(requireContext(), "Please upload a valid image")
             return false
         }
 
-        // If all validations pass
         return true
+    }
+
+    private fun convertToClothingItem(item: Item): ClothingItem {
+        return ClothingItem(
+            id = item.id,
+            imageUri = item.imageUri,
+            name = item.name,
+            type = item.type,
+            color = item.color,
+            wornTimes = item.wornTimes,
+            lastWornDate = item.lastWornDate,
+            fragmentId = R.id.action_itemInfoFragment_to_editItemInfoFragment,
+            isFavorite = item.isFavorite
+        )
+    }
+
+    private fun convertToItem(clothingItem: ClothingItem): Item {
+        return Item(
+            id = clothingItem.id,
+            name = clothingItem.name,
+            type = clothingItem.type,
+            color = clothingItem.color,
+            wornTimes = clothingItem.wornTimes,
+            lastWornDate = clothingItem.lastWornDate ?: "",
+            imageUri = clothingItem.imageUri,
+            isFavorite = clothingItem.isFavorite
+        )
     }
 
     fun showDiscardChangesDialog() {

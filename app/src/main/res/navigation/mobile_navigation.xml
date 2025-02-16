@@ -37,8 +37,8 @@
             app:destination="@id/itemInfoShirtFragment" />
 
         <action
-            android:id="@+id/action_homeFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_homeFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <action
             android:id="@+id/action_homeFragment_to_itemInfoDressFragment"
@@ -57,8 +57,8 @@
             app:destination="@id/itemInfoSkirtFragment" />
 
         <action
-            android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <action
             android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoShirtFragment"
@@ -96,8 +96,8 @@
 
         <!-- Navigation actions for Current Items to Item Info Fragments -->
         <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_currentItemFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <action
             android:id="@+id/action_currentItemFragment_to_itemInfoDressFragment"
@@ -137,8 +137,8 @@
             app:destination="@id/itemInfoShirtFragment" />
 
         <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_favoritesFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <action
             android:id="@+id/action_favoritesFragment_to_itemInfoDressFragment"
@@ -174,8 +174,12 @@
             app:destination="@id/itemInfoShirtFragment" />
 
         <action
-            android:id="@+id/action_itemsFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_itemsFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment">
+            <argument
+                android:name="item_id"
+                app:argType="integer" />
+        </action>
 
         <action
             android:id="@+id/action_itemsFragment_to_itemInfoDressFragment"
@@ -241,8 +245,8 @@
             app:destination="@id/itemInfoShirtFragment" />
 
         <action
-            android:id="@+id/action_unusedFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_unusedFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <action
             android:id="@+id/action_unusedFragment_to_itemInfoDressFragment"
@@ -277,13 +281,13 @@
 
     <!-- Cap Info Fragment -->
     <fragment
-        android:id="@+id/itemInfoCapFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoCapFragment"
-        android:label="Cap Info"
-        tools:layout="@layout/fragment_item_info_cap">
+        android:id="@+id/itemInfoFragment"
+        android:name="com.example.closets.ui.fragments.ItemInfoFragment"
+        android:label="Item Info"
+        tools:layout="@layout/fragment_item_info">
 
     <action
-        android:id="@+id/action_itemInfoCapFragment_to_editItemInfoFragment"
+        android:id="@+id/action_itemInfoFragment_to_editItemInfoFragment"
         app:destination="@id/editItemInfoFragment" />
 
     </fragment>
@@ -326,8 +330,8 @@
             app:destination="@id/itemInfoShirtFragment" />
 
         <action
-            android:id="@+id/action_editItemInfoFragment_to_itemInfoCapFragment"
-            app:destination="@id/itemInfoCapFragment" />
+            android:id="@+id/action_editItemInfoFragment_to_itemInfoFragment"
+            app:destination="@id/itemInfoFragment" />
 
         <!-- Bottom Navigation Actions to other fragments -->
         <action

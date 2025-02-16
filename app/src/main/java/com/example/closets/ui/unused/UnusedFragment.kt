@@ -107,7 +107,7 @@ class UnusedFragment : Fragment() {
                     findNavController().navigate(R.id.action_unusedFragment_to_itemInfoShoesFragment)
                 }, delayMillis)
                 "Cap" -> binding.unusedItemsRecyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_unusedFragment_to_itemInfoCapFragment)
+                    findNavController().navigate(R.id.action_unusedFragment_to_itemInfoFragment)
                 }, delayMillis)
                 // Add more cases for different items as necessary
             }

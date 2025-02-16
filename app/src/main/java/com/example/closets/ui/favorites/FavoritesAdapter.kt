@@ -1,26 +1,27 @@
 package com.example.closets.ui.favorites
 
 import android.content.Context
+import android.net.Uri
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.closets.R
-
-data class FavoriteItem(
-    val imageResId: Int,
-    val type: String,
-    val color: String,
-    var isFavorite: Boolean = true,
-    val name: String,
-)
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
+import com.example.closets.ui.items.ClothingItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FavoritesAdapter(
-    private var items: MutableList<FavoriteItem>,
-    private val onItemClick: (FavoriteItem) -> Unit,
+    private var items: MutableList<ClothingItem>,
+    private val itemClickListener: (ClothingItem) -> Unit,
     private val onItemRemoved: () -> Unit // Callback when item is removed
 ) : RecyclerView.Adapter<FavoritesAdapter.FavoriteViewHolder>() {
 
@@ -33,7 +34,9 @@ class FavoritesAdapter(
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onItemClick(items[position])
+                    Handler().postDelayed({
+                        itemClickListener(items[position])
+                    }, 150)
                 }
             }
 
@@ -47,8 +50,15 @@ class FavoritesAdapter(
             }
         }
 
-        fun bind(item: FavoriteItem) {
-            itemImage.setImageResource(item.imageResId)
+        fun bind(item: ClothingItem) {
+            // Load image using setImageURI for the image URI
+            if (!item.imageUri.isNullOrEmpty()) {
+                itemImage.setImageURI(Uri.parse(item.imageUri)) // Set the image URI directly
+            } else {
+                itemImage.setImageResource(R.drawable.add_item_image) // Default image
+            }
+
+
         }
     }
 
@@ -76,7 +86,7 @@ class FavoritesAdapter(
         // Handle Remove button click
         removeButton.setOnClickListener {
             // If Remove is clicked, remove the item
-            removeItem(position)
+            removeItem(position, context)
             dialog.dismiss() // Dismiss the dialog
         }
 
@@ -91,10 +101,18 @@ class FavoritesAdapter(
     }
 
     // Remove the item from the list and notify the adapter
-    private fun removeItem(position: Int) {
-        items.removeAt(position) // Remove the item
-        notifyItemRemoved(position) // Notify the adapter about the removal
-        // Trigger the callback to update the count in the fragment
+    private fun removeItem(position: Int, context: Context) {
+        val currentItem = items[position]
+        val database = AppDatabase.getDatabase(context)
+        val repository = ItemRepository(database.itemDao())
+
+        // Run database operation in a coroutine
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.updateItemFavoriteStatus(currentItem.id, false)
+        }
+
+        items.removeAt(position)
+        notifyItemRemoved(position)
         onItemRemoved()
     }
 
@@ -111,7 +129,7 @@ class FavoritesAdapter(
     override fun getItemCount(): Int = items.size
 
     // Updates the list of items and refreshes the RecyclerView
-    fun updateItems(newItems: MutableList<FavoriteItem>) {
+    fun updateItems(newItems: MutableList<ClothingItem>) {
         items = newItems
         notifyDataSetChanged()
     }

@@ -129,5 +129,17 @@
     <string name="tips_info">Here are some quick tips to get you started:\n\n<b>🔔 Enable notifications to remind you daily to log your outfits.</b> \n- Make sure to wear something new compared to yesterday to prevent duplicate logging.\n\n<b>♥️ Highlight your most loved pieces by marking them as favorites.</b>\n- This makes it easier to quickly find and style your go-to items.\n\n<b>📤 Regularly export your wardrobe data to a cloud service or external drive to keep a backup.</b>\n- This is important since the app works offline!\n\n<b>Happy organizing! 🥳</b></string>
     <string name="dont_show_again">Don\'t show again</string>
     <string name="loading_cropped_image">Please wait while image is processing...</string>
+    <string name="item_name">Item Name</string>
+    <string name="card_image">Card Image</string>
+    <string name="item_image_desc">Item Image</string>
+    <string name="worn_times">worn %1$d times</string>
+    <string name="worn_times_default">worn 0 times</string>
+    <string name="details">Details</string>
+    <string name="item_type">Type:</string>
+    <string name="none">None</string>
+    <string name="item_color">Color:</string>
+    <string name="last_worn">Last worn:</string>
+    <string name="n_a">N/A</string>
+    <string name="loading">Loading item information...</string>
 
 </resources>

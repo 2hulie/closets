@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
 android {
@@ -57,6 +58,11 @@ dependencies {
     implementation(libs.androidx.navigation.testing)
     implementation (libs.androidx.navigation.fragment.ktx.v274)
     implementation (libs.androidx.navigation.ui.ktx.v274)
+    implementation (libs.androidx.room.runtime)
+    ksp (libs.androidx.room.compiler.v250)
+    implementation (libs.androidx.room.ktx)
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
     testImplementation(libs.junit)
     testImplementation (libs.mockito.core)
     testImplementation (libs.mockito.inline)

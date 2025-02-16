@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F0EDED"
-    tools:context=".ui.fragments.ItemInfoCapFragment">
+    tools:context=".ui.fragments.ItemInfoFragment">
 
     <!-- Background ImageView (bg_pink) -->
     <ImageView
@@ -32,10 +32,10 @@
 
     <!-- TextView for the Cap Name -->
     <TextView
-        android:id="@+id/cap_name_text"
+        android:id="@+id/item_name_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Olive Cap"
+        android:text="@string/item_name"
         android:textStyle="bold"
         android:textSize="21sp"
         android:textColor="#F0EDED"
@@ -45,11 +45,12 @@
         android:layout_marginTop="19dp"
         android:gravity="center" />
 
-    <!-- Foreground ImageView (card.png) that overlaps with bg_pink -->
+    <!-- Foreground ImageView that overlaps with bg_pink -->
     <ImageView
         android:id="@+id/card_image"
         android:layout_width="250dp"
         android:layout_height="300dp"
+        android:contentDescription="@string/card_image"
         android:scaleType="fitCenter"
         android:src="@drawable/card"
         app:layout_constraintTop_toTopOf="@id/bg_image"
@@ -58,11 +59,12 @@
         android:layout_marginTop="65dp"
         tools:ignore="MissingConstraints" />
 
-    <!-- Inner ImageView (cap.png) inside card.png -->
+    <!-- Inner ImageView inside card.png -->
     <ImageView
-        android:id="@+id/cap_image"
+        android:id="@+id/item_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/item_image_desc"
         android:scaleType="fitCenter"
         android:src="@drawable/cap"
         app:layout_constraintTop_toTopOf="@id/card_image"
@@ -79,7 +81,7 @@
         android:contentDescription="@string/favorite_icon"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="@id/cap_image"
+        app:layout_constraintBottom_toBottomOf="@id/item_image"
         app:layout_constraintEnd_toEndOf="@id/card_image"
         android:layout_marginBottom="20dp"
         android:layout_marginEnd="20dp" />
@@ -88,7 +90,7 @@
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="worn 12 times"
+        android:text="@string/worn_times_default"
         android:textSize="17sp"
         android:textColor="#DF9097"
         app:layout_constraintTop_toBottomOf="@id/card_image"
@@ -102,7 +104,7 @@
         android:id="@+id/details_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Details"
+        android:text="@string/details"
         android:textSize="19sp"
         android:textStyle="bold"
         android:textColor="#62444B"
@@ -147,7 +149,7 @@
                         android:id="@+id/type_label"
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
-                        android:text="Type:"
+                        android:text="@string/item_type"
                         android:textSize="15sp"
                         android:textColor="#9D5666"
                         android:gravity="start"/>
@@ -156,7 +158,7 @@
                         android:id="@+id/type_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Other"
+                        android:text="@string/none"
                         android:textSize="15sp"
                         android:textColor="#62444B"
                         android:layout_weight="1"
@@ -175,7 +177,7 @@
                         android:id="@+id/color_label"
                         android:layout_width="130dp"
                         android:layout_height="wrap_content"
-                        android:text="Color:"
+                        android:text="@string/item_color"
                         android:textSize="15sp"
                         android:textColor="#9D5666"
                         android:gravity="start"/>
@@ -213,7 +215,7 @@
                         android:id="@+id/last_worn_label"
                         android:layout_width="140dp"
                         android:layout_height="wrap_content"
-                        android:text="Last worn:"
+                        android:text="@string/last_worn"
                         android:textSize="15sp"
                         android:textColor="#9D5666"
                         android:gravity="start"/>
@@ -222,7 +224,7 @@
                         android:id="@+id/last_worn_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="July 15, 2024"
+                        android:text="@string/n_a"
                         android:textSize="15sp"
                         android:textColor="#62444B"
                         android:layout_weight="1"

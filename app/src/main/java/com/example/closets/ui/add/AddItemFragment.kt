@@ -8,7 +8,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -43,7 +42,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.closets.R
 import com.example.closets.ui.edit.EditItemInfoFragment
-import com.example.closets.ui.edit.EditItemInfoFragment.Companion
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.eren.removebg.RemoveBg
@@ -53,7 +51,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 import kotlin.math.min
-
+import androidx.lifecycle.ViewModelProvider
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
+import com.example.closets.ui.entities.Item
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
 
 class AddItemFragment : Fragment() {
     // View declarations
@@ -67,6 +70,8 @@ class AddItemFragment : Fragment() {
     private var currentView: View? = null
 
     private var selectedItemType: String = ""
+    private var selectedColor: Int = Color.GRAY // Default color
+    private lateinit var itemViewModel: ItemViewModel
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
     private var imageUri: Uri? = null // This will store the URI of the image captured by the camera
@@ -91,6 +96,7 @@ class AddItemFragment : Fragment() {
         // Initialize ActivityResultLauncher for image picking
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
+                imageUri = it
                 showCropImageDialog(it) // Show custom crop dialog for gallery image
             }
         }
@@ -245,7 +251,7 @@ class AddItemFragment : Fragment() {
                         delay(100)  // Brief delay to ensure loading state is visible
                     }
 
-                    val croppedBitmap = cropImageView.croppedImage
+                    val croppedBitmap = cropImageView.getCroppedImage()
 
                     if (croppedBitmap != null) {
                         if (hasTransparency(croppedBitmap)) {
@@ -302,18 +308,37 @@ class AddItemFragment : Fragment() {
     }
 
     private fun handleImage(bitmap: Bitmap, targetWidth: Int, targetHeight: Int, dialog: Dialog) {
-        // Add padding to the bitmap
-        val padding = 200
-        val paddedBitmap = addPaddingToBitmap(bitmap, padding, padding, padding, padding)
+        try {
+            // Save the processed bitmap to a file and get its URI
+            val filename = "item_image_${System.currentTimeMillis()}.png"
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            }
 
-        // Scale the padded bitmap to fit the ImageView, while maintaining the aspect ratio
-        val scaledBitmap = scaleBitmapToFit(paddedBitmap, targetWidth, targetHeight)
+            val uri = requireContext().contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
 
-        // Set the scaled bitmap to the ImageView
-        addImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        addImageView.setImageBitmap(scaledBitmap)
+            uri?.let { imageUri ->
+                requireContext().contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                }
+                // Save the new URI
+                this.imageUri = imageUri
+            }
 
-        // Dismiss the dialog after processing
+            // Set the scaled bitmap to the ImageView
+            val scaledBitmap = scaleBitmapToFit(bitmap, targetWidth, targetHeight)
+            addImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+            addImageView.setImageBitmap(scaledBitmap)
+
+        } catch (e: Exception) {
+            Log.e("HandleImage", "Error saving image", e)
+            showToast(requireContext(), "Error saving image")
+        }
+
         dialog.dismiss()
     }
 
@@ -354,6 +379,11 @@ class AddItemFragment : Fragment() {
         currentView = inflater.inflate(R.layout.fragment_add_item, container, false) ?: return requireView()
 
         setStatusBarColor()
+
+        // Initialize ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
 
         // Initialize all views
         initializeViews(currentView!!)
@@ -574,6 +604,7 @@ class AddItemFragment : Fragment() {
 
         selectButton.setOnClickListener {
             val selectedColor = (selectedColorView.background as? ColorDrawable)?.color ?: Color.TRANSPARENT
+            this.selectedColor = selectedColor // Store the selected color
             colorCircle.setBackgroundColor(selectedColor)
             selectedColorView.setBackgroundColor(selectedColor)
             dialog.dismiss()
@@ -629,29 +660,56 @@ class AddItemFragment : Fragment() {
 
     fun saveItemChanges() {
         if (validateInputs()) {
-            try {
-                val itemName = addItemNameEditText.text.toString()
-                val itemType = typeSpinner.selectedItem.toString()
-                val wornTimes = wornTimesTextView.text.toString().substringAfter("worn ").substringBefore(" times").toInt()
-                val lastWornDate = lastWornTextView.text.toString()
+            // Check for duplicate item name
+            val itemName = addItemNameEditText.text.toString()
+            itemViewModel.items.observe(viewLifecycleOwner) { existingItems ->
+                val isDuplicate = existingItems.any { it.name.equals(itemName, ignoreCase = true) }
+                if (isDuplicate) {
+                    showToast(requireContext(), "Name already exists.")
+                    return@observe // Exit the function if duplicate found
+                }
 
-                val itemColor = (colorCircle.background as? ColorDrawable)?.color ?: Color.GRAY
-                val formattedColor = String.format("#%06X", (0xFFFFFF and itemColor))
+                // Proceed to save the item if no duplicates
+                try {
+                    val itemType = typeSpinner.selectedItem.toString()
+                    val wornTimes = wornTimesTextView.text.toString().substringAfter("worn ").substringBefore(" times").toInt()
+                    val lastWornDate = lastWornTextView.text.toString()
 
-                val imageBitmap = (addImageView.drawable as? BitmapDrawable)?.bitmap
+                    val formattedColor = String.format("#%06X", (0xFFFFFF and selectedColor))
 
-                Log.d(
-                    "SaveItemChanges",
-                    "Item Name: $itemName, Type: $itemType, Worn Times: $wornTimes, Last Worn: $lastWornDate, Color: $formattedColor"
-                )
-                showToast(requireContext(), "Item added to closet!")
+                    // Get the image URI from the ImageView
+                    val imageUriString = imageUri?.toString() ?: run {
+                        showToast(requireContext(), "Error: No image selected")
+                        return@observe
+                    }
 
-                restoreBottomNavigation()
+                    // Create a new Item object
+                    val newItem = Item(
+                        name = itemName,
+                        type = itemType,
+                        color = formattedColor,
+                        wornTimes = wornTimes,
+                        lastWornDate = lastWornDate,
+                        imageUri = imageUriString,
+                        isFavorite = false
+                    )
 
-                findNavController().popBackStack()
-            } catch (e: Exception) {
-                Log.e("SaveItemChanges", "Error saving item changes", e)
-                showToast(requireContext(), "An error occurred while saving changes")
+                    // Save the item using the ViewModel
+                    itemViewModel.insert(newItem)
+
+                    Log.d(
+                        "SaveItemChanges",
+                        "Item Name: $itemName, Type: $itemType, Worn Times: $wornTimes, Last Worn: $lastWornDate, Color: $formattedColor"
+                    )
+                    showToast(requireContext(), "Item added to closet!")
+
+                    restoreBottomNavigation()
+
+                    findNavController().popBackStack()
+                } catch (e: Exception) {
+                    Log.e("SaveItemChanges", "Error saving item changes", e)
+                    showToast(requireContext(), "An error occurred while saving changes")
+                }
             }
         }
     }

@@ -18,7 +18,8 @@ cropper = "1.0.0"
 espressoCoreVersion = "3.4.0"
 fragmentTesting = "1.8.5"
 fragmentTestingVersion = "1.5.0"
-kotlin = "1.9.0"
+glide = "4.12.0"
+kotlin = "2.1.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -48,6 +49,8 @@ robolectric = "4.6.1"
 robolectricRobolectric = "4.14"
 robolectricRobolectricVersion = "4.9"
 robolectricVersion = "4.13"
+roomCompiler = "2.5.0"
+roomRuntime = "2.6.1"
 rules = "1.4.0"
 runner = "1.6.2"
 runnerVersion = "1.4.0"
@@ -72,6 +75,10 @@ androidx-navigation-testing-v277 = { module = "androidx.navigation:navigation-te
 androidx-navigation-ui-ktx-v274 = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidxRunner" }
 androidx-renderscript = { module = "androidx.renderscript:renderscript", version.ref = "renderscript" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-compiler-v250 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "core" }
 androidx-rules-v140 = { module = "androidx.test:rules", version.ref = "rules" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
@@ -84,7 +91,9 @@ byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byteBuddy" }
 byte-buddy-agent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byteBuddy" }
 colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorpickerview" }
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commonsMath3" }
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 cropper = { module = "com.github.Hanselmann:Cropper", version.ref = "cropper" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -112,6 +121,7 @@ robolectric-v4141 = { module = "org.robolectric:robolectric", version.ref = "org
 robolectric-v49 = { module = "org.robolectric:robolectric", version.ref = "robolectricRobolectricVersion" }
 vanniktech-android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropperVersion" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
