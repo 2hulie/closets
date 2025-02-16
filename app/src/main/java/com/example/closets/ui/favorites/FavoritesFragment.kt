@@ -4,12 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
 import android.text.TextWatcher
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,21 +12,31 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.closets.R
 import com.example.closets.databinding.FragmentFavoritesBinding
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.FilterBottomSheetDialog
+import com.example.closets.ui.entities.Item
+import com.example.closets.ui.items.ClothingItem
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
 
 class FavoritesFragment : Fragment() {
 
     private var _binding: FragmentFavoritesBinding? = null
-    private val binding get() = _binding!!
+    val binding get() = _binding!!
 
-    private var favoriteItems: List<FavoriteItem> = listOf()
-    private var sortedFavoriteItems: MutableList<FavoriteItem> = mutableListOf()
+    private lateinit var itemViewModel: ItemViewModel
+
+    private var allFavoriteItems: List<ClothingItem> = listOf()
+    private var sortedFavoriteItems: MutableList<ClothingItem> = mutableListOf()
 
     // Tracks whether the fragment is showing search results
     var isViewingSearchResults = false
@@ -42,7 +47,7 @@ class FavoritesFragment : Fragment() {
     private var appliedTypes: List<String>? = null
     private var appliedColors: List<String>? = null
 
-    lateinit var adapter: FavoritesAdapter
+    private lateinit var adapter: FavoritesAdapter
 
     private val typeOptions = listOf(
         "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
@@ -63,6 +68,19 @@ class FavoritesFragment : Fragment() {
         "black" to "#000000"
     )
 
+    // Singleton Toast inside the companion object
+    companion object {
+        private var currentToast: Toast? = null
+
+        // This method shows the Toast and cancels any previous one
+        fun showToast(context: Context, message: String) {
+            currentToast?.cancel() // Cancel the previous toast
+            currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
+                show() // Show the new toast
+            }
+        }
+    }
+
     fun hasActiveFilters(): Boolean {
         return appliedTypes != null || appliedColors != null || _hasActiveFilters
     }
@@ -80,12 +98,60 @@ class FavoritesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+
+        // Initialize the ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+
         return binding.root
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize RecyclerView
+        binding.recyclerViewFavorites.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        itemViewModel.favoriteItems.observe(viewLifecycleOwner) { favoriteItems ->
+            allFavoriteItems = favoriteItems.map { convertToClothingItem(it) }
+            sortedFavoriteItems = allFavoriteItems.toMutableList()
+
+            if (sortedFavoriteItems.isEmpty()) {
+                showEmptyMessage()
+            } else {
+                hideEmptyMessage()
+                binding.recyclerViewFavorites.visibility = View.VISIBLE
+            }
+
+            adapter.updateItems(sortedFavoriteItems) // Update the adapter
+            updateItemsCount() // Update the item count
+        }
+
+        // Initialize the adapter
+        adapter = FavoritesAdapter(
+            sortedFavoriteItems,
+            { item ->
+                // Create a Bundle to pass the item ID
+                val bundle = Bundle().apply {
+                    putInt("item_id", item.id) // Pass the item ID
+                }
+                // Navigate to ItemInfoFragment with the Bundle
+                findNavController().navigate(R.id.action_favoritesFragment_to_itemInfoFragment, bundle)
+            },
+            {
+                // Notify when an item is removed and update the title count
+                updateItemsCount()
+                if (sortedFavoriteItems.isEmpty()) {
+                    showEmptyMessage()
+                } else {
+                    hideEmptyMessage()
+                }
+            }
+        )
+
+        binding.recyclerViewFavorites.adapter = adapter
 
         binding.filterButton.setOnClickListener {
             showFilterBottomSheet()
@@ -110,11 +176,12 @@ class FavoritesFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Enable the search button if there is input, otherwise disable it
-                searchButton.isEnabled = !s.isNullOrEmpty()
+                // Always enable the search button
+                searchButton.isEnabled = true
             }
 
             override fun afterTextChanged(s: Editable?) {}
+
         })
 
         // Set up click listener for the search button
@@ -122,6 +189,8 @@ class FavoritesFragment : Fragment() {
             val query = searchInput.text.toString()
             if (query.isNotEmpty()) {
                 filterItems(query) // Call the filter method if there is input
+            } else {
+                resetSearchResults()
             }
         }
 
@@ -135,6 +204,8 @@ class FavoritesFragment : Fragment() {
                     // Optionally close the keyboard
                     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                     imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
+                } else {
+                    resetSearchResults()
                 }
                 true // Indicating the action was handled
             } else {
@@ -142,67 +213,31 @@ class FavoritesFragment : Fragment() {
             }
         }
 
-        // Initialize RecyclerView with GridLayoutManager for 3 items per row
-        binding.recyclerViewFavorites.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        // Initialize favorite items
-        favoriteItems = listOf(
-            FavoriteItem(R.drawable.shirt, "Top", "#3B9DBC",  true, "Shirt"),
-            FavoriteItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            FavoriteItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            FavoriteItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            FavoriteItem(R.drawable.shirt, "Top", "#3B9DBC",  true, "Shirt"),
-            FavoriteItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            FavoriteItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            FavoriteItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            FavoriteItem(R.drawable.shirt, "Top", "#3B9DBC",  true, "Shirt"),
-            FavoriteItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            FavoriteItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            FavoriteItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            FavoriteItem(R.drawable.shirt, "Top", "#3B9DBC",  true, "Shirt"),
-            FavoriteItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            FavoriteItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            FavoriteItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-        )
-
-        // Set sortedFavoriteItems to be a mutable list from favoriteItems
-        sortedFavoriteItems = favoriteItems.toMutableList()
-
-        // Initialize the adapter with sorted items and set it to RecyclerView
-        adapter = FavoritesAdapter(sortedFavoriteItems, { item ->
-            // Handle item click (navigate to specific item page)
-            val delayMillis = 150L
-            when (item.name) {
-                "Cap" -> binding.recyclerViewFavorites.postDelayed({
-                    findNavController().navigate(R.id.action_favoritesFragment_to_itemInfoCapFragment)
-                }, delayMillis)
-                "Shirt" -> binding.recyclerViewFavorites.postDelayed({
-                    findNavController().navigate(R.id.action_favoritesFragment_to_itemInfoShirtFragment)
-                }, delayMillis)
-                "Skirt" -> binding.recyclerViewFavorites.postDelayed({
-                    findNavController().navigate(R.id.action_favoritesFragment_to_itemInfoSkirtFragment)
-                }, delayMillis)
-                "Shoes" -> binding.recyclerViewFavorites.postDelayed({
-                    findNavController().navigate(R.id.action_favoritesFragment_to_itemInfoShoesFragment)
-                }, delayMillis)
+        // Observe errors
+        itemViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Show error message
+                showToast(requireContext(), it)
+                // Clear the error after showing it
+                itemViewModel.clearError()
             }
-        }, {
-            // Notify when an item is removed and update the title count
-            updateItemsCount()
-
-            // Check if the list is empty and show the empty message if it is
-            if (sortedFavoriteItems.isEmpty()) {
-                showEmptyMessage()
-            } else {
-                hideEmptyMessage()
-            }
-        })
-
-        binding.recyclerViewFavorites.adapter = adapter
-
-        // Update the dynamic title initially
-        updateItemsCount()
+        }
     }
+
+    private fun convertToClothingItem(item: Item): ClothingItem {
+        return ClothingItem(
+            id = item.id,
+            imageUri = item.imageUri,
+            name = item.name,
+            type = item.type,
+            color = item.color,
+            wornTimes = item.wornTimes,
+            lastWornDate = item.lastWornDate,
+            isFavorite = item.isFavorite,
+            fragmentId = R.id.action_favoritesFragment_to_itemInfoFragment
+        )
+    }
+
 
     // Method to update the dynamic title with the item count
     fun updateItemsCount() {
@@ -327,12 +362,12 @@ class FavoritesFragment : Fragment() {
 
         // Debug logging to see color matches
         println("Color matches for current items:")
-        favoriteItems.forEach { item ->
+        allFavoriteItems.forEach { item ->
             val closestColor = findClosestColor(item.color, colorOptions)
             println("${item.name} (${item.color}) -> $closestColor")
         }
 
-        sortedFavoriteItems = favoriteItems.filter { item ->
+        sortedFavoriteItems = allFavoriteItems.filter { item ->
             // Check if item matches type filter
             val matchesType = types.isNullOrEmpty() || types.contains("None") || types.contains(item.type)
 
@@ -392,7 +427,7 @@ class FavoritesFragment : Fragment() {
 
     private fun filterItems(query: String) {
         // Filter items based on the search query
-        val filteredList = favoriteItems.filter { item ->
+        val filteredList = allFavoriteItems.filter { item ->
             item.name.contains(query, ignoreCase = true) ||  // Search by name
                     item.type.contains(query, ignoreCase = true)    // Search by type
         }
@@ -411,7 +446,7 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun resetToOriginalList() {
-        sortedFavoriteItems = favoriteItems.toMutableList()
+        sortedFavoriteItems = allFavoriteItems.toMutableList()
         updateRecyclerView()
     }
 
@@ -427,45 +462,11 @@ class FavoritesFragment : Fragment() {
         updateItemsCount()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showEmptyMessage() {
-        val fullMessage = getString(R.string.no_items_available)
-
-        // Find the index of the "Add a new item?" part
-        val start = fullMessage.indexOf("Add a new item?")
-        val end = start + "Add a new item?".length
-
-        // Create a SpannableString to apply different styles
-        val spannableString = SpannableString(fullMessage)
-
-        // Make "Add a new item?" clickable and prevent the cyan highlight
-        val clickableSpan = object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                showAddItemFragment() // Open the Add Item Fragment when clicked
-            }
-
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.isUnderlineText = true
-                ds.color = ContextCompat.getColor(requireContext(), R.color.color_items)
-                ds.bgColor = ContextCompat.getColor(requireContext(), R.color.faded_pink)
-            }
-        }
-
-        // Apply clickable span
-        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        // Set the SpannableString to the TextView
-        binding.emptyMessage.text = spannableString
-        binding.emptyMessage.movementMethod = LinkMovementMethod.getInstance() // Make links clickable
-
-        // Ensure the message is visible
         binding.emptyMessage.visibility = View.VISIBLE
+        binding.emptyMessage.text = "No items found."
         binding.recyclerViewFavorites.visibility = View.GONE
-    }
-
-    private fun showAddItemFragment() {
-        // Navigate to the Add Item Fragment
-        findNavController().navigate(R.id.action_favoritesFragment_to_addItemFragment)
     }
 
     private fun hideEmptyMessage() {

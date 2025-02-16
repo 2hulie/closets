@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F0EDED"
-    tools:context=".ui.fragments.ItemInfoCapFragment">
+    tools:context=".ui.fragments.ItemInfoFragment">
 
     <!-- Background ImageView (bg_pink) -->
     <ImageView
@@ -32,7 +32,7 @@
 
     <!-- EditText for the Cap Name -->
     <EditText
-        android:id="@+id/cap_name_text"
+        android:id="@+id/edit_name_text"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:text="Olive Cap"
@@ -65,7 +65,7 @@
 
     <!-- Inner ImageView (cap.png) inside card.png -->
     <ImageView
-        android:id="@+id/cap_image"
+        android:id="@+id/item_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"

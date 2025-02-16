@@ -20,9 +20,19 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
     <color name="pressed_black">#80000000</color> <!-- 50% Black -->
-    <color name="white">#FFFFFFFF</color>
+    <color name="red">#FF0000</color>
+    <color name="orange">#FFA500</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#0000FF</color>
+    <color name="pink">#FF6ECA</color>
+    <color name="purple">#800080</color>
+    <color name="white">#FFFFFF</color>
+    <color name="beige">#F5F5DD</color>
+    <color name="gray">#808080</color>
+    <color name="brown">#5E3E2B</color>
+    <color name="black">#000000</color>
     <color name="bottom_nav_color">#62444B</color>
     <color name="colorAccent">#FF03DAC5</color> <!-- Add this line for accent color -->
 </resources>

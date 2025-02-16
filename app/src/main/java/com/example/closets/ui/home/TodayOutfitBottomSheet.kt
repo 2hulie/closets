@@ -70,7 +70,7 @@ class TodayOutfitBottomSheet : BottomSheetDialogFragment() {
     private fun dismissAndNavigateToItemInfo(homeItem: HomeItem) {
         dismiss()
         val actionId = when (homeItem.name) {
-            "Cap" -> R.id.action_todayOutfitBottomSheet_to_itemInfoCapFragment
+            "Cap" -> R.id.action_todayOutfitBottomSheet_to_itemInfoFragment
             "Skirt" -> R.id.action_todayOutfitBottomSheet_to_itemInfoSkirtFragment
             else -> null
         }

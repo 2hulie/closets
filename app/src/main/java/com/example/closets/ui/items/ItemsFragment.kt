@@ -10,6 +10,7 @@ import android.text.TextPaint
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,11 +30,21 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.closets.R
 import com.example.closets.databinding.FragmentItemsBinding
 import com.example.closets.ui.FilterBottomSheetDialog
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
+import com.example.closets.ui.entities.Item
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
+import kotlinx.coroutines.launch
 
 class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
     private var _binding: FragmentItemsBinding? = null
     val binding get() = _binding!!
+
+    private lateinit var itemViewModel: ItemViewModel
 
     var allItems: List<ClothingItem> = listOf()
     var sortedItems: MutableList<ClothingItem> = mutableListOf()
@@ -51,7 +62,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     var appliedTypes: List<String>? = null
     var appliedColors: List<String>? = null
 
-    lateinit var adapter: ItemsAdapter
+    private lateinit var adapter: ItemsAdapter
 
     private val typeOptions = listOf(
         "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
@@ -102,20 +113,57 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentItemsBinding.inflate(inflater, container, false)
-        return binding.root
 
+        // Initialize the ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+
+        return binding.root
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize RecyclerView
+        binding.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        itemViewModel.items.observe(viewLifecycleOwner) { items ->
+            allItems = items.map { convertToClothingItem(it) }
+            sortedItems = allItems.toMutableList()
+
+            Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}") // Log the number of items
+            Log.d("ItemsFragment", "Items: $sortedItems") // Log the items
+
+            adapter.updateItems(sortedItems) // Update the adapter
+            updateItemsCount() // Update the item count
+        }
+
+        // Initialize the adapter
         initializeViews(view)
 
         // Set up icon_add click listener
         binding.iconAdd.setOnClickListener {
             showAddItemFragment()
         }
+        // Initialize the adapter
+        adapter = ItemsAdapter(
+            sortedItems,
+            { item ->
+                // Create a Bundle to pass the item ID
+                val bundle = Bundle().apply {
+                    putInt("item_id", item.id) // Pass the item ID
+                }
+                // Navigate to ItemInfoFragment with the Bundle
+                findNavController().navigate(R.id.action_itemsFragment_to_itemInfoFragment, bundle)
+            },
+            this,
+            itemViewModel
+        )
+
+        binding.recyclerViewItems.adapter = adapter
+
 
         binding.filterButton.setOnClickListener {
             showFilterBottomSheet()
@@ -192,18 +240,24 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Enable the search button if there is input, otherwise disable it
-                searchButton.isEnabled = !s.isNullOrEmpty()
+                // Always enable the search button
+                searchButton.isEnabled = true
             }
 
             override fun afterTextChanged(s: Editable?) {}
+
         })
 
         // Set up click listener for the search button
         searchButton.setOnClickListener {
             val query = searchInput.text.toString()
             if (query.isNotEmpty()) {
+                // Clear applied filters before filtering
+                appliedTypes = null
+                appliedColors = null
                 filterItems(query) // Call the filter method if there is input
+            } else {
+                resetSearchResults()
             }
         }
 
@@ -217,6 +271,8 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
                     // Optionally close the keyboard
                     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                     imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
+                } else {
+                    resetSearchResults()
                 }
                 true // Indicating the action was handled
             } else {
@@ -224,65 +280,31 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             }
         }
 
-        // Initialize RecyclerView with GridLayoutManager for 3 items per row
-        binding.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        // Initialize all items (display all available items)
-        allItems = listOf(
-            ClothingItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            ClothingItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            ClothingItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            ClothingItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            ClothingItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            ClothingItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            ClothingItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            ClothingItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            ClothingItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            ClothingItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            ClothingItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            ClothingItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            ClothingItem(R.drawable.cap, "Other", "#726C5D", true, "Cap"),
-            ClothingItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            ClothingItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            ClothingItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            ClothingItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            ClothingItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-        )
-
-        sortedItems = allItems.toMutableList()
-
-        adapter = ItemsAdapter(
-            sortedItems,
-            { item ->
-                val delayMillis = 150L
-                when (item.name) {
-                    "Cap" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoCapFragment)
-                    }, delayMillis)
-                    "Dress" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoDressFragment)
-                    }, delayMillis)
-                    "Shirt" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoShirtFragment)
-                    }, delayMillis)
-                    "Shorts" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoShortsFragment)
-                    }, delayMillis)
-                    "Skirt" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoSkirtFragment)
-                    }, delayMillis)
-                    "Shoes" -> binding.recyclerViewItems.postDelayed({
-                        findNavController().navigate(R.id.action_itemsFragment_to_itemInfoShoesFragment)
-                    }, delayMillis)
-                }
-            },
-            this
-        )
-        binding.recyclerViewItems.adapter = adapter
-
-        updateItemsCount()
+        // Observe errors
+        itemViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Show error message
+                showToast(requireContext(), it)
+                // Clear the error after showing it
+                itemViewModel.clearError()
+            }
+        }
     }
 
+    private fun convertToClothingItem(item: Item): ClothingItem {
+        // Convert the Item object to a ClothingItem object
+        return ClothingItem(
+            id = item.id, // Ensure you have an id to pass
+            imageUri = item.imageUri,
+            name = item.name,
+            type = item.type,
+            color = item.color,
+            wornTimes = item.wornTimes, // Use wornTimes instead of wornCount
+            lastWornDate = item.lastWornDate, // Pass lastWornDate from Item
+            fragmentId = R.id.action_itemsFragment_to_itemInfoFragment, // Provide the appropriate fragment ID
+            isFavorite = item.isFavorite
+        )
+    }
 
     // Function to display the dropdown menu
     @SuppressLint("ResourceType", "InflateParams")
@@ -349,9 +371,6 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
                 binding.iconDeleteMultiple.visibility = View.VISIBLE
                 selectAllCheckbox.visibility = View.VISIBLE
             }
-        } else if (isSelectionMode) {
-            // Exit selection mode if no items are selected
-            exitSelectMultipleMode()
         }
 
         updateDeleteButtonVisibility() // Refresh delete button visibility
@@ -517,6 +536,12 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         allItems = allItems.filterNot { item -> selectedItemsToDelete.contains(item) }
         sortedItems.removeAll(selectedItemsToDelete)
 
+        // Perform the deletion in the database
+        lifecycleScope.launch {
+            // Assuming you have a method in your repository to delete items
+            itemViewModel.deleteItems(selectedItemsToDelete.map { it.id }) // Pass the IDs of the items to delete
+        }
+
         // Reset search input and restore the original list
         appliedTypes = null // Reset applied types
         appliedColors = null // Reset applied colors
@@ -539,19 +564,19 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     }
 
     private fun showFilterBottomSheet() {
+        // Check if the dialog is already showing
+        val existingDialog = parentFragmentManager.findFragmentByTag("FilterBottomSheetDialog") as? FilterBottomSheetDialog
+        if (existingDialog != null && existingDialog.isVisible) {
+            return // Do nothing if already visible
+        }
+
         val bottomSheetDialog = FilterBottomSheetDialog(
             typeOptions = typeOptions,
-            preselectedTypes = appliedTypes?.toList(), // Convert to immutable list
-            preselectedColors = appliedColors?.toList(), // Convert to immutable list
+            preselectedTypes = appliedTypes?.toList(),
+            preselectedColors = appliedColors?.toList(),
             onApplyFilters = { types, colors ->
-                // Update the stored filters
                 appliedTypes = types?.toMutableList()
                 appliedColors = colors?.toMutableList()
-
-                // Print debug information
-                println("Debug - Applied Types: $appliedTypes")
-                println("Debug - Applied Colors: $appliedColors")
-
                 applyFilters(types, colors)
             },
             onResetFilters = {
@@ -699,21 +724,41 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
     override fun onPause() {
         super.onPause()
+        // Exit selection mode when navigating away from the fragment
+        if (isSelectionMode) {
+            exitSelectMultipleMode()
+        }
         // Reset applied filters when navigating away from this fragment
         appliedTypes = null
         appliedColors = null
         resetToOriginalList() // Restore the original list of items
     }
 
-    // Modify your onResume to preserve filters
+    // onResume to preserve filters
     override fun onResume() {
         super.onResume()
-        // Only reset if there are no applied filters
-        if (appliedTypes == null && appliedColors == null) {
-            resetToOriginalList()
-        } else {
-            // Reapply existing filters
-            applyFilters(appliedTypes, appliedColors)
+        // Reset selection mode when resuming the fragment
+        isSelectionMode = false
+        isSelectingMultiple = false
+
+        // Reset search input and filters
+        binding.searchInput.text.clear() // Clear the search input
+        appliedTypes = null // Reset applied types
+        appliedColors = null // Reset applied colors
+        resetToOriginalList() // Restore the original list of items
+
+        // Observe the items from ViewModel if not already observing
+        itemViewModel.items.observe(viewLifecycleOwner) { items ->
+            allItems = items.map { convertToClothingItem(it) }
+
+            // If we have active filters, apply them
+            if (appliedTypes != null || appliedColors != null) {
+                applyFilters(appliedTypes, appliedColors)
+            } else {
+                // Otherwise just show all items
+                sortedItems = allItems.toMutableList()
+                updateRecyclerView()
+            }
         }
     }
 

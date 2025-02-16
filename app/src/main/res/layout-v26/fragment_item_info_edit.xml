@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F0EDED"
-    tools:context=".ui.fragments.ItemInfoCapFragment">
+    tools:context=".ui.fragments.ItemInfoFragment">
 
     <!-- Background ImageView (bg_pink) -->
     <ImageView
@@ -32,7 +32,7 @@
 
     <!-- EditText for the Cap Name -->
     <EditText
-        android:id="@+id/cap_name_text"
+        android:id="@+id/edit_name_text"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:text="Olive Cap"
@@ -69,7 +69,7 @@
 
     <!-- Inner ImageView (cap.png) inside card.png -->
     <ImageView
-        android:id="@+id/cap_image"
+        android:id="@+id/item_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="fitCenter"
@@ -84,7 +84,7 @@
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="worn 12 times"
+        android:text="@string/worn_times_default"
         android:textSize="17sp"
         android:textColor="#DF9097"
         android:alpha="0.7"
@@ -99,7 +99,7 @@
         android:id="@+id/details_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Details"
+        android:text="@string/details"
         android:textSize="19sp"
         android:textStyle="bold"
         android:textColor="#62444B"
@@ -136,7 +136,7 @@
                     android:id="@+id/type_label"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="Type:"
+                    android:text="@string/item_type"
                     android:textSize="15sp"
                     android:textColor="#9D5666"
                     android:gravity="start" />
@@ -181,7 +181,7 @@
                     android:id="@+id/color_label"
                     android:layout_width="130dp"
                     android:layout_height="wrap_content"
-                    android:text="Color:"
+                    android:text="@string/color"
                     android:textSize="15sp"
                     android:textColor="#9D5666"
                     android:gravity="start" />

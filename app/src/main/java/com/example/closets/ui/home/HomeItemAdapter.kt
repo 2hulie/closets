@@ -8,6 +8,10 @@ import android.widget.ImageView
 import com.example.closets.R
 import androidx.recyclerview.widget.RecyclerView
 
+data class HomeItem(
+    val name: String,
+    val imageResId: Int,
+)
 
 class HomeItemAdapter(private val homeItemList: List<HomeItem>, private val itemClickListener: (HomeItem) -> Unit) :
     RecyclerView.Adapter<HomeItemAdapter.ItemViewHolder>() {

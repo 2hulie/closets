@@ -261,7 +261,7 @@ class HomeFragment : Fragment() {
                     findNavController().navigate(R.id.action_homeFragment_to_itemInfoShirtFragment)
                 }, delayMillis)
                 "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoCapFragment)
+                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
                 }, delayMillis)
 
                 "Dress" -> recyclerView.postDelayed({
@@ -295,7 +295,7 @@ class HomeFragment : Fragment() {
                     findNavController().navigate(R.id.action_homeFragment_to_itemInfoShirtFragment)
                 }, delayMillis)
                 "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoCapFragment)
+                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
                 }, delayMillis)
                 "Shoes" -> recyclerView.postDelayed({
                     findNavController().navigate(R.id.action_homeFragment_to_itemInfoShoesFragment)
@@ -324,7 +324,7 @@ class HomeFragment : Fragment() {
                     findNavController().navigate(R.id.action_homeFragment_to_itemInfoShoesFragment)
                 }, delayMillis)
                 "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoCapFragment)
+                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
                 }, delayMillis)
             }
         }
