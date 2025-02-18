@@ -1,5 +1,6 @@
 package com.example.closets.ui.favorites
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Handler
@@ -129,6 +130,7 @@ class FavoritesAdapter(
     override fun getItemCount(): Int = items.size
 
     // Updates the list of items and refreshes the RecyclerView
+    @SuppressLint("NotifyDataSetChanged")
     fun updateItems(newItems: MutableList<ClothingItem>) {
         items = newItems
         notifyDataSetChanged()

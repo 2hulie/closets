@@ -54,6 +54,7 @@ roomRuntime = "2.6.1"
 rules = "1.4.0"
 runner = "1.6.2"
 runnerVersion = "1.4.0"
+skeletonlayout = "1.0.0"
 workRuntimeKtx = "2.10.0"
 navigationTesting = "2.8.6"
 
@@ -119,6 +120,7 @@ robolectric-v413 = { module = "org.robolectric:robolectric", version.ref = "robo
 robolectric-v414 = { module = "org.robolectric:robolectric", version.ref = "robolectricRobolectric" }
 robolectric-v4141 = { module = "org.robolectric:robolectric", version.ref = "orgRobolectricRobolectric" }
 robolectric-v49 = { module = "org.robolectric:robolectric", version.ref = "robolectricRobolectricVersion" }
+skeletonlayout = { module = "com.github.rohitgohil:SkeletonLayout", version.ref = "skeletonlayout" }
 vanniktech-android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropperVersion" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
 

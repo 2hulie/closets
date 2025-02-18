@@ -17,12 +17,21 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController // Import for navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.closets.R
 import com.example.closets.databinding.FragmentCurrentItemBinding
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.FilterBottomSheetDialog
+import com.example.closets.ui.entities.Item
 import com.example.closets.ui.home.TodayOutfitBottomSheet
+import com.example.closets.ui.items.ClothingItem
+import com.example.closets.ui.items.ItemsFragment
+import com.example.closets.ui.items.ItemsFragment.Companion
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
@@ -36,8 +45,11 @@ class CurrentItemFragment : Fragment() {
     private val binding get() = _binding!!
 
     // Define all current items and sorted list
-    private var allCurrentItems: List<CurrentItem> = listOf()
-    private var sortedCurrentItems: MutableList<CurrentItem> = mutableListOf()
+    private var allCurrentItems: List<ClothingItem> = listOf()
+    private var sortedCurrentItems: MutableList<ClothingItem> = mutableListOf()
+
+    // Tracks whether the fragment is showing search results
+    private var isViewingSearchResults = false
 
     // Variables to hold the currently applied filters
     private var appliedTypes: List<String>? = null
@@ -45,6 +57,7 @@ class CurrentItemFragment : Fragment() {
 
     // Adapter for RecyclerView
     private lateinit var adapter: CurrentItemAdapter
+    private lateinit var itemViewModel: ItemViewModel
 
     private val typeOptions = listOf(
         "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
@@ -88,6 +101,12 @@ class CurrentItemFragment : Fragment() {
 
         // Inflate the layout using view binding
         _binding = FragmentCurrentItemBinding.inflate(inflater, container, false)
+
+        // Initialize the ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+
         return binding.root
     }
 
@@ -95,15 +114,31 @@ class CurrentItemFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.recyclerViewCurrentItems.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        itemViewModel.items.observe(viewLifecycleOwner) { currentItems ->
+            allCurrentItems = currentItems.map { convertToClothingItem(it) }
+            sortedCurrentItems = allCurrentItems.toMutableList()
+
+            if (sortedCurrentItems.isEmpty()) {
+                showEmptyMessage()
+            } else {
+                hideEmptyMessage()
+                binding.recyclerViewCurrentItems.visibility = View.VISIBLE
+            }
+
+            adapter.updateItems(sortedCurrentItems) // Update the adapter
+        }
+
+        // Initialize RecyclerView
+        adapter = CurrentItemAdapter(sortedCurrentItems) { item ->
+            // Handle item clicks - not needed for now
+        }
+
+        binding.recyclerViewCurrentItems.adapter = adapter
+
         val searchInput: EditText = binding.searchInput
         val searchButton: ImageView = binding.iconSearch
-
-        // Load the slide-down animation
-        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
-        binding.currentItemsImage.startAnimation(slideDownAnimation)
-        binding.currentDate.startAnimation(slideDownAnimation)
-        binding.wearingTodayText.startAnimation(slideDownAnimation)
-
 
         binding.filterButton.setOnClickListener {
             showFilterBottomSheet()
@@ -128,7 +163,12 @@ class CurrentItemFragment : Fragment() {
         searchButton.setOnClickListener {
             val query = searchInput.text.toString()
             if (query.isNotEmpty()) {
+                // Clear applied filters before filtering
+                appliedTypes = null
+                appliedColors = null
                 filterItems(query) // Call the filter method if there is input
+            } else {
+                resetSearchResults()
             }
         }
 
@@ -142,6 +182,8 @@ class CurrentItemFragment : Fragment() {
                     // Optionally close the keyboard
                     val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                     imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
+                } else {
+                    resetSearchResults()
                 }
                 true // Indicating the action was handled
             } else {
@@ -154,40 +196,6 @@ class CurrentItemFragment : Fragment() {
         // Set current date dynamically
         displayCurrentDate()
 
-        // Initialize RecyclerView with GridLayoutManager for 3 items per row
-        binding.recyclerViewCurrentItems.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        // Initialize all current items
-        allCurrentItems = listOf(
-            CurrentItem(R.drawable.cap, "Other", "#726C5D",false, "Cap"),
-            CurrentItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            CurrentItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            CurrentItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            CurrentItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            CurrentItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            CurrentItem(R.drawable.cap, "Other", "#726C5D",false, "Cap"),
-            CurrentItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            CurrentItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            CurrentItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            CurrentItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            CurrentItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt"),
-            CurrentItem(R.drawable.cap, "Other", "#726C5D",false, "Cap"),
-            CurrentItem(R.drawable.dress, "Dress", "#1C88A4", false, "Dress"),
-            CurrentItem(R.drawable.shirt, "Top", "#3B9DBC", true, "Shirt"),
-            CurrentItem(R.drawable.shorts, "Bottom", "#A8A7AB", false, "Shorts"),
-            CurrentItem(R.drawable.shoes, "Shoes", "#FFBAC4", true, "Shoes"),
-            CurrentItem(R.drawable.skirt, "Bottom", "#C1A281", true, "Skirt")
-        )
-
-        // Set sortedCurrentItems to be a mutable list from allCurrentItems
-        sortedCurrentItems = allCurrentItems.toMutableList()
-
-        // Initialize the adapter with sorted items and set it to RecyclerView
-        adapter = CurrentItemAdapter(sortedCurrentItems) { item ->
-            // Handle item clicks - not needed for now
-        }
-        binding.recyclerViewCurrentItems.adapter = adapter
-
         // Set up click listener for the save icon
         binding.saveIcon.setOnClickListener {
             navigateToHomeAndShowBottomSheet()
@@ -199,6 +207,30 @@ class CurrentItemFragment : Fragment() {
                 showDiscardChangesDialog()
             }
         })
+
+        // Observe errors
+        itemViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Show error message
+                showToast(requireContext(), it)
+                // Clear the error after showing it
+                itemViewModel.clearError()
+            }
+        }
+    }
+
+    private fun convertToClothingItem(item: Item): ClothingItem {
+        return ClothingItem(
+            id = item.id,
+            imageUri = item.imageUri,
+            name = item.name,
+            type = item.type,
+            color = item.color,
+            wornTimes = item.wornTimes,
+            lastWornDate = item.lastWornDate,
+            isFavorite = item.isFavorite,
+            fragmentId = R.id.action_currentItemFragment_to_itemInfoFragment
+        )
     }
 
     private fun navigateToHomeAndShowBottomSheet() {
@@ -219,6 +251,7 @@ class CurrentItemFragment : Fragment() {
     private fun showFilterBottomSheet() {
         val bottomSheetDialog = FilterBottomSheetDialog(
             typeOptions = typeOptions,
+            colorOptions = colorOptions,
             preselectedTypes = appliedTypes?.toList(), // Convert to immutable list
             preselectedColors = appliedColors?.toList(), // Convert to immutable list
             onApplyFilters = { types, colors ->
@@ -280,43 +313,43 @@ class CurrentItemFragment : Fragment() {
         var closestColor = colorOptions.keys.first()
         var minDistance = Double.MAX_VALUE
 
-        // Define thresholds for specific colors
-        val grayThreshold = 0.15 // Threshold for saturation to be considered gray
-        val whiteThreshold = 0.85 // Threshold for value to be considered white
-        val blackThreshold = 0.15 // Threshold for value to be considered black
-        val beigeHueRange = Pair(20f, 40f) // Hue range for beige
+        val beigeHex = "#F5F5DD"
+        val beigeHSV = hexToHSV(beigeHex)
 
         // Special case checks based on HSV values
         when {
-            // Check for white (high value, low saturation)
-            itemHSV[2] > whiteThreshold && itemHSV[1] < grayThreshold -> return "white"
-
-            // Check for black (low value)
-            itemHSV[2] < blackThreshold -> return "black"
-
-            // Check for gray (low saturation, medium value)
-            itemHSV[1] < grayThreshold && itemHSV[2] in 0.2f..0.8f -> return "gray"
-
-            // Check for beige
-            itemHSV[0] in beigeHueRange.first..beigeHueRange.second &&
-                    itemHSV[1] < 0.35f &&
-                    itemHSV[2] > 0.8f -> return "beige"
+            // Check for exact color matches
+            itemHex.equals(beigeHex, ignoreCase = true) -> return "beige"
+            itemHex.equals("#FFFFFF", ignoreCase = true) -> return "white"
+            itemHex.equals("#000000", ignoreCase = true) -> return "black"
+            itemHex.equals("#808080", ignoreCase = true) -> return "gray"
+            itemHex.equals("#FF0000", ignoreCase = true) -> return "red"
+            itemHex.equals("#FFA500", ignoreCase = true) -> return "orange"
+            itemHex.equals("#FFFF00", ignoreCase = true) -> return "yellow"
+            itemHex.equals("#00FF00", ignoreCase = true) -> return "green"
+            itemHex.equals("#0000FF", ignoreCase = true) -> return "blue"
+            itemHex.equals("#FF69B4", ignoreCase = true) -> return "pink"
+            itemHex.equals("#800080", ignoreCase = true) -> return "purple"
+            itemHex.equals("#5E3E2B", ignoreCase = true) -> return "brown"
         }
+
+        // Check for beige based on HSV values
+        if (colorDistance(itemHSV, beigeHSV) < 0.1) return "beige"
 
         // For other colors, find the closest match
         colorOptions.forEach { (colorName, colorHex) ->
-            // Skip special cases in normal comparison
-            if (colorName !in listOf("white", "black", "gray", "beige")) {
-                val optionHSV = hexToHSV(colorHex)
-                val distance = colorDistance(itemHSV, optionHSV)
-                if (distance < minDistance) {
-                    minDistance = distance
-                    closestColor = colorName
-                }
+            // Calculate the HSV for the color option
+            val optionHSV = hexToHSV(colorHex)
+            val distance = colorDistance(itemHSV, optionHSV)
+
+            // Check if the distance is within a certain threshold
+            if (distance < minDistance) {
+                minDistance = distance
+                closestColor = colorName
             }
         }
 
-        // Set a maximum distance threshold
+        // Set a maximum distance threshold for fallback colors
         if (minDistance > 1.5) {
             // If no good match is found, fallback to gray for very desaturated colors
             if (itemHSV[1] < 0.2) return "gray"
@@ -403,6 +436,14 @@ class CurrentItemFragment : Fragment() {
         // Update the RecyclerView with the filtered list
         sortedCurrentItems = filteredList.toMutableList()
         updateRecyclerView()
+        isViewingSearchResults = true
+    }
+
+    // Method to reset search results and revert to the original list
+    fun resetSearchResults() {
+        binding.searchInput.text.clear()
+        isViewingSearchResults = false
+        resetToOriginalList()
     }
 
     private fun resetToOriginalList() {

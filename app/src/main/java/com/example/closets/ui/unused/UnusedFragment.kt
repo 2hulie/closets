@@ -57,13 +57,6 @@ class UnusedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load and apply the slide-down animation to the unusedImage view
-        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
-        binding.unusedImage.startAnimation(slideDownAnimation)
-
-        // Apply the slide-down animation to the dynamic title (items count)
-        binding.unusedItemsCountText.startAnimation(slideDownAnimation)
-
         setStatusBarColor()
 
         val recyclerView = binding.unusedItemsRecyclerView

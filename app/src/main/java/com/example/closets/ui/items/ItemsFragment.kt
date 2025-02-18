@@ -14,7 +14,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
@@ -25,26 +24,28 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.closets.R
 import com.example.closets.databinding.FragmentItemsBinding
-import com.example.closets.ui.FilterBottomSheetDialog
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.example.closets.repository.AppDatabase
 import com.example.closets.repository.ItemRepository
+import com.example.closets.ui.FilterBottomSheetDialog
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
     private var _binding: FragmentItemsBinding? = null
-    val binding get() = _binding!!
+    private val binding get() = _binding!!
 
-    private lateinit var itemViewModel: ItemViewModel
+    lateinit var itemViewModel: ItemViewModel
+    private var loadingView: View? = null
 
     var allItems: List<ClothingItem> = listOf()
     var sortedItems: MutableList<ClothingItem> = mutableListOf()
@@ -55,14 +56,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
     // Tracks whether the fragment is showing search results
     var isViewingSearchResults = false
-
     private var _hasActiveFilters = false
 
     // Variables to hold the currently applied filters
-    var appliedTypes: List<String>? = null
-    var appliedColors: List<String>? = null
+    private var appliedTypes: List<String>? = null
+    private var appliedColors: List<String>? = null
 
-    private lateinit var adapter: ItemsAdapter
+    lateinit var adapter: ItemsAdapter
 
     private val typeOptions = listOf(
         "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
@@ -114,6 +114,10 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     ): View {
         _binding = FragmentItemsBinding.inflate(inflater, container, false)
 
+        // Inflate the loading view
+        loadingView = inflater.inflate(R.layout.loading_view, container, false)
+        (binding.root as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
+
         // Initialize the ViewModel
         val database = AppDatabase.getDatabase(requireContext())
         val repository = ItemRepository(database.itemDao())
@@ -126,18 +130,30 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Show loading view initially
+        loadingView?.visibility = View.VISIBLE
+        binding.recyclerViewItems.visibility = View.GONE
+
         // Initialize RecyclerView
         binding.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
 
+        // Observe the items from the ViewModel
         itemViewModel.items.observe(viewLifecycleOwner) { items ->
-            allItems = items.map { convertToClothingItem(it) }
-            sortedItems = allItems.toMutableList()
+            lifecycleScope.launch {
+                // Process items in the background
+                allItems = items.map { convertToClothingItem(it) }
+                sortedItems = allItems.toMutableList()
 
-            Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}") // Log the number of items
-            Log.d("ItemsFragment", "Items: $sortedItems") // Log the items
+                // Hide loading view and show RecyclerView
+                loadingView?.visibility = View.GONE
+                binding.recyclerViewItems.visibility = View.VISIBLE
 
-            adapter.updateItems(sortedItems) // Update the adapter
-            updateItemsCount() // Update the item count
+                Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}") // Log the number of items
+                Log.d("ItemsFragment", "Items: $sortedItems") // Log the items
+
+                adapter.updateItems(sortedItems) // Update the adapter
+                updateItemsCount() // Update the item count
+            }
         }
 
         // Initialize the adapter
@@ -147,6 +163,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         binding.iconAdd.setOnClickListener {
             showAddItemFragment()
         }
+
         // Initialize the adapter
         adapter = ItemsAdapter(
             sortedItems,
@@ -163,7 +180,6 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         )
 
         binding.recyclerViewItems.adapter = adapter
-
 
         binding.filterButton.setOnClickListener {
             showFilterBottomSheet()
@@ -222,30 +238,22 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             deleteSelectedItems()
         }
 
-        // Load the slide-down animation
-        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
-        val itemsImageView = binding.itemsImage
-        val itemsCountText = binding.itemsCountText
-        val searchInput: EditText = binding.searchInput
-        val searchButton: ImageView = binding.iconSearch
-
-        itemsCountText.startAnimation(slideDownAnimation)
-        itemsImageView.startAnimation(slideDownAnimation)
-
         // Change status bar color for this fragment
         setStatusBarColor()
+
+        val searchInput: EditText = binding.searchInput
+        val searchButton: ImageView = binding.iconSearch
 
         // TextWatcher to the search input
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Always enable the search button
-                searchButton.isEnabled = true
+                // Enable the search button if there is input, otherwise disable it
+                searchButton.isEnabled = !s.isNullOrEmpty()
             }
 
             override fun afterTextChanged(s: Editable?) {}
-
         })
 
         // Set up click listener for the search button
@@ -407,7 +415,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         }
     }
 
-    fun deleteSelectedItems() {
+    private fun deleteSelectedItems() {
         val selectedItemsToDelete = adapter.getSelectedItems()
         println("Debug: Attempting to delete ${selectedItemsToDelete.size} items")
 
@@ -483,13 +491,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     }
 
     // Method to update item count
-    fun updateItemsCount() {
+    private fun updateItemsCount() {
         val itemCount = sortedItems.size
         val dynamicTitle = resources.getQuantityString(R.plurals.items_count, itemCount, itemCount)
         binding.itemsCountText.text = dynamicTitle  // Update the TextView with the dynamic count
     }
 
-    fun showDeleteConfirmationDialog(selectedItemsToDelete: Set<ClothingItem>) {
+    private fun showDeleteConfirmationDialog(selectedItemsToDelete: Set<ClothingItem>) {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_delete_confirmation, null)
 
@@ -572,6 +580,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
         val bottomSheetDialog = FilterBottomSheetDialog(
             typeOptions = typeOptions,
+            colorOptions = colorOptions,
             preselectedTypes = appliedTypes?.toList(),
             preselectedColors = appliedColors?.toList(),
             onApplyFilters = { types, colors ->
@@ -608,13 +617,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         val valWeight = 1.0
 
         // Calculate wrapped hue difference
-        var hueDiff = Math.abs(color1[0] - color2[0])
+        var hueDiff = abs(color1[0] - color2[0])
         if (hueDiff > 180) hueDiff = 360 - hueDiff
         hueDiff /= 180 // Normalize to [0,1]
 
         // Calculate saturation and value differences
-        val satDiff = Math.abs(color1[1] - color2[1])
-        val valDiff = Math.abs(color1[2] - color2[2])
+        val satDiff = abs(color1[1] - color2[1])
+        val valDiff = abs(color1[2] - color2[2])
 
         // Weighted distance
         return hueDiff * hueWeight +
@@ -627,43 +636,43 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         var closestColor = colorOptions.keys.first()
         var minDistance = Double.MAX_VALUE
 
-        // Define thresholds for specific colors
-        val grayThreshold = 0.15 // Threshold for saturation to be considered gray
-        val whiteThreshold = 0.85 // Threshold for value to be considered white
-        val blackThreshold = 0.15 // Threshold for value to be considered black
-        val beigeHueRange = Pair(20f, 40f) // Hue range for beige
+        val beigeHex = "#F5F5DD"
+        val beigeHSV = hexToHSV(beigeHex)
 
         // Special case checks based on HSV values
         when {
-            // Check for white (high value, low saturation)
-            itemHSV[2] > whiteThreshold && itemHSV[1] < grayThreshold -> return "white"
-
-            // Check for black (low value)
-            itemHSV[2] < blackThreshold -> return "black"
-
-            // Check for gray (low saturation, medium value)
-            itemHSV[1] < grayThreshold && itemHSV[2] in 0.2f..0.8f -> return "gray"
-
-            // Check for beige
-            itemHSV[0] in beigeHueRange.first..beigeHueRange.second &&
-                    itemHSV[1] < 0.35f &&
-                    itemHSV[2] > 0.8f -> return "beige"
+            // Check for exact color matches
+            itemHex.equals(beigeHex, ignoreCase = true) -> return "beige"
+            itemHex.equals("#FFFFFF", ignoreCase = true) -> return "white"
+            itemHex.equals("#000000", ignoreCase = true) -> return "black"
+            itemHex.equals("#808080", ignoreCase = true) -> return "gray"
+            itemHex.equals("#FF0000", ignoreCase = true) -> return "red"
+            itemHex.equals("#FFA500", ignoreCase = true) -> return "orange"
+            itemHex.equals("#FFFF00", ignoreCase = true) -> return "yellow"
+            itemHex.equals("#00FF00", ignoreCase = true) -> return "green"
+            itemHex.equals("#0000FF", ignoreCase = true) -> return "blue"
+            itemHex.equals("#FF69B4", ignoreCase = true) -> return "pink"
+            itemHex.equals("#800080", ignoreCase = true) -> return "purple"
+            itemHex.equals("#5E3E2B", ignoreCase = true) -> return "brown"
         }
+
+        // Check for beige based on HSV values
+        if (colorDistance(itemHSV, beigeHSV) < 0.1) return "beige"
 
         // For other colors, find the closest match
         colorOptions.forEach { (colorName, colorHex) ->
-            // Skip special cases in normal comparison
-            if (colorName !in listOf("white", "black", "gray", "beige")) {
-                val optionHSV = hexToHSV(colorHex)
-                val distance = colorDistance(itemHSV, optionHSV)
-                if (distance < minDistance) {
-                    minDistance = distance
-                    closestColor = colorName
-                }
+            // Calculate the HSV for the color option
+            val optionHSV = hexToHSV(colorHex)
+            val distance = colorDistance(itemHSV, optionHSV)
+
+            // Check if the distance is within a certain threshold
+            if (distance < minDistance) {
+                minDistance = distance
+                closestColor = colorName
             }
         }
 
-        // Set a maximum distance threshold
+        // Set a maximum distance threshold for fallback colors
         if (minDistance > 1.5) {
             // If no good match is found, fallback to gray for very desaturated colors
             if (itemHSV[1] < 0.2) return "gray"
@@ -674,9 +683,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         return closestColor
     }
 
-    fun applyFilters(types: List<String>?, colors: List<String>?) {
-        _hasActiveFilters = !(types.isNullOrEmpty() && colors.isNullOrEmpty())
-
+    private fun applyFilters(types: List<String>?, colors: List<String>?) {
         // Debug logging to see color matches
         println("Color matches for current items:")
         allItems.forEach { item ->
@@ -762,7 +769,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         }
     }
 
-    fun filterItems(query: String) {
+    private fun filterItems(query: String) {
         // Filter items based on the search query
         val filteredList = allItems.filter { item ->
             item.name.contains(query, ignoreCase = true) ||  // Search by name
@@ -832,6 +839,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         binding.recyclerViewItems.visibility = View.VISIBLE
     }
 
+    @Suppress("DEPRECATION")
     private fun setStatusBarColor() {
         requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), R.color.lbl_items)
     }

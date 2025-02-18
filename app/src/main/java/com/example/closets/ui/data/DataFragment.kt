@@ -55,17 +55,6 @@ class DataFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load the slide-down animation
-        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
-
-        // Find by ID
-        val dataImageView = view.findViewById<ImageView>(R.id.data_image)
-        val dataText = view.findViewById<TextView>(R.id.data_text)
-
-        // Apply the animation to the label
-        dataImageView.startAnimation(slideDownAnimation)
-        dataText.startAnimation(slideDownAnimation)
-
         // Change status bar color for this fragment
         setStatusBarColor()
 

@@ -1,30 +1,30 @@
 package com.example.closets.ui.current
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.closets.R
 import com.example.closets.databinding.CurrentItemLayoutBinding
+import com.example.closets.ui.items.ClothingItem
+import com.example.closets.ui.viewmodels.ItemViewModel
 
-data class CurrentItem(
-    val imageResId: Int, // Resource ID for the item image
-    val type: String, // Type of the item
-    val color: String, // Color of the item
-    var isChecked: Boolean, // Indicates if the item is checked
-    val name: String,
-)
 
 class CurrentItemAdapter(
-    private var items: List<CurrentItem>,
-    private val itemClickListener: (CurrentItem) -> Unit
+    private var items: List<ClothingItem>,
+    private val itemClickListener: (ClothingItem) -> Unit,
 ) : RecyclerView.Adapter<CurrentItemAdapter.CurrentItemViewHolder>() {
 
     inner class CurrentItemViewHolder(private val binding: CurrentItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: CurrentItem) {
-            // Set item image
-            binding.itemImage.setImageResource(item.imageResId)
+        fun bind(item: ClothingItem) {
+            // Load image using setImageURI for the image URI
+            if (!item.imageUri.isNullOrEmpty()) {
+                binding.itemImage.setImageURI(Uri.parse(item.imageUri)) // Set the image URI directly
+            } else {
+                binding.itemImage.setImageResource(R.drawable.add_item_image) // Default image
+            }
 
             // Set the icon based on the checked status
             binding.checkedIcon.setImageResource(
@@ -42,7 +42,7 @@ class CurrentItemAdapter(
             }
         }
 
-        private fun toggleCheckedStatus(item: CurrentItem) {
+        private fun toggleCheckedStatus(item: ClothingItem) {
             // Toggle the checked status
             item.isChecked = !item.isChecked
             // Update the icon based on the new checked status
@@ -68,7 +68,7 @@ class CurrentItemAdapter(
 
     // Method to update the items in the adapter
     @SuppressLint("NotifyDataSetChanged")
-    fun updateItems(newItems: List<CurrentItem>) {
+    fun updateItems(newItems: List<ClothingItem>) {
         items = newItems
         notifyDataSetChanged()
     }

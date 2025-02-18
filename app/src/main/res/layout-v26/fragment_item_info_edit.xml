@@ -30,30 +30,26 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="18dp" />
 
-    <!-- EditText for the Cap Name -->
+    <!-- EditText for the Name -->
     <EditText
         android:id="@+id/edit_name_text"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:text="Olive Cap"
+        android:text=""
         android:textStyle="bold"
         android:textSize="21sp"
         android:textColor="#F0EDED"
         android:gravity="center"
         android:background="@null"
         android:maxLines="1"
-        android:maxLength="25"
+        android:maxLength="20"
         android:ellipsize="none"
         android:scrollHorizontally="false"
         android:layout_marginTop="19dp"
         app:layout_constraintTop_toTopOf="@id/bg_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:inputType="text"
-        android:autoSizeTextType="uniform"
-        android:autoSizeMinTextSize="12sp"
-        android:autoSizeMaxTextSize="26sp"
-        android:autoSizeStepGranularity="2sp" />
+        android:inputType="text" />
 
     <!-- Foreground ImageView (card.png) that overlaps with bg_pink -->
     <ImageView
@@ -67,13 +63,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="65dp" />
 
-    <!-- Inner ImageView (cap.png) inside card.png -->
+    <!-- Inner ImageView inside card.png -->
     <ImageView
         android:id="@+id/item_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:padding="20dp"
+        android:contentDescription="@string/item_name"
         android:scaleType="fitCenter"
-        android:src="@drawable/cap"
         app:layout_constraintTop_toTopOf="@id/card_image"
         app:layout_constraintBottom_toBottomOf="@id/card_image"
         app:layout_constraintStart_toStartOf="@id/card_image"
@@ -84,7 +81,7 @@
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/worn_times_default"
+        android:text="@string/last_worn"
         android:textSize="17sp"
         android:textColor="#DF9097"
         android:alpha="0.7"
@@ -136,7 +133,7 @@
                     android:id="@+id/type_label"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/item_type"
+                    android:text="@string/type"
                     android:textSize="15sp"
                     android:textColor="#9D5666"
                     android:gravity="start" />
@@ -202,7 +199,7 @@
                     android:id="@+id/change_color_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit color"
+                    android:text="@string/edit_color"
                     android:layout_marginStart="10dp"
                     android:textSize="15sp"
                     android:textColor="#CB8192"
@@ -221,7 +218,7 @@
                     android:id="@+id/last_worn_label"
                     android:layout_width="140dp"
                     android:layout_height="wrap_content"
-                    android:text="Last worn:"
+                    android:text="@string/last_worn"
                     android:textSize="15sp"
                     android:textColor="#9D5666"
                     android:gravity="start" />
@@ -230,7 +227,7 @@
                     android:id="@+id/last_worn_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="July 15, 2024"
+                    android:text="@string/n_a"
                     android:textSize="15sp"
                     android:alpha="0.7"
                     android:textColor="#62444B"

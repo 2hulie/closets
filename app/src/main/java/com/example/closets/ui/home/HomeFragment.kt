@@ -427,14 +427,6 @@ class HomeFragment : Fragment() {
         iconNotif.isClickable = true
         iconOutfit.isClickable = true
 
-        // Load the slide-down animation for the home image
-        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
-        val homeImageView = view.findViewById<ImageView>(R.id.home_image)
-        val homeText = view.findViewById<TextView>(R.id.home_text)
-
-        homeImageView.startAnimation(slideDownAnimation)
-        homeText.startAnimation(slideDownAnimation)
-
         // Change status bar color for this fragment
         setStatusBarColor()
 

@@ -118,7 +118,7 @@
     <string name="info_icon">Info</string>
     <string name="color_info">
         <![CDATA[
-        The color filtering for items are meant to help you organize your wardrobe.<br /><br />
+        The color filtering for items is meant to help you organize your wardrobe.<br /><br />
         However, actual colors may vary due to lighting, screen settings, and color recognition limitations.<br /><br />
         We recommend checking the physical item for the most accurate color.
         ]]>
@@ -140,6 +140,9 @@
     <string name="item_color">Color:</string>
     <string name="last_worn">Last worn:</string>
     <string name="n_a">N/A</string>
-    <string name="loading">Loading item information...</string>
+    <string name="loading">Preparing your closet...</string>
+    <string name="edit_color">Edit color</string>
+    <string name="rotate_button">Rotate button</string>
+    <string name="or_choose_a_color">or Choose a Color</string>
 
 </resources>

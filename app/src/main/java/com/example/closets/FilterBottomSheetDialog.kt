@@ -14,6 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class FilterBottomSheetDialog(
     private val typeOptions: List<String>,
+    private val colorOptions: Map<String, String>,
     private val onApplyFilters: (List<String>?, List<String>?) -> Unit,
     private val onResetFilters: () -> Unit,
     private val preselectedTypes: List<String>? = null,
@@ -85,7 +86,7 @@ class FilterBottomSheetDialog(
             colorViews.forEach { (circle, checkmark) ->
                 val colorName = circle.contentDescription.toString()
                 if (selected.contains(colorName)) {
-                    toggleCheckmark(circle, checkmark, true)
+                    toggleCheckmark(checkmark, true)
                 }
             }
         }
@@ -95,7 +96,7 @@ class FilterBottomSheetDialog(
             circle.setOnClickListener {
                 val colorName = circle.contentDescription.toString()
                 val isCurrentlySelected = selectedColors.contains(colorName)
-                toggleCheckmark(circle, checkmark, !isCurrentlySelected)
+                toggleCheckmark(checkmark, !isCurrentlySelected)
 
                 if (isCurrentlySelected) {
                     selectedColors.remove(colorName)
@@ -149,7 +150,7 @@ class FilterBottomSheetDialog(
         // Adjust the dark background to be lighter
         infoDialog.window?.setDimAmount(0.6f)
 
-        // Find the TextView where you want to display the color info
+        // Find the TextView to display the color info
         val colorInfoTextView: TextView = infoDialogView.findViewById(R.id.dialog_message)
 
         // Get the color info string with line breaks
@@ -172,7 +173,7 @@ class FilterBottomSheetDialog(
     }
 
 
-    private fun toggleCheckmark(circle: ImageView, checkmark: ImageView, show: Boolean) {
+    private fun toggleCheckmark(checkmark: ImageView, show: Boolean) {
         checkmark.visibility = if (show) View.VISIBLE else View.GONE
     }
 

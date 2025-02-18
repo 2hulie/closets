@@ -60,22 +60,6 @@ class CropImageView(context: Context, attrs: AttributeSet) : androidx.appcompat.
         }
     }
 
-    // Set the listener for cropping events
-    fun setCropImageListener(listener: CropImageListener) {
-        this.cropImageListener = listener
-    }
-
-    fun getCroppedBitmap(): Bitmap {
-        // Ensure that the bitmap is valid before proceeding
-        val bitmap = (drawable as? BitmapDrawable)?.bitmap
-            ?: throw IllegalStateException("No bitmap available for cropping")
-
-        val width = cropRect.width().toInt()
-        val height = cropRect.height().toInt()
-
-        return Bitmap.createBitmap(bitmap, cropRect.left.toInt(), cropRect.top.toInt(), width, height)
-    }
-
     // Crop the image based on the selected area
     fun cropImage() {
         val bitmap = (drawable as BitmapDrawable).bitmap
