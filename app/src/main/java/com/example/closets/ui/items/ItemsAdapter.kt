@@ -18,7 +18,7 @@ import java.io.Serializable
 
 data class ClothingItem(
     val id: Int,
-    val imageUri: String?,
+    var imageUri: String?,
     val type: String,
     val color: String,
     var isFavorite: Boolean,
@@ -240,7 +240,6 @@ class ItemsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        println("Debug: Creating ViewHolder")
         val view = LayoutInflater.from(parent.context).inflate(R.layout.items_layout, parent, false)
         return ItemViewHolder(view)
     }
@@ -250,7 +249,6 @@ class ItemsAdapter(
     }
 
     override fun getItemCount(): Int {
-        println("Debug: Getting item count: ${items.size}")
         return items.size
     }
 

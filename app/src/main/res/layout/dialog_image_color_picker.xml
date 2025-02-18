@@ -70,6 +70,286 @@
             android:layout_height="50dp"
             android:layout_marginTop="16dp" />
 
+        <!-- Predefined Color Options -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/or_choose_a_color"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="6"
+            android:gravity="center">
+
+            <!-- Red Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_red"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_red"
+                    android:contentDescription="@string/red"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_red"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Orange Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_orange"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_orange"
+                    android:contentDescription="@string/orange"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_orange"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Yellow Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_yellow"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_yellow"
+                    android:contentDescription="@string/yellow"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_yellow"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Green Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_green"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_green"
+                    android:contentDescription="@string/green"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_green"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Blue Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_blue"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_blue"
+                    android:contentDescription="@string/blue"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_blue"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Pink Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_pink"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_pink"
+                    android:contentDescription="@string/pink"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_pink"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Purple Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_purple"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_purple"
+                    android:contentDescription="@string/purple"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_purple"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- White Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_white"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_white"
+                    android:contentDescription="@string/white"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_white"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Beige Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_beige"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_beige"
+                    android:contentDescription="@string/beige"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_beige"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Gray Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_gray"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_gray"
+                    android:contentDescription="@string/gray"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_gray"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Brown Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_brown"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_brown"
+                    android:contentDescription="@string/brown"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_brown"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Black Color Circle with Checkmark -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="11dp">
+                <ImageView
+                    android:id="@+id/color_black"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/circle_black"
+                    android:contentDescription="@string/black"
+                    android:clickable="true"
+                    android:focusable="true" />
+                <ImageView
+                    android:id="@+id/checkmark_black"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/color_check"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </GridLayout>
+
         <!-- Custom Buttons Layout -->
         <LinearLayout
             android:layout_width="match_parent"

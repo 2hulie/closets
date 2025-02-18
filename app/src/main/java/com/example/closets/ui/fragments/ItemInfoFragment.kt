@@ -69,10 +69,6 @@ class ItemInfoFragment : Fragment() {
             showDeleteConfirmationDialog() // Show the delete confirmation dialog
         }
 
-        // Inflate the loading view
-        loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (view as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
-
         // Get the item ID from the arguments
         itemId = arguments?.getInt("item_id")
 
@@ -81,11 +77,7 @@ class ItemInfoFragment : Fragment() {
             itemViewModel.getItem(id).observe(viewLifecycleOwner) { item: Item? ->
                 item?.let {
                     this.item = convertToClothingItem(it) // Convert Item to ClothingItem
-                    // Delay the transition to item info
-                    view.postDelayed({
-                        updateItemInfo(this.item!!)
-                        loadingView.visibility = View.GONE // Hide loading view
-                    }, 150)
+                    updateItemInfo(this.item!!) // Update the UI with the item data
                 }
             }
         }
@@ -138,7 +130,7 @@ class ItemInfoFragment : Fragment() {
         }
     }
 
-    private fun showDeleteConfirmationDialog() {
+    fun showDeleteConfirmationDialog() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_delete_confirmation, null)
 
@@ -165,7 +157,7 @@ class ItemInfoFragment : Fragment() {
         dialog.show()
     }
 
-    private fun deleteItem() {
+    fun deleteItem() {
         // Show "Item deleted" toast
         showToast("Item deleted!") // Use showToast to cancel any previous toast and show the new one
 

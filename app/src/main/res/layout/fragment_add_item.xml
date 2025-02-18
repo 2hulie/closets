@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F0EDED"
-    tools:context=".ui.fragments.ItemInfoCapFragment">
+    tools:context=".ui.fragments.ItemInfoFragment">
 
     <!-- Background ImageView (bg_pink) -->
     <ImageView
@@ -70,7 +70,9 @@
         android:id="@+id/add_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:padding="20dp"
         android:scaleType="fitCenter"
+        android:contentDescription="@string/item_name"
         app:layout_constraintTop_toTopOf="@id/card_image"
         app:layout_constraintBottom_toBottomOf="@id/card_image"
         app:layout_constraintStart_toStartOf="@id/card_image"

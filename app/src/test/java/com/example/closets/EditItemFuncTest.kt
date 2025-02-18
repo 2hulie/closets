@@ -72,7 +72,7 @@ class EditItemFuncTest {
         val mockFragment = mock(EditItemInfoFragment::class.java)
 
         // Simulate user input to indicate changes
-        val itemNameEditText = mockFragment.view?.findViewById<EditText>(R.id.cap_name_text)
+        val itemNameEditText = mockFragment.view?.findViewById<EditText>(R.id.edit_name_text)
         itemNameEditText?.setText("Cute Cap") // Simulate filling in the item name
 
         // Simulate clicking the "Cancel" button
@@ -92,7 +92,7 @@ class EditItemFuncTest {
         val mockFragment = mock(EditItemInfoFragment::class.java)
 
         // Simulate user input to indicate changes
-        val itemNameEditText = mockFragment.view?.findViewById<EditText>(R.id.cap_name_text)
+        val itemNameEditText = mockFragment.view?.findViewById<EditText>(R.id.edit_name_text)
         itemNameEditText?.setText("Cute Cap") // Simulate filling in the item name
 
         // Simulate pressing the back button

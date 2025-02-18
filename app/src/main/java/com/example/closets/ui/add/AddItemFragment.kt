@@ -16,6 +16,7 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -23,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsetsController
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -225,6 +227,12 @@ class AddItemFragment : Fragment() {
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
+        val rotateButton: ImageView = dialogView.findViewById(R.id.btn_rotate)
+
+        rotateButton.setOnClickListener {
+            cropImageView.rotateImage(90) // Rotate the image by 90 degrees
+        }
+
         var isProcessing = false
 
         // Function to show/hide loading state
@@ -355,21 +363,6 @@ class AddItemFragment : Fragment() {
 
         // Create a new bitmap with the scaled dimensions
         return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
-    }
-
-    private fun addPaddingToBitmap(bitmap: Bitmap, left: Int, top: Int, right: Int, bottom: Int): Bitmap {
-        val paddedWidth = bitmap.width + left + right
-        val paddedHeight = bitmap.height + top + bottom
-
-        // Create a new bitmap with the padded dimensions
-        val paddedBitmap = Bitmap.createBitmap(paddedWidth, paddedHeight, Bitmap.Config.ARGB_8888)
-
-        // Draw the original bitmap onto the center of the new bitmap
-        val canvas = Canvas(paddedBitmap)
-        canvas.drawColor(Color.TRANSPARENT) // Optional: Fill with transparent color
-        canvas.drawBitmap(bitmap, left.toFloat(), top.toFloat(), null)
-
-        return paddedBitmap
     }
 
     override fun onCreateView(
@@ -714,6 +707,7 @@ class AddItemFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun populateExistingData() {
         addItemNameEditText.hint = "Tap to add name"
         typeSpinner.setSelection(0)
@@ -745,7 +739,7 @@ class AddItemFragment : Fragment() {
 
         // Check if an image is selected and if it's not the default image
         val drawable = addImageView.drawable
-        if (drawable == null || drawable.constantState == resources.getDrawable(R.drawable.add_item_image).constantState) {
+        if (drawable == null || drawable.constantState == ContextCompat.getDrawable(requireContext(), R.drawable.add_item_image)?.constantState) {
             showToast(
                 requireContext(),
                 "Please upload a valid image"

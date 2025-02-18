@@ -27,6 +27,20 @@
         android:background="#9D5666"
         android:alpha="0.3" /> <!-- Line color -->
 
+    <!-- Rotate Button -->
+    <ImageView
+        android:id="@+id/btn_rotate"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:src="@drawable/icon_rotate"
+        android:contentDescription="@string/rotate_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="-5dp"/>
+
     <!-- FrameLayout for Image -->
     <FrameLayout
         android:layout_width="match_parent"
@@ -40,6 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="500dp"
             android:scaleType="fitCenter" />
+
     </FrameLayout>
 
     <!-- View for spacing or optional color information -->
