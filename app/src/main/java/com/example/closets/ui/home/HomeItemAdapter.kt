@@ -1,6 +1,7 @@
 package com.example.closets.ui.home
 
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,11 +10,14 @@ import com.example.closets.R
 import androidx.recyclerview.widget.RecyclerView
 
 data class HomeItem(
+    val id: Int,
     val name: String,
-    val imageResId: Int,
+    val imageUri: String?
 )
 
-class HomeItemAdapter(private val homeItemList: List<HomeItem>, private val itemClickListener: (HomeItem) -> Unit) :
+class HomeItemAdapter(
+    private val homeItemList: List<HomeItem>,
+    private val itemClickListener: (HomeItem) -> Unit) :
     RecyclerView.Adapter<HomeItemAdapter.ItemViewHolder>() {
 
 
@@ -23,7 +27,9 @@ class HomeItemAdapter(private val homeItemList: List<HomeItem>, private val item
 
         init {
             itemView.setOnClickListener {
-                itemClickListener(homeItemList[adapterPosition]) // Pass clicked item
+                itemView.postDelayed({
+                    itemClickListener(homeItemList[adapterPosition])
+                }, 150)
             }
         }
     }
@@ -35,7 +41,13 @@ class HomeItemAdapter(private val homeItemList: List<HomeItem>, private val item
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.itemImage.setImageResource(homeItemList[position].imageResId)
+        val homeItem = homeItemList[position]
+        if (!homeItem.imageUri.isNullOrEmpty()) {
+            holder.itemImage.setImageURI(Uri.parse(homeItem.imageUri))
+        } else {
+            // Use the same fallback image as in your ItemsAdapter
+            holder.itemImage.setImageResource(R.drawable.add_item_image)
+        }
     }
 
     override fun getItemCount(): Int = homeItemList.size

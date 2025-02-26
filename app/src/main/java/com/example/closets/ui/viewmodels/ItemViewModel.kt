@@ -9,21 +9,26 @@ import com.example.closets.ui.entities.Item
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
 
-class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
+class ItemViewModel(val repository: ItemRepository) : ViewModel() {
 
     // LiveData for error handling
-    private val _error = MutableLiveData<String>()
+    val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
     // LiveData to hold the list of items
     val items: LiveData<List<Item>> = repository.getAllItems()
     val favoriteItems: LiveData<List<Item>> = repository.getFavoriteItems()
+    val unusedItems: LiveData<List<Item>> = repository.getUnusedItems()
 
-    // Function to insert an item
     fun insert(item: Item) {
         viewModelScope.launch {
             try {
-                repository.insertItem(item)
+                val count = repository.getItemCount()
+                if (count < 50) {
+                    repository.insertItem(item)
+                } else {
+                    _error.value = "You can only have a maximum of 50 items."
+                }
             } catch (e: Exception) {
                 if (e !is CancellationException) {
                     _error.value = "Error inserting item: ${e.message}"
@@ -32,7 +37,6 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         }
     }
 
-    // Function to update an item
     fun update(item: Item) {
         viewModelScope.launch {
             try {
@@ -45,7 +49,16 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         }
     }
 
-    // Function to delete a single item
+    fun updateItems(items: List<Item>) {
+        viewModelScope.launch {
+            try {
+                repository.updateItems(items)
+            } catch (e: Exception) {
+                _error.value = "Error updating items: ${e.message}"
+            }
+        }
+    }
+
     fun delete(item: Item) {
         viewModelScope.launch {
             try {
@@ -56,7 +69,6 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         }
     }
 
-    // Function to delete multiple items
     fun deleteItems(itemIds: List<Int>) {
         viewModelScope.launch {
             try {
@@ -67,7 +79,6 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         }
     }
 
-    // Function to get a single item by ID
     fun getItem(itemId: Int): LiveData<Item> {
         val result = MutableLiveData<Item>()
         viewModelScope.launch {
@@ -81,7 +92,6 @@ class ItemViewModel(private val repository: ItemRepository) : ViewModel() {
         }
         return result
     }
-
 
     // Function to clear error
     fun clearError() {

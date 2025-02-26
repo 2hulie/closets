@@ -14,6 +14,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -21,13 +22,15 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,8 +42,19 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.closets.MainActivity
 import com.example.closets.R
+import com.example.closets.SharedViewModel
+import com.example.closets.repository.AppDatabase
+import com.example.closets.repository.ItemRepository
+import com.example.closets.ui.items.ClothingItem
+import com.example.closets.ui.viewmodels.ItemViewModel
+import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class HomeFragment : Fragment() {
@@ -53,15 +67,17 @@ class HomeFragment : Fragment() {
     private lateinit var workManager: WorkManager
     private val notificationWorkName = "closets_reminder_notification"
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var favouritesRecyclerView: RecyclerView
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private var loadingView: View? = null
+    private lateinit var itemViewModel: ItemViewModel
+    private var sortedRecentItems: List<HomeItem> = emptyList()
+    private var sortedFavoriteItems: List<HomeItem> = emptyList()
+    private var sortedUnusedItems: List<HomeItem> = emptyList()
+    private lateinit var itemsRecyclerView: RecyclerView
+    private lateinit var favoritesRecyclerView: RecyclerView
     private lateinit var idleItemsRecyclerView: RecyclerView
-    private lateinit var itemAdapter: HomeItemAdapter
-    private lateinit var favouritesAdapter: HomeItemAdapter
-    private lateinit var idleItemsAdapter: HomeItemAdapter
     private lateinit var itemsTitle: TextView
-    private lateinit var favouritesTitle: TextView
+    private lateinit var favoritesTitle: TextView
     private lateinit var idleItemsTitle: TextView
     private lateinit var darkOverlay: View
     private lateinit var tapToReturn: TextView
@@ -72,23 +88,13 @@ class HomeFragment : Fragment() {
 
     var isIconCurrentExpanded: Boolean = false
 
-    fun toggleIconExpansion() {
-        isIconCurrentExpanded = !isIconCurrentExpanded
-    }
-    // return the current state of the expansion
-    fun isIconExpanded(): Boolean {
-        return isIconCurrentExpanded
-    }
-
-    // Singleton Toast inside the companion object
     companion object {
         private var currentToast: Toast? = null
 
-        // This method shows the Toast and cancels any previous one
         fun showToast(context: Context, message: String) {
-            currentToast?.cancel() // Cancel the previous toast
+            currentToast?.cancel() // cancel the previous toast
             currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // Show the new toast
+                show() // show the new toast
             }
         }
     }
@@ -96,7 +102,12 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize the ActivityResultLauncher
+        // Initialize the ViewModel
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = ItemRepository(database.itemDao())
+        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+
+        // initialize the ActivityResultLauncher
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 // Permission granted, turn on notifications
@@ -125,12 +136,15 @@ class HomeFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
+        loadingView = inflater.inflate(R.layout.loading_view, container, false)
+        (root as ViewGroup).addView(loadingView)
+
         // Initialize RecyclerViews and TextViews
-        recyclerView = root.findViewById(R.id.recycler_view) // Initialize items RecyclerView
-        favouritesRecyclerView = root.findViewById(R.id.favorites_recycler_view) // Initialize favorites RecyclerView
+        itemsRecyclerView = root.findViewById(R.id.recycler_view) // Initialize items RecyclerView
+        favoritesRecyclerView = root.findViewById(R.id.favorites_recycler_view) // Initialize favorites RecyclerView
         idleItemsRecyclerView = root.findViewById(R.id.idle_items_recycler_view) // Initialize idle items RecyclerView
         itemsTitle = root.findViewById(R.id.items_title) // Initialize items title
-        favouritesTitle = root.findViewById(R.id.favorites_title) // Initialize favorites title
+        favoritesTitle = root.findViewById(R.id.favorites_title) // Initialize favorites title
         idleItemsTitle = root.findViewById(R.id.idle_items_title) // Initialize idle items title
         tapToReturn = root.findViewById(R.id.tap_to_return) // Initialize return text
 
@@ -138,6 +152,18 @@ class HomeFragment : Fragment() {
         iconCurrentImageView = root.findViewById(R.id.icon_current)
         iconNotif = root.findViewById(R.id.icon_notif)
         iconOutfit = root.findViewById(R.id.icon_outfit)
+
+        // Show loading state initially
+        val emptyMessage = root.findViewById<TextView>(R.id.homeEmptyMessage)
+        emptyMessage.visibility = View.GONE
+
+        // Initially hide all content until data is loaded
+        itemsRecyclerView.visibility = View.GONE
+        favoritesRecyclerView.visibility = View.GONE
+        idleItemsRecyclerView.visibility = View.GONE
+        itemsTitle.visibility = View.GONE
+        favoritesTitle.visibility = View.GONE
+        idleItemsTitle.visibility = View.GONE
 
         // Set the initial visibility of notification and outfit icons
         iconNotif.visibility = View.GONE
@@ -147,13 +173,15 @@ class HomeFragment : Fragment() {
         iconNotif.setImageResource(R.drawable.icon_notif_off) // Set to off state
         isNotifIconOn = false // Ensure the state reflects that notifications are off
 
-        // Empty message TextView
-        val emptyMessage = root.findViewById<TextView>(R.id.homeEmptyMessage)
-
         // Find "See All" TextViews
         val itemsSeeAll = root.findViewById<TextView>(R.id.items_see_all)
-        val favouritesSeeAll = root.findViewById<TextView>(R.id.favorites_see_all)
+        val favoritesSeeAll = root.findViewById<TextView>(R.id.favorites_see_all)
         val idleItemsSeeAll = root.findViewById<TextView>(R.id.idle_items_see_all)
+
+        // Hide "See All" until data is loaded
+        itemsSeeAll.visibility = View.GONE
+        favoritesSeeAll.visibility = View.GONE
+        idleItemsSeeAll.visibility = View.GONE
 
         // Set click listeners for "See All" with navigation image updates
         itemsSeeAll.setOnClickListener {
@@ -162,7 +190,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        favouritesSeeAll.setOnClickListener {
+        favoritesSeeAll.setOnClickListener {
             (activity as? MainActivity)?.findViewById<BottomNavigationView>(R.id.nav_view)?.apply {
                 selectedItemId = R.id.navigation_favorites
             }
@@ -174,215 +202,124 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Sample data
-        val homeItemLists = listOf(
-            HomeItem("Cap", R.drawable.cap),
-            HomeItem("Dress", R.drawable.dress),
-            HomeItem("Shirt", R.drawable.shirt),
-            HomeItem("Shoes", R.drawable.shoes),
-            HomeItem("Shorts", R.drawable.shorts),
-            HomeItem("Skirt", R.drawable.skirt)
-        )
+        // observe LiveData for items from database
+        itemViewModel.items.observe(viewLifecycleOwner) { clothingItems ->
+            lifecycleScope.launch {
+                sortedRecentItems = clothingItems
+                    .sortedByDescending { it.id }
+                    .take(5)
+                    .map { clothingItem ->
+                        HomeItem(
+                            id = clothingItem.id,
+                            name = clothingItem.name,
+                            imageUri = clothingItem.imageUri
+                        )
+                    }
 
-        val favouriteHomeItemLists = listOf(
-            HomeItem("Shirt", R.drawable.shirt),
-            HomeItem("Skirt", R.drawable.skirt),
-            HomeItem("Cap", R.drawable.cap),
-            HomeItem("Shoes", R.drawable.shoes)
-        )
+                if (sortedRecentItems.isNotEmpty()) {
+                    itemsTitle.visibility = View.VISIBLE
+                    itemsSeeAll.visibility = View.VISIBLE
+                    itemsRecyclerView.visibility = View.VISIBLE
 
-        val idleHomeItemLists = listOf(
-            HomeItem("Shorts", R.drawable.shorts),
-            HomeItem("Dress", R.drawable.dress),
-            HomeItem("Shoes", R.drawable.shoes),
-            HomeItem("Cap", R.drawable.cap)
-        )
-
-        // Determine visibility based on the lists
-        if (homeItemLists.isNotEmpty()) {
-            itemsTitle.visibility = View.VISIBLE
-            itemsSeeAll.visibility = View.VISIBLE
-            recyclerView.visibility = View.VISIBLE
-            val itemAdapter = HomeItemAdapter(homeItemLists) { item ->
-                // Click handling for items
-            }
-            recyclerView.adapter = itemAdapter
-            recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        } else {
-            itemsTitle.visibility = View.GONE
-            itemsSeeAll.visibility = View.GONE
-            recyclerView.visibility = View.GONE
-        }
-
-        if (favouriteHomeItemLists.isNotEmpty()) {
-            favouritesTitle.visibility = View.VISIBLE
-            favouritesSeeAll.visibility = View.VISIBLE
-            favouritesRecyclerView.visibility = View.VISIBLE
-            val favouritesAdapter = HomeItemAdapter(favouriteHomeItemLists) { item ->
-                // Click handling for favorites
-            }
-            favouritesRecyclerView.adapter = favouritesAdapter
-            favouritesRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        } else {
-            favouritesTitle.visibility = View.GONE
-            favouritesSeeAll.visibility = View.GONE
-            favouritesRecyclerView.visibility = View.GONE
-        }
-
-        if (idleHomeItemLists.isNotEmpty()) {
-            idleItemsTitle.visibility = View.VISIBLE
-            idleItemsSeeAll.visibility = View.VISIBLE
-            idleItemsRecyclerView.visibility = View.VISIBLE
-            val idleItemsAdapter = HomeItemAdapter(idleHomeItemLists) { item ->
-                // Click handling for idle items
-            }
-            idleItemsRecyclerView.adapter = idleItemsAdapter
-            idleItemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        } else {
-            idleItemsTitle.visibility = View.GONE
-            idleItemsSeeAll.visibility = View.GONE
-            idleItemsRecyclerView.visibility = View.GONE
-        }
-
-        // Show the empty message if all lists are empty
-        if (homeItemLists.isEmpty() && favouriteHomeItemLists.isEmpty() && idleHomeItemLists.isEmpty()) {
-            showEmptyMessage(root) // Show empty message with clickable link
-            emptyMessage.visibility = View.VISIBLE
-        } else {
-            emptyMessage.visibility = View.GONE
-        }
-
-        // Set up RecyclerView for items
-        itemAdapter = HomeItemAdapter(homeItemLists) { item ->
-            // Add a delay
-            val delayMillis = 150L
-            when (item.name) {
-                "Shirt" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShirtFragment)
-                }, delayMillis)
-                "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
-                }, delayMillis)
-
-                "Dress" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoDressFragment)
-                }, delayMillis)
-
-                "Shoes" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShoesFragment)
-                }, delayMillis)
-
-                "Shorts" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShortsFragment)
-                }, delayMillis)
-
-                "Skirt" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoSkirtFragment)
-                }, delayMillis)
+                    val adapter = HomeItemAdapter(sortedRecentItems) { homeItem ->
+                        val bundle = Bundle().apply {
+                            putInt("item_id", homeItem.id)
+                        }
+                        findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment, bundle)
+                    }
+                    itemsRecyclerView.adapter = adapter
+                    itemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                } else {
+                    itemsTitle.visibility = View.GONE
+                    itemsSeeAll.visibility = View.GONE
+                    itemsRecyclerView.visibility = View.GONE
+                }
+                updateEmptyState(root)
+                loadingView?.visibility = View.GONE
             }
         }
 
-        recyclerView.adapter = itemAdapter
-        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        // observe favorite items
+        itemViewModel.favoriteItems.observe(viewLifecycleOwner) { favoriteItems ->
+            lifecycleScope.launch {
+                sortedFavoriteItems = favoriteItems
+                    .sortedByDescending { it.wornTimes }
+                    .take(5)
+                    .map { favoriteItem ->
+                        HomeItem(
+                            id = favoriteItem.id,
+                            name = favoriteItem.name,
+                            imageUri = favoriteItem.imageUri
+                        )
+                    }
 
-        // Set up RecyclerView for favorites
-        favouritesAdapter = HomeItemAdapter(favouriteHomeItemLists) { item ->
-            // Add a delay
-            val delayMillis = 150L
+                if (sortedFavoriteItems.isNotEmpty()) {
+                    favoritesTitle.visibility = View.VISIBLE
+                    favoritesSeeAll.visibility = View.VISIBLE
+                    favoritesRecyclerView.visibility = View.VISIBLE
 
-            when (item.name) {
-                "Shirt" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShirtFragment)
-                }, delayMillis)
-                "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
-                }, delayMillis)
-                "Shoes" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShoesFragment)
-                }, delayMillis)
-                "Skirt" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoSkirtFragment)
-                }, delayMillis)
+                    val adapter = HomeItemAdapter(sortedFavoriteItems) { homeItem ->
+                        val bundle = Bundle().apply {
+                            putInt("item_id", homeItem.id)
+                        }
+                        findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment, bundle)
+                    }
+                    favoritesRecyclerView.adapter = adapter
+                    favoritesRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                } else {
+                    favoritesTitle.visibility = View.GONE
+                    favoritesSeeAll.visibility = View.GONE
+                    favoritesRecyclerView.visibility = View.GONE
+                }
+                updateEmptyState(root)
+                loadingView?.visibility = View.GONE
             }
         }
-        favouritesRecyclerView.adapter = favouritesAdapter
-        favouritesRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        // Set up RecyclerView for idle items
-        idleItemsAdapter = HomeItemAdapter(idleHomeItemLists) { item ->
-            // Add a delay
-            val delayMillis = 150L
+        // observe unused items
+        itemViewModel.items.observe(viewLifecycleOwner) { items ->
+            lifecycleScope.launch {
+                // Filter for unused items and sort by longest unused duration first
+                sortedUnusedItems = items
+                    .filter { item -> hasBeenUnusedForAtLeastThreeMonths(item.lastWornDate) }
+                    .sortedByDescending { item ->
+                        val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                        val lastWornDate = formatter.parse(item.lastWornDate) ?: Date()
+                        Date().time - lastWornDate.time
+                    }
+                    .take(5)
+                    .map { item ->
+                        HomeItem(
+                            id = item.id,
+                            name = item.name,
+                            imageUri = item.imageUri
+                        )
+                    }
 
-            when (item.name) {
-                "Shorts" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShortsFragment)
-                }, delayMillis)
-                "Dress" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoDressFragment)
-                }, delayMillis)
-                "Shoes" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoShoesFragment)
-                }, delayMillis)
-                "Cap" -> recyclerView.postDelayed({
-                    findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment)
-                }, delayMillis)
+                if (sortedUnusedItems.isNotEmpty()) {
+                    idleItemsTitle.visibility = View.VISIBLE
+                    idleItemsSeeAll.visibility = View.VISIBLE
+                    idleItemsRecyclerView.visibility = View.VISIBLE
+
+                    val adapter = HomeItemAdapter(sortedUnusedItems) { homeItem ->
+                        val bundle = Bundle().apply {
+                            putInt("item_id", homeItem.id)
+                        }
+                        findNavController().navigate(R.id.action_homeFragment_to_itemInfoFragment, bundle)
+                    }
+                    idleItemsRecyclerView.adapter = adapter
+                    idleItemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                } else {
+                    idleItemsTitle.visibility = View.GONE
+                    idleItemsSeeAll.visibility = View.GONE
+                    idleItemsRecyclerView.visibility = View.GONE
+                }
+                updateEmptyState(root)
+                loadingView?.visibility = View.GONE
             }
         }
-        idleItemsRecyclerView.adapter = idleItemsAdapter
-        idleItemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         return root
-    }
-
-    private fun showEmptyMessage(root: View) {
-        val fullMessage = getString(R.string.no_items_available)
-
-        // Find the index of the "Add a new item?" part
-        val start = fullMessage.indexOf("Add a new item?")
-        val end = start + "Add a new item?".length
-
-        // Create a SpannableString to apply different styles
-        val spannableString = SpannableString(fullMessage)
-
-        // Make "Add a new item?" clickable and prevent the cyan highlight
-        val clickableSpan = object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                showAddItemFragment() // Open the Add Item Fragment when clicked
-            }
-
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.isUnderlineText = true
-                ds.color = ContextCompat.getColor(requireContext(), R.color.color_items)
-                ds.bgColor = ContextCompat.getColor(requireContext(), R.color.faded_pink)
-            }
-        }
-
-        // Apply clickable span to "Add a new item?"
-        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        // Set the SpannableString to the TextView
-        val emptyMessage: TextView = root.findViewById(R.id.homeEmptyMessage)
-        emptyMessage.text = spannableString
-        emptyMessage.movementMethod = LinkMovementMethod.getInstance() // Make links clickable
-    }
-
-    private fun loadNotificationState() {
-        val sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        isNotifIconOn = sharedPreferences.getBoolean(NOTIF_STATE_KEY, false) // Default to false if not set
-
-        // Set the icon based on the loaded state
-        if (isNotifIconOn) {
-            iconNotif.setImageResource(R.drawable.icon_notif_on)
-            startNotificationWorker() // Start the worker if notifications are enabled
-        } else {
-            iconNotif.setImageResource(R.drawable.icon_notif_off)
-        }
-    }
-
-    private fun showAddItemFragment() {
-        // Navigate to the Add Item Fragment or show a dialog
-        findNavController().navigate(R.id.action_navigation_home_to_addItemFragment)
     }
 
     @SuppressLint("ResourceType")
@@ -394,8 +331,6 @@ class HomeFragment : Fragment() {
 
         // Load notification state after initializing workManager
         loadNotificationState()
-
-        val scrollView = view.findViewById<ScrollView>(R.id.scroll_view)
 
         // Create the overlay
         darkOverlay = View(requireContext()).apply {
@@ -483,10 +418,136 @@ class HomeFragment : Fragment() {
 
         // Add a click listener for iconOutfit to show "Today's Outfit" bottom sheet
         iconOutfit.setOnClickListener {
-            val bottomSheet = TodayOutfitBottomSheet()
-            bottomSheet.show(parentFragmentManager, "TodayOutfitBottomSheet")
+            // Load checked items from SharedPreferences
+            val prefs = requireContext().getSharedPreferences("CheckedItemsPrefs", Context.MODE_PRIVATE)
+            val checkedItemIds = prefs.getStringSet("CheckedItems", emptySet()) ?: emptySet()
+
+            // If we have checked items in SharedPreferences, load them from the database
+            if (checkedItemIds.isNotEmpty()) {
+                lifecycleScope.launch {
+                    try {
+                        // Get the database instance
+                        val database = AppDatabase.getDatabase(requireContext())
+                        val items = database.itemDao().getItemsByIds(checkedItemIds.map { it.toInt() })
+
+                        // Convert items to ClothingItems
+                        val checkedItems = items.map { item ->
+                            ClothingItem(
+                                id = item.id,
+                                imageUri = item.imageUri,
+                                name = item.name,
+                                type = item.type,
+                                color = item.color,
+                                wornTimes = item.wornTimes,
+                                lastWornDate = item.lastWornDate,
+                                isFavorite = item.isFavorite,
+                                fragmentId = R.id.action_homeFragment_to_itemInfoFragment
+                            )
+                        }
+
+                        // Update SharedViewModel
+                        sharedViewModel.setCheckedItems(checkedItems)
+
+                        // Show the bottom sheet with loaded items
+                        val bottomSheet = TodayOutfitBottomSheet(checkedItems)
+                        bottomSheet.show(parentFragmentManager, "TodayOutfitBottomSheet")
+                    } catch (e: Exception) {
+                        Log.e("HomeFragment", "Error loading checked items: ${e.message}")
+                        // Show bottom sheet with empty list if there's an error
+                        val bottomSheet = TodayOutfitBottomSheet(emptyList())
+                        bottomSheet.show(parentFragmentManager, "TodayOutfitBottomSheet")
+                    }
+                }
+            } else {
+                // If no checked items in SharedPreferences, show bottom sheet with empty list
+                val bottomSheet = TodayOutfitBottomSheet(emptyList())
+                bottomSheet.show(parentFragmentManager, "TodayOutfitBottomSheet")
+            }
+        }
+
+        // Initialize the checked items observer separately
+        sharedViewModel.checkedItems.observe(viewLifecycleOwner) {
+            // This will update whenever the checked items change
+            // You can add additional handling here if needed
         }
     }
+
+    private fun hasBeenUnusedForAtLeastThreeMonths(lastWornDate: String): Boolean {
+        if (lastWornDate.isEmpty() || lastWornDate == "N/A") return false
+
+        val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+        return try {
+            val lastWorn = formatter.parse(lastWornDate) ?: return false
+            val diffInMillis = Date().time - lastWorn.time
+            val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
+            val diffInMonths = diffInDays / 30 // Approximate conversion
+            diffInMonths >= 3
+        } catch (e: ParseException) {
+            false
+        }
+    }
+
+    private fun showEmptyMessage(root: View) {
+        val fullMessage = getString(R.string.no_items_available)
+
+        // Find the index of the "Add a new item?" part
+        val start = fullMessage.indexOf("Add a new item?")
+        val end = start + "Add a new item?".length
+
+        // Create a SpannableString to apply different styles
+        val spannableString = SpannableString(fullMessage)
+
+        // Make "Add a new item?" clickable and prevent the cyan highlight
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                showAddItemFragment() // Open the Add Item Fragment when clicked
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.isUnderlineText = true
+                ds.color = ContextCompat.getColor(requireContext(), R.color.color_items)
+                ds.bgColor = ContextCompat.getColor(requireContext(), R.color.faded_pink)
+            }
+        }
+
+        // Apply clickable span to "Add a new item?"
+        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        // Set the SpannableString to the TextView
+        val emptyMessage: TextView = root.findViewById(R.id.homeEmptyMessage)
+        emptyMessage.text = spannableString
+        emptyMessage.movementMethod = LinkMovementMethod.getInstance() // Make links clickable
+    }
+
+    private fun loadNotificationState() {
+        val sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        isNotifIconOn = sharedPreferences.getBoolean(NOTIF_STATE_KEY, false) // Default to false if not set
+
+        // Set the icon based on the loaded state
+        if (isNotifIconOn) {
+            iconNotif.setImageResource(R.drawable.icon_notif_on)
+            startNotificationWorker() // Start the worker if notifications are enabled
+        } else {
+            iconNotif.setImageResource(R.drawable.icon_notif_off)
+        }
+    }
+
+    private fun updateEmptyState(root: View) {
+        val emptyMessage = root.findViewById<TextView>(R.id.homeEmptyMessage)
+        if (sortedRecentItems.isEmpty() && sortedFavoriteItems.isEmpty() && sortedUnusedItems.isEmpty()) {
+            showEmptyMessage(root)
+            emptyMessage.visibility = View.VISIBLE
+        } else {
+            emptyMessage.visibility = View.GONE
+        }
+    }
+
+    private fun showAddItemFragment() {
+        // Navigate to the Add Item Fragment or show a dialog
+        findNavController().navigate(R.id.action_navigation_home_to_addItemFragment)
+    }
+
 
     @SuppressLint("ObjectAnimatorBinding")
     private fun zoomInIcon(imageView: ImageView) {
@@ -671,7 +732,7 @@ class HomeFragment : Fragment() {
                     }
                 }
             } else {
-                // For versions below Android 13
+                // for versions below Android 13
                 iconNotif.setImageResource(R.drawable.icon_notif_on)
                 startNotificationWorker()
                 saveNotificationState(true)
@@ -760,24 +821,6 @@ class HomeFragment : Fragment() {
             notificationWorkRequest
         )
     }
-
-    /*private fun startNotificationWorker() {
-        // Create a one-time work request for the notification
-        val notificationWorkRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .build()
-            )
-            .build()
-
-        // Enqueue the work
-        workManager.enqueueUniqueWork(
-            notificationWorkName,
-            ExistingWorkPolicy.REPLACE,
-            notificationWorkRequest
-        )
-    } */
 
     private fun cancelNotifications() {
         workManager.cancelUniqueWork(notificationWorkName)

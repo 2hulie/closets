@@ -19,6 +19,7 @@ espressoCoreVersion = "3.4.0"
 fragmentTesting = "1.8.5"
 fragmentTestingVersion = "1.5.0"
 glide = "4.12.0"
+gson = "2.12.1"
 kotlin = "2.1.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -57,6 +58,7 @@ runnerVersion = "1.4.0"
 skeletonlayout = "1.0.0"
 workRuntimeKtx = "2.10.0"
 navigationTesting = "2.8.6"
+media3CommonKtx = "1.5.1"
 
 [libraries]
 android-image-cropper = { module = "com.theartofdev.edmodo:android-image-cropper", version.ref = "androidImageCropper" }
@@ -95,6 +97,7 @@ commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "co
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 cropper = { module = "com.github.Hanselmann:Cropper", version.ref = "cropper" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -123,6 +126,7 @@ robolectric-v49 = { module = "org.robolectric:robolectric", version.ref = "robol
 skeletonlayout = { module = "com.github.rohitgohil:SkeletonLayout", version.ref = "skeletonlayout" }
 vanniktech-android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropperVersion" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 
 [plugins]

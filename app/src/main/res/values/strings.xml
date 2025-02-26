@@ -46,8 +46,8 @@
     <string name="crop_image">Crop Image</string>
     <string name="crop_button">Crop button</string>
     <string name="tap_to_add_name">Tap to add name</string>
-    <string name="items_title">Recent <b>Items</b></string>
-    <string name="favorites_title">Recent <b>Favorites</b></string>
+    <string name="items_title">Latest <b>Items</b></string>
+    <string name="favorites_title">Top <b>Favorites</b></string>
     <string name="idle_items_title">Longest <b>Idle Items</b></string>
     <string name="see_all">See all</string>
     <string name="spinner_arrow">Spinner Arrow</string>
@@ -90,7 +90,6 @@
 
     <string-array name="sort_options">
         <item>None</item>
-        <item>Favorites First</item>
         <item>Longest to Recent</item>
         <item>Recent to Longest</item>
     </string-array>
@@ -132,6 +131,7 @@
     <string name="item_name">Item Name</string>
     <string name="card_image">Card Image</string>
     <string name="item_image_desc">Item Image</string>
+    <string name="worn_time">worn %1$d time</string>
     <string name="worn_times">worn %1$d times</string>
     <string name="worn_times_default">worn 0 times</string>
     <string name="details">Details</string>
@@ -144,5 +144,7 @@
     <string name="edit_color">Edit color</string>
     <string name="rotate_button">Rotate button</string>
     <string name="or_choose_a_color">or Choose a Color</string>
+    <string name="update_data">Update Data</string>
+    <string name="replace_data">Replace Data</string>
 
 </resources>

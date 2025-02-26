@@ -24,12 +24,12 @@ data class ClothingItem(
     var isFavorite: Boolean,
     val name: String,
     var wornTimes: Int = 0,
-    var lastWornDate: String? = null,
+    var lastWornDate: String,
     var favoriteIconVisibility: Int = View.VISIBLE,
     var checkedIconVisibility: Int = View.GONE,
     var checkedIconResId: Int = R.drawable.icon_unchecked,
     var isChecked: Boolean = false,
-    val fragmentId: Int
+    val fragmentId: Int,
 ) : Serializable {
     fun getImageUri(): Uri? {
         return imageUri?.let { Uri.parse(it) }

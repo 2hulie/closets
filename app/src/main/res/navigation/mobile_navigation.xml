@@ -33,40 +33,12 @@
             app:destination="@id/currentItemFragment" />
 
         <action
-            android:id="@+id/action_homeFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
-        <action
             android:id="@+id/action_homeFragment_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment" />
 
         <action
-            android:id="@+id/action_homeFragment_to_itemInfoDressFragment"
-            app:destination="@id/itemInfoDressFragment" />
-
-        <action
-            android:id="@+id/action_homeFragment_to_itemInfoShoesFragment"
-            app:destination="@id/itemInfoShoesFragment" />
-
-        <action
-            android:id="@+id/action_homeFragment_to_itemInfoShortsFragment"
-            app:destination="@id/itemInfoShortsFragment" />
-
-        <action
-            android:id="@+id/action_homeFragment_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
-
-        <action
             android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment" />
-
-        <action
-            android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
-        <action
-            android:id="@+id/action_todayOutfitBottomSheet_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
 
         <action
             android:id="@+id/action_homeFragment_to_todayOutfitBottomSheet"
@@ -99,25 +71,6 @@
             android:id="@+id/action_currentItemFragment_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment" />
 
-        <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoDressFragment"
-            app:destination="@id/itemInfoDressFragment" />
-
-        <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
-        <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoShortsFragment"
-            app:destination="@id/itemInfoShortsFragment" />
-
-        <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
-
-        <action
-            android:id="@+id/action_currentItemFragment_to_itemInfoShoesFragment"
-            app:destination="@id/itemInfoShoesFragment" />
     </fragment>
 
     <!-- Favorites Fragment -->
@@ -131,30 +84,10 @@
             android:id="@+id/action_favoritesFragment_to_addItemFragment"
             app:destination="@id/addItemFragment" />
 
-        <!-- Actions to navigate to ItemInfoFragments from FavoritesFragment -->
-        <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
         <action
             android:id="@+id/action_favoritesFragment_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment" />
 
-        <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoDressFragment"
-            app:destination="@id/itemInfoDressFragment" />
-
-        <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoShoesFragment"
-            app:destination="@id/itemInfoShoesFragment" />
-
-        <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoShortsFragment"
-            app:destination="@id/itemInfoShortsFragment" />
-
-        <action
-            android:id="@+id/action_favoritesFragment_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
     </fragment>
 
     <!-- Items Fragment -->
@@ -168,11 +101,6 @@
             android:id="@+id/action_itemsFragment_to_addItemFragment"
             app:destination="@id/addItemFragment" />
 
-        <!-- Actions to navigate to ItemInfoFragments from ItemsFragment -->
-        <action
-            android:id="@+id/action_itemsFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
         <action
             android:id="@+id/action_itemsFragment_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment">
@@ -181,21 +109,6 @@
                 app:argType="integer" />
         </action>
 
-        <action
-            android:id="@+id/action_itemsFragment_to_itemInfoDressFragment"
-            app:destination="@id/itemInfoDressFragment" />
-
-        <action
-            android:id="@+id/action_itemsFragment_to_itemInfoShoesFragment"
-            app:destination="@id/itemInfoShoesFragment" />
-
-        <action
-            android:id="@+id/action_itemsFragment_to_itemInfoShortsFragment"
-            app:destination="@id/itemInfoShortsFragment" />
-
-        <action
-            android:id="@+id/action_itemsFragment_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
     </fragment>
 
     <!-- Add Item Fragment -->
@@ -239,30 +152,10 @@
             android:id="@+id/action_navigation_unused_to_addItemFragment"
             app:destination="@id/addItemFragment" />
 
-        <!-- Actions to navigate to ItemInfoFragments from UnusedFragment -->
-        <action
-            android:id="@+id/action_unusedFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
-
         <action
             android:id="@+id/action_unusedFragment_to_itemInfoFragment"
             app:destination="@id/itemInfoFragment" />
 
-        <action
-            android:id="@+id/action_unusedFragment_to_itemInfoDressFragment"
-            app:destination="@id/itemInfoDressFragment" />
-
-        <action
-            android:id="@+id/action_unusedFragment_to_itemInfoShoesFragment"
-            app:destination="@id/itemInfoShoesFragment" />
-
-        <action
-            android:id="@+id/action_unusedFragment_to_itemInfoShortsFragment"
-            app:destination="@id/itemInfoShortsFragment" />
-
-        <action
-            android:id="@+id/action_unusedFragment_to_itemInfoSkirtFragment"
-            app:destination="@id/itemInfoSkirtFragment" />
     </fragment>
 
     <!-- Data Transfer Fragment -->
@@ -272,17 +165,10 @@
         android:label="@string/title_data"
         tools:layout="@layout/fragment_data" />
 
-    <!-- Shirt Info Fragment -->
-    <fragment
-        android:id="@+id/itemInfoShirtFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoShirtFragment"
-        android:label="Shirt Info"
-        tools:layout="@layout/fragment_item_info_shirt" />
-
-    <!-- Cap Info Fragment -->
+    <!-- Info Fragment -->
     <fragment
         android:id="@+id/itemInfoFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoFragment"
+        android:name="com.example.closets.ui.items.ItemInfoFragment"
         android:label="Item Info"
         tools:layout="@layout/fragment_item_info">
 
@@ -292,42 +178,11 @@
 
     </fragment>
 
-    <!-- Dress Info Fragment -->
-    <fragment
-        android:id="@+id/itemInfoDressFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoDressFragment"
-        android:label="Dress Info"
-        tools:layout="@layout/fragment_item_info_dress" />
-
-    <!-- Shoes Info Fragment -->
-    <fragment
-        android:id="@+id/itemInfoShoesFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoShoesFragment"
-        android:label="Shoes Info"
-        tools:layout="@layout/fragment_item_info_shoes" />
-
-    <!-- Shorts Info Fragment -->
-    <fragment
-        android:id="@+id/itemInfoShortsFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoShortsFragment"
-        android:label="Shorts Info"
-        tools:layout="@layout/fragment_item_info_shorts" />
-
-    <!-- Skirt Info Fragment -->
-    <fragment
-        android:id="@+id/itemInfoSkirtFragment"
-        android:name="com.example.closets.ui.fragments.ItemInfoSkirtFragment"
-        android:label="Skirt Info"
-        tools:layout="@layout/fragment_item_info_skirt" />
-
     <fragment
         android:id="@+id/editItemInfoFragment"
         android:name="com.example.closets.ui.edit.EditItemInfoFragment"
         android:label="Edit Item Info">
         <!-- Add Discard Changes and Save Changes Actions -->
-        <action
-            android:id="@+id/action_editItemInfoFragment_to_itemInfoShirtFragment"
-            app:destination="@id/itemInfoShirtFragment" />
 
         <action
             android:id="@+id/action_editItemInfoFragment_to_itemInfoFragment"
