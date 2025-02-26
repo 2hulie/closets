@@ -5,7 +5,7 @@ import android.widget.ImageView
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
-import com.example.closets.ui.fragments.ItemInfoFragment
+import com.example.closets.ui.items.ItemInfoFragment
 import com.example.closets.ui.items.ClothingItem
 import com.example.closets.ui.items.ItemsAdapter
 import com.example.closets.ui.items.ItemsFragment

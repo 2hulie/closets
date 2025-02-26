@@ -83,15 +83,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         "black" to "#000000"
     )
 
-    // Singleton Toast inside the companion object
     companion object {
         private var currentToast: Toast? = null
 
-        // This method shows the Toast and cancels any previous one
         fun showToast(context: Context, message: String) {
-            currentToast?.cancel() // Cancel the previous toast
+            currentToast?.cancel() // cancel the previous toast
             currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // Show the new toast
+                show() // show the new toast
             }
         }
     }
@@ -140,7 +138,6 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         // Observe the items from the ViewModel
         itemViewModel.items.observe(viewLifecycleOwner) { items ->
             lifecycleScope.launch {
-                // Process items in the background
                 allItems = items.map { convertToClothingItem(it) }
                 sortedItems = allItems.toMutableList()
 
@@ -159,9 +156,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         // Initialize the adapter
         initializeViews(view)
 
-        // Set up icon_add click listener
         binding.iconAdd.setOnClickListener {
-            showAddItemFragment()
+            val currentCount = itemViewModel.items.value?.size ?: 0
+            if (currentCount >= 50) {
+                showToast(requireContext(), "Items full, please delete some items.")
+            } else {
+                showAddItemFragment()
+            }
         }
 
         // Initialize the adapter

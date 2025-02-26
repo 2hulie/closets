@@ -6,17 +6,19 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.closets.R
+import com.example.closets.ui.items.ClothingItem
 
-
-class TodayOutfitItemAdapter(private val homeItems: List<HomeItem>, private val clickListener: (HomeItem) -> Unit) :
-    RecyclerView.Adapter<TodayOutfitItemAdapter.ItemViewHolder>() {
+class TodayOutfitItemAdapter(
+    private var clothingItems: List<ClothingItem>, // Change to ClothingItem
+    private val clickListener: (ClothingItem) -> Unit // Change to ClothingItem
+) : RecyclerView.Adapter<TodayOutfitItemAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemImage: ImageView = itemView.findViewById(R.id.item_image)
 
-        fun bind(homeItem: HomeItem) {
-            itemImage.setImageResource(homeItem.imageResId) // Item class has an imageResId field
-            itemView.setOnClickListener { clickListener(homeItem) }
+        fun bind(clothingItem: ClothingItem) { // Change to ClothingItem
+            itemImage.setImageURI(clothingItem.getImageUri()) // Assuming ClothingItem has a method to get the image URI
+            itemView.setOnClickListener { clickListener(clothingItem) } // Change to ClothingItem
         }
     }
 
@@ -27,10 +29,15 @@ class TodayOutfitItemAdapter(private val homeItems: List<HomeItem>, private val 
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.bind(homeItems[position])
+        holder.bind(clothingItems[position]) // Change to clothingItems
     }
 
     override fun getItemCount(): Int {
-        return homeItems.size
+        return clothingItems.size // Change to clothingItems
+    }
+
+    fun updateItems(newItems: List<ClothingItem>) {
+        clothingItems = newItems
+        notifyDataSetChanged() // Notify the adapter to refresh the view
     }
 }

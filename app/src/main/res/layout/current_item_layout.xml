@@ -36,7 +36,7 @@
                 android:id="@+id/checked_icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_margin="4dp"
+                android:layout_margin="7dp"
                 android:contentDescription="@string/checked_icon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

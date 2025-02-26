@@ -5,12 +5,13 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "items")
 data class Item(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // Primary key with auto-increment
-    val name: String, //  Name of the item
-    val type: String, // Type of the item (e.g., shirt, pants)
-    val color: String, // Color of the item
-    val wornTimes: Int, // Number of times the item has been worn
+    @PrimaryKey(autoGenerate = true) val id: Int = 0, // primary key with auto-increment
+    val name: String,
+    val type: String,
+    val color: String,
+    var wornTimes: Int,
     val imageUri: String?,
-    val lastWornDate: String = "", // Date when the item was last worn
-    var isFavorite: Boolean
+    var lastWornDate: String,
+    var isFavorite: Boolean,
+    var isChecked: Boolean = false,
 )

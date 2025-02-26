@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
@@ -28,8 +27,8 @@ import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class FavoritesFragment : Fragment() {
 
@@ -71,15 +70,13 @@ class FavoritesFragment : Fragment() {
         "black" to "#000000"
     )
 
-    // Singleton Toast inside the companion object
     companion object {
         private var currentToast: Toast? = null
 
-        // This method shows the Toast and cancels any previous one
         fun showToast(context: Context, message: String) {
-            currentToast?.cancel() // Cancel the previous toast
+            currentToast?.cancel() // cancel the previous toast
             currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // Show the new toast
+                show() // show the new toast
             }
         }
     }
@@ -128,8 +125,6 @@ class FavoritesFragment : Fragment() {
         // Observe favorite items
         itemViewModel.favoriteItems.observe(viewLifecycleOwner) { favoriteItems ->
             lifecycleScope.launch {
-                delay(100) // Optional delay for loading effect
-
                 allFavoriteItems = favoriteItems.map { convertToClothingItem(it) }
                 sortedFavoriteItems = allFavoriteItems.toMutableList()
 
@@ -248,13 +243,13 @@ class FavoritesFragment : Fragment() {
             wornTimes = item.wornTimes,
             lastWornDate = item.lastWornDate,
             isFavorite = item.isFavorite,
-            fragmentId = R.id.action_favoritesFragment_to_itemInfoFragment
+            fragmentId = R.id.action_favoritesFragment_to_itemInfoFragment,
         )
     }
 
 
     // Method to update the dynamic title with the item count
-    fun updateItemsCount() {
+    private fun updateItemsCount() {
         val itemCount = sortedFavoriteItems.size
         val dynamicTitle = resources.getQuantityString(R.plurals.favorite_items_count, itemCount, itemCount)
         binding.favoriteItemsCountText.text = dynamicTitle
@@ -306,13 +301,13 @@ class FavoritesFragment : Fragment() {
         val valWeight = 1.0
 
         // Calculate wrapped hue difference
-        var hueDiff = Math.abs(color1[0] - color2[0])
+        var hueDiff = abs(color1[0] - color2[0])
         if (hueDiff > 180) hueDiff = 360 - hueDiff
         hueDiff /= 180 // Normalize to [0,1]
 
         // Calculate saturation and value differences
-        val satDiff = Math.abs(color1[1] - color2[1])
-        val valDiff = Math.abs(color1[2] - color2[2])
+        val satDiff = abs(color1[1] - color2[1])
+        val valDiff = abs(color1[2] - color2[2])
 
         // Weighted distance
         return hueDiff * hueWeight +

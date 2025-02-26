@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F0EDED"
-    tools:context=".ui.fragments.ItemInfoFragment">
+    tools:context=".ui.items.ItemInfoFragment">
 
     <!-- Background ImageView (bg_pink) -->
     <ImageView

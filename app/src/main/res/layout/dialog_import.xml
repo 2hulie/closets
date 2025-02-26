@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_background"
+    android:padding="25dp">
+
+    <!-- Dialog Title -->
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Import Closet"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        android:textColor="#62444B" />
+
+    <!-- Close Button -->
+    <TextView
+        android:id="@+id/btn_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/close_button"
+        android:text="X Close"
+        android:padding="0dp"
+        android:textSize="14sp"
+        android:textColor="@color/color_unused"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="100dp"
+        tools:ignore="HardcodedText" />
+
+    <!-- Horizontal Divider -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"
+        android:layout_below="@id/dialog_title"/>
+
+    <!-- Dialog Message -->
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What do you want to do with your closet?"
+        android:textSize="17sp"
+        android:paddingBottom="15dp"
+        android:textColor="#9D5666"
+        android:layout_below="@id/divider"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Horizontal LinearLayout with two buttons -->
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="2"
+        android:layout_below="@id/dialog_message">
+
+        <!-- Update Button -->
+        <ImageView
+            android:id="@+id/btn_update"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_update_small"
+            android:contentDescription="@string/update_data"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="5dp"/>
+
+        <!-- Replace Button -->
+        <ImageView
+            android:id="@+id/btn_replace"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:src="@drawable/icon_replace_small"
+            android:contentDescription="@string/replace_data"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="5dp"/>
+    </LinearLayout>
+</RelativeLayout>

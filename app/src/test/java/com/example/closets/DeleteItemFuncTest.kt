@@ -1,13 +1,10 @@
 package com.example.closets
 
-import android.os.Bundle
 import android.widget.ImageView
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
-import com.example.closets.ui.fragments.ItemInfoFragment
-import com.example.closets.ui.items.ClothingItem
-import com.example.closets.ui.items.ItemsAdapter
+import com.example.closets.ui.items.ItemInfoFragment
 import com.example.closets.ui.items.ItemsFragment
 import com.example.closets.ui.viewmodels.ItemViewModel
 import org.junit.Before

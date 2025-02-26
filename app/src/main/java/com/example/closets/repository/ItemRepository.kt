@@ -15,7 +15,11 @@ class ItemRepository(private val itemDao: ItemDao) {
         return itemDao.getAllItems()
     }
 
-    // Method to get a single item by ID
+    suspend fun getAllItemsDirectly(): List<Item> {
+        return itemDao.getAllItemsDirectly()
+    }
+
+    // method to get a single item by ID
     fun getItemById(itemId: Int): LiveData<Item> {
         return itemDao.getItemById(itemId)
     }
@@ -24,13 +28,34 @@ class ItemRepository(private val itemDao: ItemDao) {
         return itemDao.getFavoriteItems()
     }
 
+    fun getUnusedItems(): LiveData<List<Item>> {
+        return itemDao.getUnusedItems()
+    }
+
+    suspend fun getItemCount(): Int {
+        return itemDao.getItemCount()
+    }
+
     suspend fun updateItemFavoriteStatus(itemId: Int, isFavorite: Boolean) {
         itemDao.updateItemFavoriteStatus(itemId, isFavorite)
     }
 
-    // Update an existing item
+    // update an existing item
     suspend fun updateItem(item: Item) {
         itemDao.updateItem(item)
+    }
+
+    // method to update items in the database
+    suspend fun updateItems(items: List<Item>) {
+        itemDao.updateItems(items)
+    }
+
+    suspend fun getItemByIdDirectly(id: Int): Item? {
+        return itemDao.getItemByIdDirectly(id)
+    }
+
+    suspend fun clearAllItems() {
+        itemDao.clearAllItems()
     }
 
     // Delete an item from the database
@@ -38,8 +63,8 @@ class ItemRepository(private val itemDao: ItemDao) {
         itemDao.deleteItem(item)
     }
 
-    // Delete multiple items by their IDs
+    // delete multiple items by their IDs
     suspend fun deleteItemsByIds(itemIds: List<Int>) {
-        itemDao.deleteItemsByIds(itemIds) // Implement this in your DAO
+        itemDao.deleteItemsByIds(itemIds)
     }
 }

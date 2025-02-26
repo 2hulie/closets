@@ -641,11 +641,11 @@ class AddItemFragment : Fragment() {
             style = Paint.Style.STROKE
         }
 
-        // Draw crosshair
+        // draw crosshair
         canvas.drawLine(centerX - 10, centerY, centerX + 10, centerY, crosshairPaint)
         canvas.drawLine(centerX, centerY - 10, centerX, centerY + 10, crosshairPaint)
 
-        // Add a circle around the crosshair
+        // add a circle around the crosshair
         canvas.drawCircle(centerX, centerY, 10f, crosshairPaint)
 
         (magnifierView as? ImageView)?.setImageBitmap(magnifiedBitmap)
@@ -653,16 +653,14 @@ class AddItemFragment : Fragment() {
 
     fun saveItemChanges() {
         if (validateInputs()) {
-            // Check for duplicate item name
             val itemName = addItemNameEditText.text.toString()
             itemViewModel.items.observe(viewLifecycleOwner) { existingItems ->
                 val isDuplicate = existingItems.any { it.name.equals(itemName, ignoreCase = true) }
                 if (isDuplicate) {
                     showToast(requireContext(), "Name already exists.")
-                    return@observe // Exit the function if duplicate found
+                    return@observe // exit the function if duplicate found
                 }
 
-                // Proceed to save the item if no duplicates
                 try {
                     val itemType = typeSpinner.selectedItem.toString()
                     val wornTimes = wornTimesTextView.text.toString().substringAfter("worn ").substringBefore(" times").toInt()
@@ -670,13 +668,11 @@ class AddItemFragment : Fragment() {
 
                     val formattedColor = String.format("#%06X", (0xFFFFFF and selectedColor))
 
-                    // Get the image URI from the ImageView
                     val imageUriString = imageUri?.toString() ?: run {
                         showToast(requireContext(), "Error: No image selected")
                         return@observe
                     }
 
-                    // Create a new Item object
                     val newItem = Item(
                         name = itemName,
                         type = itemType,
@@ -687,7 +683,6 @@ class AddItemFragment : Fragment() {
                         isFavorite = false
                     )
 
-                    // Save the item using the ViewModel
                     itemViewModel.insert(newItem)
 
                     Log.d(
@@ -716,10 +711,10 @@ class AddItemFragment : Fragment() {
         lastWornTextView.text = "N/A"
     }
 
-    // Validate inputs and show Toast messages
+    // validate inputs and show Toast messages
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun validateInputs(): Boolean {
-        // Check if item name is empty
+        // check if item name is empty
         if (addItemNameEditText.text.isBlank()) {
             showToast(
                 requireContext(),
@@ -728,7 +723,6 @@ class AddItemFragment : Fragment() {
             return false
         }
 
-        // Check if an item type is selected (assuming position 0 is "Please select")
         if (typeSpinner.selectedItemPosition == 0) {
             showToast(
                 requireContext(),
@@ -737,7 +731,7 @@ class AddItemFragment : Fragment() {
             return false
         }
 
-        // Check if an image is selected and if it's not the default image
+        // check if an image is selected and if it's not the default image
         val drawable = addImageView.drawable
         if (drawable == null || drawable.constantState == ContextCompat.getDrawable(requireContext(), R.drawable.add_item_image)?.constantState) {
             showToast(
@@ -747,38 +741,28 @@ class AddItemFragment : Fragment() {
             return false
         }
 
-        // If all validations pass
+        // if all validations pass
         return true
     }
 
     fun showDiscardChangesDialog() {
-        // Create the AlertDialog builder
         val dialogBuilder = AlertDialog.Builder(requireContext())
 
-        // Inflate the custom layout
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_discard_changes, null)
 
-        // Set the custom layout as the dialog content
         dialogBuilder.setView(dialogView)
 
-        // Create the dialog
         val dialog = dialogBuilder.create()
 
-        // Remove the default background to avoid unwanted outlines
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Set up button actions
         dialogView.findViewById<ImageView>(R.id.btn_discard).setOnClickListener {
-            // Restore bottom navigation behavior
             restoreBottomNavigation()
-
-            // Go back to the previous fragment in the navigation stack
             findNavController().navigateUp()
-
-            dialog.dismiss() // Close the dialog
+            dialog.dismiss() // close the dialog
         }
         dialogView.findViewById<ImageView>(R.id.btn_cancel).setOnClickListener {
-            dialog.dismiss() // Close the dialog without taking any action
+            dialog.dismiss() // close the dialog without taking any action
         }
 
         dialog.show()

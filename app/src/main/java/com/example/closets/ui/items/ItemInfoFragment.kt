@@ -1,4 +1,4 @@
-package com.example.closets.ui.fragments
+package com.example.closets.ui.items
 
 import android.graphics.Color
 import android.os.Bundle
@@ -17,7 +17,6 @@ import com.example.closets.R
 import com.example.closets.repository.AppDatabase
 import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.entities.Item
-import com.example.closets.ui.items.ClothingItem
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 
@@ -142,7 +141,7 @@ class ItemInfoFragment : Fragment() {
         val deleteButton = dialogView.findViewById<ImageView>(R.id.btn_delete)
         val cancelButton = dialogView.findViewById<ImageView>(R.id.btn_cancel)
 
-        // Remove the default background to avoid unwanted outlines
+        // avoid unwanted outlines
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         deleteButton.setOnClickListener {
@@ -189,10 +188,17 @@ class ItemInfoFragment : Fragment() {
         isFavorite = item.isFavorite
         updateFavoriteIcon()
 
-        // Update the worn text
+        /// Update the worn text
         val wornTextView = view?.findViewById<TextView>(R.id.worn_text)
-        wornTextView?.text = getString(R.string.worn_times, item.wornTimes) // Display the worn count
+        wornTextView?.text = if (item.wornTimes == 1) {
+            getString(R.string.worn_time, item.wornTimes) // Use singular form
+        } else {
+            getString(R.string.worn_times, item.wornTimes) // Use plural form
+        }
 
+        // Update the last worn date text
+        val lastWornDateTextView = view?.findViewById<TextView>(R.id.last_worn_value)
+        lastWornDateTextView?.text = item.lastWornDate
     }
 
     private fun updateFavoriteIcon() {

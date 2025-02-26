@@ -1,25 +1,33 @@
 package com.example.closets.ui.home
 
+import android.content.ContentValues.TAG
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsetsController
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.closets.R
+import com.example.closets.SharedViewModel
+import com.example.closets.ui.items.ClothingItem
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class TodayOutfitBottomSheet : BottomSheetDialogFragment() {
+class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : BottomSheetDialogFragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var outfitItemAdapter: TodayOutfitItemAdapter
     private lateinit var backButton: ImageView
     private lateinit var pencilIcon: ImageView
+    private lateinit var emptyStateText: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +38,23 @@ class TodayOutfitBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Load checked items from SharedPreferences if none provided
+        if (checkedItems.isEmpty()) {
+            val prefs = requireContext().getSharedPreferences("CheckedItemsPrefs", Context.MODE_PRIVATE)
+            val checkedItemIds = prefs.getStringSet("CheckedItems", emptySet()) ?: emptySet()
+
+            // Get items from SharedViewModel or database
+            val sharedViewModel: SharedViewModel by activityViewModels()
+            sharedViewModel.checkedItems.observe(viewLifecycleOwner) { items ->
+                if (items.isNotEmpty()) {
+                    checkedItems = items
+                    outfitItemAdapter.updateItems(items)
+                    updateUIState()
+                }
+            }
+        }
+
         initializeUI(view)
         setUpRecyclerView()
         setClickListeners()
@@ -39,21 +64,34 @@ class TodayOutfitBottomSheet : BottomSheetDialogFragment() {
         recyclerView = view.findViewById(R.id.todays_outfit_recycler_view)
         backButton = view.findViewById(R.id.icon_back)
         pencilIcon = view.findViewById(R.id.icon_pencil)
+        emptyStateText = view.findViewById(R.id.empty_state_text)
     }
 
     private fun setUpRecyclerView() {
-        val todaysOutfitList = listOf(
-            HomeItem("Cap", R.drawable.cap),
-            HomeItem("Skirt", R.drawable.skirt)
-        )
-
-        outfitItemAdapter = TodayOutfitItemAdapter(todaysOutfitList) { item ->
+        Log.d(TAG, "Setting up RecyclerView with ${checkedItems.size} items")
+        outfitItemAdapter = TodayOutfitItemAdapter(checkedItems) { item ->
             dismissAndNavigateToItemInfo(item)
         }
 
         recyclerView.apply {
             adapter = outfitItemAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(true)  // Optimization if items are fixed size
+        }
+
+        // Update the UI state based on the checked items
+        updateUIState()
+    }
+
+    private fun updateUIState() {
+        if (checkedItems.isEmpty()) {
+            Log.d(TAG, "No items to display")
+            recyclerView.visibility = View.GONE
+            emptyStateText.visibility = View.VISIBLE
+        } else {
+            Log.d(TAG, "Displaying ${checkedItems.size} items")
+            recyclerView.visibility = View.VISIBLE
+            emptyStateText.visibility = View.GONE
         }
     }
 
@@ -67,14 +105,14 @@ class TodayOutfitBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private fun dismissAndNavigateToItemInfo(homeItem: HomeItem) {
+    private fun dismissAndNavigateToItemInfo(homeItem: ClothingItem) {
         dismiss()
-        val actionId = when (homeItem.name) {
-            "Cap" -> R.id.action_todayOutfitBottomSheet_to_itemInfoFragment
-            "Skirt" -> R.id.action_todayOutfitBottomSheet_to_itemInfoSkirtFragment
-            else -> null
+        // Create a Bundle to pass the item ID to the ItemInfoFragment
+        val bundle = Bundle().apply {
+            putInt("item_id", homeItem.id) // Pass the item ID
         }
-        actionId?.let { findNavController().navigate(it) }
+        // Navigate to the ItemInfoFragment with the Bundle
+        findNavController().navigate(R.id.action_todayOutfitBottomSheet_to_itemInfoFragment, bundle)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

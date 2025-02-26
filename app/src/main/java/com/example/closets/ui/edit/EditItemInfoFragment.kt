@@ -759,8 +759,14 @@ class EditItemInfoFragment : Fragment() {
             // Set the color circle based on the item's color
             colorCircle.setBackgroundColor(Color.parseColor(it.color))
 
-            wornTimesTextView.text = getString(R.string.worn_times, it.wornTimes)
-            lastWornTextView.text = it.lastWornDate ?: "N/A" // Handle null case if necessary
+            // Update the worn times text
+            wornTimesTextView.text = if (it.wornTimes == 1) {
+                getString(R.string.worn_time, it.wornTimes) // Use singular form
+            } else {
+                getString(R.string.worn_times, it.wornTimes) // Use plural form
+            }
+
+            lastWornTextView.text = it.lastWornDate ?: ""
 
             // Set the image URI
             imageUri = Uri.parse(it.imageUri) // Store the existing image URI
