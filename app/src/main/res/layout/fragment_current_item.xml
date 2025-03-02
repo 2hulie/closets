@@ -191,16 +191,34 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <!-- ImageView for save icon -->
-    <ImageView
-        android:id="@+id/save_icon"
-        android:layout_width="190dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="0dp"
-        android:src="@drawable/icon_save"
+    <!-- Save & Reset Button Layout -->
+    <LinearLayout
+        android:id="@+id/save_reset_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="100dp" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Reset Outfit Button -->
+        <ImageView
+            android:id="@+id/icon_reset_outfit"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:src="@drawable/icon_reset_outfit"
+            android:layout_marginEnd="20dp"
+            android:contentDescription="@string/reset_outfit" />
+
+        <!-- Save Outfit Button -->
+        <ImageView
+            android:id="@+id/save_icon"
+            android:layout_width="150dp"
+            android:layout_height="80dp"
+            android:src="@drawable/icon_save"
+            android:contentDescription="@string/save_outfit" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

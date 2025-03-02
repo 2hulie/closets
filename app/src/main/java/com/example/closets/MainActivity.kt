@@ -1,15 +1,20 @@
 package com.example.closets
 
 import android.content.Context
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.view.WindowInsetsController
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -29,20 +34,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navView: BottomNavigationView
     private lateinit var navController: NavController
 
+    companion object {
+        private const val READ_STORAGE_PERMISSION_CODE = 101
+    }
+
+    private var hasStoragePermission = false
+    private var permissionDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Force light mode to prevent dark mode
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        showTipsDialog() // Show tips dialog
+        checkPermissions()
+        showTipsDialog()
 
         navView = binding.navView
 
-        // Make the navigation bar dark
         val window = window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             window.navigationBarColor = ContextCompat.getColor(this, android.R.color.black)
@@ -55,22 +65,137 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Get the NavController from the NavHostFragment
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        // Set the default image for the navigation
-        updateNavigationImage(R.drawable.nav_home) // Set to default PNG resource
+        updateNavigationImage(R.drawable.nav_home)
 
-        // Set up the ImageView click listeners for navigation
         setupNavigationClickListeners(navController)
 
-        // Set up back press handling
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 handleBackPress()
             }
         })
     }
+
+    override fun onResume() {
+        super.onResume()
+        if (permissionDialog?.isShowing != true) {
+            val previousPermissionState = hasStoragePermission
+            checkPermissions() // This updates hasStoragePermission.
+            // If the permission was previously false but is now true, refresh the activity.
+            if (!previousPermissionState && hasStoragePermission) {
+                recreate() // Refresh the entire activity.
+            }
+        }
+    }
+
+    private fun checkPermissions() {
+        val permissionToCheck = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        hasStoragePermission = ContextCompat.checkSelfPermission(this, permissionToCheck) ==
+                PackageManager.PERMISSION_GRANTED
+
+        if (!hasStoragePermission) {
+            // Show our custom pre-permission dialog if permission isn't granted.
+            showPrePermissionDialog()
+        }
+    }
+
+    private fun showPrePermissionDialog() {
+        if (isFinishing || permissionDialog?.isShowing == true) return
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_permission_denied, null)
+        val btnSettings = dialogView.findViewById<ImageView>(R.id.btn_settings)
+        val btnCancel = dialogView.findViewById<ImageView>(R.id.btn_cancel)
+
+        btnSettings.setOnClickListener {
+            permissionDialog?.dismiss()
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+            }
+            startActivity(intent)
+        }
+
+        btnCancel.setOnClickListener {
+            permissionDialog?.dismiss()
+            finish()
+        }
+
+        permissionDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        permissionDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        permissionDialog?.show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == READ_STORAGE_PERMISSION_CODE) {
+            hasStoragePermission = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (hasStoragePermission) {
+                showTipsDialog()
+            } else {
+                val permissionToCheck = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Manifest.permission.READ_MEDIA_IMAGES
+                } else {
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                }
+                // If the user has permanently denied the permission, shouldShowRequestPermissionRationale returns false.
+                if (!shouldShowRequestPermissionRationale(permissionToCheck)) {
+                    showPermissionDeniedDialog()
+                } else {
+                    showPermissionDeniedDialog()
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun showPermissionDeniedDialog() {
+        if (isFinishing || permissionDialog?.isShowing == true) return
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_permission_denied, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.dialog_title)
+        val messageTextView = dialogView.findViewById<TextView>(R.id.dialog_message)
+        val btnSettings = dialogView.findViewById<ImageView>(R.id.btn_settings)
+        val btnCancel = dialogView.findViewById<ImageView>(R.id.btn_cancel)
+
+        titleTextView.text = "Full Permission Required"
+        messageTextView.text = "This app requires full access to your photos to function properly. Please go to Settings and enable full access."
+
+        btnSettings.setOnClickListener {
+            permissionDialog?.dismiss()
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+            }
+            startActivity(intent)
+        }
+
+        btnCancel.setOnClickListener {
+            permissionDialog?.dismiss()
+            finish()
+        }
+
+        permissionDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        permissionDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        permissionDialog?.show()
+    }
+
 
     private fun handleBackPress() {
         val currentFragment = supportFragmentManager
@@ -161,72 +286,64 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun showTipsDialog(): AlertDialog? {
+    private fun showTipsDialog(): AlertDialog? {
         val sharedPreferences = getSharedPreferences("YourPrefs", Context.MODE_PRIVATE)
         val dontShowAgain = sharedPreferences.getBoolean("dont_show_tips", false)
 
-        // Show the dialog only if the user hasn't opted out
         if (!dontShowAgain) {
-            // Inflate the dialog layout
             val dialogView = layoutInflater.inflate(R.layout.dialog_tips, null)
-
-            // Create the dialog
             val dialog = AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setCancelable(true) // Allow the dialog to be canceled
+                .setCancelable(true)
                 .create()
 
-            // Remove the default background to avoid unwanted outlines
             dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-            // Find views
             val checkBoxDontShowAgain: CheckBox = dialogView.findViewById(R.id.checkbox_dont_show_again)
             val btnClose: TextView = dialogView.findViewById(R.id.btn_close)
 
-            // Set the close button click listener
             btnClose.setOnClickListener {
                 if (checkBoxDontShowAgain.isChecked) {
-                    // Save the preference to not show the dialog again
                     sharedPreferences.edit().putBoolean("dont_show_tips", true).apply()
                 }
-                // Mark that the tips dialog has been shown
                 sharedPreferences.edit().putBoolean("tips_shown", true).apply()
                 dialog.dismiss()
             }
 
-            // Set a listener for when the dialog is canceled (e.g., tapping outside)
             dialog.setOnCancelListener {
                 if (checkBoxDontShowAgain.isChecked) {
-                    // Save the preference to not show the dialog again
                     sharedPreferences.edit().putBoolean("dont_show_tips", true).apply()
                 }
-                // Mark that the tips dialog has been shown
                 sharedPreferences.edit().putBoolean("tips_shown", true).apply()
             }
 
-            // Show the dialog
             dialog.show()
-            return dialog // Return the dialog instance
+            return dialog
         }
-        return null // Return null if the dialog is not shown
+        return null
     }
 
     private fun setupNavigationClickListeners(navController: NavController) {
         val navigationImageView = findViewById<ImageView>(R.id.navigation_image_view)
 
+        // Set a click listener for the navigation image view.
         navigationImageView.setOnClickListener {
-            // Handle clicks based on the current image
-            when (it) {
-                findViewById<ImageView>(R.id.navigation_image_view) -> {
-                    // Navigate to Home when clicking on nav_home image
-                    navController.navigate(R.id.navigation_home)
-                }
+            // Check if storage permission is available.
+            if (!hasStoragePermission) {
+                showPermissionDeniedDialog()
+                return@setOnClickListener
             }
+            // Navigate to the home screen.
+            navController.navigate(R.id.navigation_home)
         }
 
         // Set a listener for bottom navigation view item selection to update image
         @Suppress("DEPRECATION")
         navView.setOnNavigationItemSelectedListener { item ->
+            if (!hasStoragePermission) {
+                showPermissionDeniedDialog()
+                return@setOnNavigationItemSelectedListener false
+            }
             when (item.itemId) {
                 R.id.navigation_home -> {
                     updateNavigationImage(R.drawable.nav_home)
@@ -265,5 +382,11 @@ class MainActivity : AppCompatActivity() {
     fun updateNavigationImage(imageResId: Int) {
         // Update the ImageView with the new image resource
         findViewById<ImageView>(R.id.navigation_image_view).setImageResource(imageResId)
+    }
+
+    override fun onDestroy() {
+        // Dismiss any dialog to prevent window leaks.
+        permissionDialog?.dismiss()
+        super.onDestroy()
     }
 }

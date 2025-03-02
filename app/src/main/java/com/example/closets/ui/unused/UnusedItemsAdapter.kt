@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.ui.items.ClothingItem
 
@@ -45,9 +46,32 @@ class UnusedItemsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentItem = items[position]
-        holder.itemImage.setImageURI(currentItem.clothingItem.getImageUri())
+        val context = holder.itemView.context
+
+        val imageUri = currentItem.clothingItem.getImageUri() // if type is Uri?
+        if (imageUri != null) {
+            try {
+                // Use the URI directly.
+                context.contentResolver.openInputStream(imageUri)?.use {
+                    holder.itemImage.setImageURI(imageUri)
+                } ?: run {
+                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
+            } catch (e: SecurityException) {
+                if (context is MainActivity) {
+                    context.showPermissionDeniedDialog()
+                }
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            } catch (e: Exception) {
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            }
+        } else {
+            holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+        }
+
         holder.itemDuration.text = currentItem.duration
     }
+
 
     override fun getItemCount(): Int {
         return items.size

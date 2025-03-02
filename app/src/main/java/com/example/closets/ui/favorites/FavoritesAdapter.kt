@@ -10,8 +10,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.repository.AppDatabase
 import com.example.closets.repository.ItemRepository
@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 class FavoritesAdapter(
     private var items: MutableList<ClothingItem>,
     private val itemClickListener: (ClothingItem) -> Unit,
-    private val onItemRemoved: () -> Unit // Callback when item is removed
+    private val onItemRemoved: () -> Unit
 ) : RecyclerView.Adapter<FavoritesAdapter.FavoriteViewHolder>() {
 
     inner class FavoriteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -31,7 +31,6 @@ class FavoritesAdapter(
         private val removeIcon: ImageView = itemView.findViewById(R.id.remove_icon)
 
         init {
-            // Handle item click (optional action when clicked)
             itemView.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -41,67 +40,64 @@ class FavoritesAdapter(
                 }
             }
 
-            // Handle remove icon click with confirmation dialog
             removeIcon.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    // Show the confirmation dialog
                     showConfirmationDialog(itemView.context, position)
                 }
             }
         }
 
+        @SuppressLint("SetTextI18n")
         fun bind(item: ClothingItem) {
-            // Load image using setImageURI for the image URI
+            val context = itemView.context
             if (!item.imageUri.isNullOrEmpty()) {
-                itemImage.setImageURI(Uri.parse(item.imageUri)) // Set the image URI directly
+                try {
+                    val uri = Uri.parse(item.imageUri)
+                    context.contentResolver.openInputStream(uri)?.use {
+                        itemImage.setImageURI(uri)
+                    } ?: run {
+                        itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                    }
+                } catch (e: SecurityException) {
+                    if (context is MainActivity) {
+                        context.showPermissionDeniedDialog()
+                    }
+                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                } catch (e: Exception) {
+                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
             } else {
-                itemImage.setImageResource(R.drawable.add_item_image) // Default image
+                itemImage.setImageResource(R.drawable.closets_logo_transparent)
             }
-
-
         }
     }
 
-    // Show a confirmation dialog before removing the item
     private fun showConfirmationDialog(context: Context, position: Int) {
-        // Create the AlertDialog builder
         val dialogBuilder = AlertDialog.Builder(context)
-
-        // Inflate your custom dialog layout
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_remove_from_favorites, null)
 
-        // Set the custom layout as the dialog content
         dialogBuilder.setView(dialogView)
 
-        // Create the dialog
         val dialog = dialogBuilder.create()
 
-        // Find the buttons in the custom dialog layout
         val removeButton: ImageView = dialogView.findViewById(R.id.btn_remove)
         val cancelButton: ImageView = dialogView.findViewById(R.id.btn_cancel)
 
-        // Remove the default background to avoid unwanted outlines
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Handle Remove button click
         removeButton.setOnClickListener {
-            // If Remove is clicked, remove the item
             removeItem(position, context)
-            dialog.dismiss() // Dismiss the dialog
-        }
-
-        // Handle Cancel button click
-        cancelButton.setOnClickListener {
-            // If Cancel is clicked, just dismiss the dialog
             dialog.dismiss()
         }
 
-        // Show the dialog
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
         dialog.show()
     }
 
-    // Remove the item from the list and notify the adapter
     private fun removeItem(position: Int, context: Context) {
         val currentItem = items[position]
         val database = AppDatabase.getDatabase(context)
@@ -115,6 +111,7 @@ class FavoritesAdapter(
         items.removeAt(position)
         notifyItemRemoved(position)
         onItemRemoved()
+        showToast(context, "Removed from Favorites")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {
@@ -129,21 +126,19 @@ class FavoritesAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    // Updates the list of items and refreshes the RecyclerView
     @SuppressLint("NotifyDataSetChanged")
     fun updateItems(newItems: MutableList<ClothingItem>) {
         items = newItems
         notifyDataSetChanged()
     }
 
-    // Singleton Quick Toast implementation (same as previous)
     companion object {
         private var currentToast: Toast? = null
 
-        private fun showQuickToast(context: android.content.Context, message: String) {
-            currentToast?.cancel() // Cancel the existing toast, if any
+        private fun showToast(context: Context, message: String) {
+            currentToast?.cancel()
             currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // Show the new toast immediately
+                show()
             }
         }
     }

@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.example.closets.R
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
+import com.example.closets.R
 
 data class HomeItem(
     val id: Int,
@@ -23,7 +24,6 @@ class HomeItemAdapter(
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemImage: ImageView = itemView.findViewById(R.id.item_image)
-
 
         init {
             itemView.setOnClickListener {
@@ -42,11 +42,32 @@ class HomeItemAdapter(
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val homeItem = homeItemList[position]
+        val context = holder.itemView.context
+
         if (!homeItem.imageUri.isNullOrEmpty()) {
-            holder.itemImage.setImageURI(Uri.parse(homeItem.imageUri))
+            try {
+                val uri = Uri.parse(homeItem.imageUri)
+
+                // Try to open the image to check if it's accessible
+                context.contentResolver.openInputStream(uri)?.use {
+                    // If successful, set the image
+                    holder.itemImage.setImageURI(uri)
+                } ?: run {
+                    // If the image is not accessible, set a placeholder
+                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
+            } catch (e: SecurityException) {
+                // Handle limited access scenario
+                if (context is MainActivity) {
+                    context.showPermissionDeniedDialog() // Show dialog to ask for full access
+                }
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            } catch (e: Exception) {
+                // Handle other errors (e.g., file not found)
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            }
         } else {
-            // Use the same fallback image as in your ItemsAdapter
-            holder.itemImage.setImageResource(R.drawable.add_item_image)
+            holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
         }
     }
 

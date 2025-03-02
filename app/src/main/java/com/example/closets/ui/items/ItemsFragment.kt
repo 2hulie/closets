@@ -21,31 +21,22 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.closets.BaseItemFragment
 import com.example.closets.R
 import com.example.closets.databinding.FragmentItemsBinding
-import com.example.closets.repository.AppDatabase
-import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.FilterBottomSheetDialog
 import com.example.closets.ui.entities.Item
-import com.example.closets.ui.viewmodels.ItemViewModel
-import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
-class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
+class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
     private var _binding: FragmentItemsBinding? = null
-    private val binding get() = _binding!!
-
-    lateinit var itemViewModel: ItemViewModel
-    private var loadingView: View? = null
+    override val binding: View
+        get() = _binding!!.root
 
     var allItems: List<ClothingItem> = listOf()
     var sortedItems: MutableList<ClothingItem> = mutableListOf()
@@ -54,57 +45,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     var isSelectingMultiple = false
     private var isSelectionMode = false
 
-    // Tracks whether the fragment is showing search results
-    var isViewingSearchResults = false
-    private var _hasActiveFilters = false
-
-    // Variables to hold the currently applied filters
-    private var appliedTypes: List<String>? = null
-    private var appliedColors: List<String>? = null
-
-    lateinit var adapter: ItemsAdapter
-
-    private val typeOptions = listOf(
-        "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
-    )
-
-    private val colorOptions = mapOf(
-        "red" to "#ff0000",
-        "orange" to "#ffa500",
-        "yellow" to "#ffff00",
-        "green" to "#00ff00",
-        "blue" to "#0000ff",
-        "pink" to "#ff6eca",
-        "purple" to "#800080",
-        "white" to "#ffffff",
-        "beige" to "#f5f5dd",
-        "gray" to "#808080",
-        "brown" to "#5e3e2b",
-        "black" to "#000000"
-    )
-
-    companion object {
-        private var currentToast: Toast? = null
-
-        fun showToast(context: Context, message: String) {
-            currentToast?.cancel() // cancel the previous toast
-            currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // show the new toast
-            }
-        }
-    }
-
-    fun hasActiveFilters(): Boolean {
-        return appliedTypes != null || appliedColors != null || _hasActiveFilters
-    }
-
-    fun clearAllFilters() {
-        appliedTypes = null
-        appliedColors = null
-        _hasActiveFilters = false
-        resetToOriginalList()
-        binding.searchInput.text.clear()
-    }
+    override lateinit var adapter: ItemsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -112,51 +53,41 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     ): View {
         _binding = FragmentItemsBinding.inflate(inflater, container, false)
 
-        // Inflate the loading view
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding.root as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
+        (binding as ViewGroup).addView(loadingView)
 
-        // Initialize the ViewModel
-        val database = AppDatabase.getDatabase(requireContext())
-        val repository = ItemRepository(database.itemDao())
-        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+        initializeViewModel(requireContext())
 
-        return binding.root
+        return binding
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Show loading view initially
         loadingView?.visibility = View.VISIBLE
-        binding.recyclerViewItems.visibility = View.GONE
+        _binding!!.recyclerViewItems.visibility = View.GONE
+        _binding!!.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        // Initialize RecyclerView
-        binding.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        // Observe the items from the ViewModel
         itemViewModel.items.observe(viewLifecycleOwner) { items ->
             lifecycleScope.launch {
                 allItems = items.map { convertToClothingItem(it) }
                 sortedItems = allItems.toMutableList()
 
-                // Hide loading view and show RecyclerView
                 loadingView?.visibility = View.GONE
-                binding.recyclerViewItems.visibility = View.VISIBLE
+                _binding!!.recyclerViewItems.visibility = View.VISIBLE
 
-                Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}") // Log the number of items
-                Log.d("ItemsFragment", "Items: $sortedItems") // Log the items
+                Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}")
+                Log.d("ItemsFragment", "Items: $sortedItems")
 
                 adapter.updateItems(sortedItems) // Update the adapter
                 updateItemsCount() // Update the item count
             }
         }
 
-        // Initialize the adapter
         initializeViews(view)
 
-        binding.iconAdd.setOnClickListener {
+        _binding!!.iconAdd.setOnClickListener {
             val currentCount = itemViewModel.items.value?.size ?: 0
             if (currentCount >= 50) {
                 showToast(requireContext(), "Items full, please delete some items.")
@@ -165,40 +96,34 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             }
         }
 
-        // Initialize the adapter
         adapter = ItemsAdapter(
             sortedItems,
             { item ->
-                // Create a Bundle to pass the item ID
+                // bundle to pass the item ID
                 val bundle = Bundle().apply {
                     putInt("item_id", item.id) // Pass the item ID
                 }
-                // Navigate to ItemInfoFragment with the Bundle
                 findNavController().navigate(R.id.action_itemsFragment_to_itemInfoFragment, bundle)
             },
             this,
             itemViewModel
         )
 
-        binding.recyclerViewItems.adapter = adapter
+        _binding!!.recyclerViewItems.adapter = adapter
 
-        binding.filterButton.setOnClickListener {
+        _binding!!.filterButton.setOnClickListener {
             showFilterBottomSheet()
         }
 
-        // Get reference to the ellipsis icon
         val ellipsisIcon: ImageView = view.findViewById(R.id.ellipsis_icon)
 
-        // Handle the click event for the ellipsis icon
         ellipsisIcon.setOnClickListener {
-            // Call the showDropdown function to display the dropdown
             showDropdown(it)  // Pass the view to showDropdown to anchor the menu
         }
 
-        // Initialize the selectAllCheckbox inside onViewCreated
         selectAllCheckbox = view.findViewById(R.id.select_all_checkbox)
 
-        binding.selectAllCheckbox.setOnCheckedChangeListener { _, isChecked ->
+        _binding!!.selectAllCheckbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // Select all items
                 adapter.selectAllItems()
@@ -207,15 +132,15 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
                 adapter.clearSelections()
             }
 
-            // Make sure the Delete button is still visible in clear selection
-            binding.iconDeleteMultiple.visibility = View.VISIBLE
+            _binding!!.iconDeleteMultiple.visibility =
+                View.VISIBLE // delete button is still visible in clear selection
 
             updateDeleteButtonVisibility() // Refresh delete button (if needed)
             updateItemsCount() // Update the count dynamically
         }
 
-        val deleteIcon: ImageView = binding.iconDeleteMultiple
-        val cancelIcon: ImageView = binding.iconCancelMultiple
+        val deleteIcon: ImageView = _binding!!.iconDeleteMultiple
+        val cancelIcon: ImageView = _binding!!.iconCancelMultiple
 
         // Hide these icons by default
         deleteIcon.visibility = View.GONE
@@ -225,27 +150,23 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         cancelIcon.setOnClickListener {
             // Exit select multiple mode
             exitSelectMultipleMode()
-            binding.iconAdd.visibility = View.VISIBLE
+            _binding!!.iconAdd.visibility = View.VISIBLE
             // Reset search input and restore the original list
-            binding.searchInput.text.clear()
+            _binding!!.searchInput.text.clear()
             appliedTypes = null // Reset applied types
             appliedColors = null // Reset applied colors
             resetToOriginalList()
         }
 
-        // Handle delete action
         deleteIcon.setOnClickListener {
             // Delete selected items
             deleteSelectedItems()
         }
 
-        // Change status bar color for this fragment
         setStatusBarColor()
 
-        val searchInput: EditText = binding.searchInput
-        val searchButton: ImageView = binding.iconSearch
-
-        // TextWatcher to the search input
+        val searchInput: EditText = _binding!!.searchInput
+        val searchButton: ImageView = _binding!!.iconSearch
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -257,7 +178,6 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Set up click listener for the search button
         searchButton.setOnClickListener {
             val query = searchInput.text.toString()
             if (query.isNotEmpty()) {
@@ -273,12 +193,14 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         // Trigger search when "Enter" key is pressed on the keyboard
         searchInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
-                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
+            ) {
                 val query = searchInput.text.toString()
                 if (query.isNotEmpty()) {
                     filterItems(query) // Call the filter method if there is input
                     // Optionally close the keyboard
-                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                    val imm =
+                        context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                     imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
                 } else {
                     resetSearchResults()
@@ -301,35 +223,31 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     }
 
     private fun convertToClothingItem(item: Item): ClothingItem {
-        // Convert the Item object to a ClothingItem object
         return ClothingItem(
-            id = item.id, // Ensure you have an id to pass
+            id = item.id,
             imageUri = item.imageUri,
             name = item.name,
             type = item.type,
             color = item.color,
-            wornTimes = item.wornTimes, // Use wornTimes instead of wornCount
-            lastWornDate = item.lastWornDate, // Pass lastWornDate from Item
-            fragmentId = R.id.action_itemsFragment_to_itemInfoFragment, // Provide the appropriate fragment ID
+            wornTimes = item.wornTimes,
+            lastWornDate = item.lastWornDate,
+            fragmentId = R.id.action_itemsFragment_to_itemInfoFragment,
             isFavorite = item.isFavorite
         )
     }
 
-    // Function to display the dropdown menu
     @SuppressLint("ResourceType", "InflateParams")
     private fun showDropdown(view: View) {
-        // Get the string array from resources
         val ellipsisItems = resources.getStringArray(R.array.ellipsis_items)
-
-        // Create a linear layout to hold the items
         val linearLayout = LinearLayout(requireContext())
         linearLayout.orientation = LinearLayout.VERTICAL
-
-        // Create a PopupWindow to display the menu
-        val popupWindow = PopupWindow(linearLayout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val popupWindow = PopupWindow(
+            linearLayout,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         popupWindow.isFocusable = true
 
-        // Create and add menu items
         val selectMultipleTextView = LayoutInflater.from(requireContext())
             .inflate(R.layout.menu_item, null) as TextView
 
@@ -340,7 +258,12 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             ellipsisItems[0] // "Select Multiple"
         }
 
-        selectMultipleTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_items))
+        selectMultipleTextView.setTextColor(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.color_items
+            )
+        )
         selectMultipleTextView.setPadding(50, 30, 50, 30)
 
         selectMultipleTextView.setOnClickListener {
@@ -351,7 +274,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
             // Check if the text is "close_select_multiple" and make btnFilter visible
             if (selectMultipleTextView.text == getString(R.string.close_select_multiple)) {
-                binding.btnFilter.visibility = View.VISIBLE
+                _binding!!.btnFilter.visibility = View.VISIBLE
             }
         }
 
@@ -361,14 +284,22 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         popupWindow.showAsDropDown(view)
     }
 
-    // Method to properly handle selection changes
+    override fun updateItemsCount(count: Int) {
+        _binding!!.itemsCountText.text =
+            resources.getQuantityString(R.plurals.items_count, count, count)
+    }
+
+    override fun clearSearchInput() {
+        _binding!!.searchInput.text.clear()
+    }
+
     override fun onItemSelectionChanged() {
         val selectedCount = adapter.getSelectedItems().size
         println("Debug: Selection changed. Selected count: $selectedCount")
 
         // Always show the delete button when in selection mode
         if (isSelectionMode) {
-            binding.iconDeleteMultiple.visibility = View.VISIBLE
+            _binding!!.iconDeleteMultiple.visibility = View.VISIBLE
         }
 
         // Enter or exit selection mode based on selected items
@@ -376,8 +307,8 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             if (!isSelectionMode) {
                 // Enter selection mode
                 isSelectionMode = true
-                binding.iconCancelMultiple.visibility = View.VISIBLE
-                binding.iconDeleteMultiple.visibility = View.VISIBLE
+                _binding!!.iconCancelMultiple.visibility = View.VISIBLE
+                _binding!!.iconDeleteMultiple.visibility = View.VISIBLE
                 selectAllCheckbox.visibility = View.VISIBLE
             }
         }
@@ -391,7 +322,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
         if (isSelectingMultiple) {
             // Reset search input and restore the original list
-            binding.searchInput.text.clear()
+            _binding!!.searchInput.text.clear()
             // Reset filters before initializing selection mode
             resetToOriginalList()
             appliedTypes = null // Clear any saved filters
@@ -399,9 +330,9 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
             // Initialize selection mode
             adapter.initializeSelectMode()
-            binding.iconDeleteMultiple.visibility = View.VISIBLE
-            binding.iconCancelMultiple.visibility = View.VISIBLE
-            binding.iconAdd.visibility = View.GONE
+            _binding!!.iconDeleteMultiple.visibility = View.VISIBLE
+            _binding!!.iconCancelMultiple.visibility = View.VISIBLE
+            _binding!!.iconAdd.visibility = View.GONE
             selectAllCheckbox.visibility = View.VISIBLE
             selectAllCheckbox.isChecked = false
         } else {
@@ -435,9 +366,9 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         isSelectingMultiple = false
         selectAllCheckbox.visibility = View.GONE
         selectAllCheckbox.isChecked = false
-        binding.iconDeleteMultiple.visibility = View.GONE
-        binding.iconCancelMultiple.visibility = View.GONE
-        binding.iconAdd.visibility = View.VISIBLE
+        _binding!!.iconDeleteMultiple.visibility = View.GONE
+        _binding!!.iconCancelMultiple.visibility = View.GONE
+        _binding!!.iconAdd.visibility = View.VISIBLE
 
         // Reset the state for ALL items, not just the sorted/filtered ones
         allItems.forEach { item ->
@@ -465,37 +396,31 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     private fun handleSelectAll(isChecked: Boolean) {
         sortedItems.forEach { item ->
             item.isChecked = isChecked
-            item.checkedIconResId = if (isChecked) R.drawable.icon_checked else R.drawable.icon_unchecked
+            item.checkedIconResId =
+                if (isChecked) R.drawable.icon_checked else R.drawable.icon_unchecked
         }
 
-        // Update the adapter's selected items
         if (isChecked) {
             adapter.setSelectedItems(sortedItems.toSet())
         } else {
             adapter.setSelectedItems(emptySet())
         }
 
-        // Notify the adapter of changes
         adapter.notifyDataSetChanged()
-
-        // Update delete icon visibility
         updateDeleteButtonVisibility()
     }
 
     private fun updateDeleteButtonVisibility() {
-        // Use the adapter's method to check for selected items
         val hasSelectedItems = adapter.hasSelectedItems()
-
         println("Debug: Delete button visibility check - Has selected items: $hasSelectedItems")
-
-        binding.iconDeleteMultiple.visibility = View.VISIBLE
+        _binding!!.iconDeleteMultiple.visibility = View.VISIBLE
     }
 
-    // Method to update item count
+    // method to update item count
     private fun updateItemsCount() {
         val itemCount = sortedItems.size
         val dynamicTitle = resources.getQuantityString(R.plurals.items_count, itemCount, itemCount)
-        binding.itemsCountText.text = dynamicTitle  // Update the TextView with the dynamic count
+        _binding!!.itemsCountText.text = dynamicTitle  // Update the TextView with the dynamic count
     }
 
     private fun showDeleteConfirmationDialog(selectedItemsToDelete: Set<ClothingItem>) {
@@ -554,18 +479,13 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         // Reset search input and restore the original list
         appliedTypes = null // Reset applied types
         appliedColors = null // Reset applied colors
-        binding.searchInput.text.clear()
+        _binding!!.searchInput.text.clear()
         resetToOriginalList()
 
-        binding.iconAdd.visibility = View.VISIBLE
+        _binding!!.iconAdd.visibility = View.VISIBLE
 
-        // Exit selection mode after deletion
         exitSelectMultipleMode()
-
-        // Update the RecyclerView to reflect the changes
         updateRecyclerView()
-
-        // Show a Toast with the number of items deleted
         showToast(
             requireContext(),
             "${selectedItemsToDelete.size} item(s) deleted"
@@ -574,7 +494,8 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
 
     private fun showFilterBottomSheet() {
         // Check if the dialog is already showing
-        val existingDialog = parentFragmentManager.findFragmentByTag("FilterBottomSheetDialog") as? FilterBottomSheetDialog
+        val existingDialog =
+            parentFragmentManager.findFragmentByTag("FilterBottomSheetDialog") as? FilterBottomSheetDialog
         if (existingDialog != null && existingDialog.isVisible) {
             return // Do nothing if already visible
         }
@@ -599,91 +520,6 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         bottomSheetDialog.show(parentFragmentManager, "FilterBottomSheetDialog")
     }
 
-    // Convert hex to HSV for better color matching
-    private fun hexToHSV(hex: String): FloatArray {
-        val cleanHex = hex.replace("#", "")
-        val r = cleanHex.substring(0, 2).toInt(16)
-        val g = cleanHex.substring(2, 4).toInt(16)
-        val b = cleanHex.substring(4, 6).toInt(16)
-        val hsv = FloatArray(3)
-        android.graphics.Color.RGBToHSV(r, g, b, hsv)
-        return hsv
-    }
-
-    // Calculate color distance using HSV values
-    private fun colorDistance(color1: FloatArray, color2: FloatArray): Double {
-        // Weight factors for Hue, Saturation, and Value
-        val hueWeight = 1.0
-        val satWeight = 2.0
-        val valWeight = 1.0
-
-        // Calculate wrapped hue difference
-        var hueDiff = abs(color1[0] - color2[0])
-        if (hueDiff > 180) hueDiff = 360 - hueDiff
-        hueDiff /= 180 // Normalize to [0,1]
-
-        // Calculate saturation and value differences
-        val satDiff = abs(color1[1] - color2[1])
-        val valDiff = abs(color1[2] - color2[2])
-
-        // Weighted distance
-        return hueDiff * hueWeight +
-                satDiff * satWeight +
-                valDiff * valWeight
-    }
-
-    private fun findClosestColor(itemHex: String, colorOptions: Map<String, String>): String {
-        val itemHSV = hexToHSV(itemHex)
-        var closestColor = colorOptions.keys.first()
-        var minDistance = Double.MAX_VALUE
-
-        val beigeHex = "#F5F5DD"
-        val beigeHSV = hexToHSV(beigeHex)
-
-        // Special case checks based on HSV values
-        when {
-            // Check for exact color matches
-            itemHex.equals(beigeHex, ignoreCase = true) -> return "beige"
-            itemHex.equals("#FFFFFF", ignoreCase = true) -> return "white"
-            itemHex.equals("#000000", ignoreCase = true) -> return "black"
-            itemHex.equals("#808080", ignoreCase = true) -> return "gray"
-            itemHex.equals("#FF0000", ignoreCase = true) -> return "red"
-            itemHex.equals("#FFA500", ignoreCase = true) -> return "orange"
-            itemHex.equals("#FFFF00", ignoreCase = true) -> return "yellow"
-            itemHex.equals("#00FF00", ignoreCase = true) -> return "green"
-            itemHex.equals("#0000FF", ignoreCase = true) -> return "blue"
-            itemHex.equals("#FF69B4", ignoreCase = true) -> return "pink"
-            itemHex.equals("#800080", ignoreCase = true) -> return "purple"
-            itemHex.equals("#5E3E2B", ignoreCase = true) -> return "brown"
-        }
-
-        // Check for beige based on HSV values
-        if (colorDistance(itemHSV, beigeHSV) < 0.1) return "beige"
-
-        // For other colors, find the closest match
-        colorOptions.forEach { (colorName, colorHex) ->
-            // Calculate the HSV for the color option
-            val optionHSV = hexToHSV(colorHex)
-            val distance = colorDistance(itemHSV, optionHSV)
-
-            // Check if the distance is within a certain threshold
-            if (distance < minDistance) {
-                minDistance = distance
-                closestColor = colorName
-            }
-        }
-
-        // Set a maximum distance threshold for fallback colors
-        if (minDistance > 1.5) {
-            // If no good match is found, fallback to gray for very desaturated colors
-            if (itemHSV[1] < 0.2) return "gray"
-            // For brown-ish colors
-            if (itemHSV[0] in 20f..40f && itemHSV[1] > 0.2 && itemHSV[2] < 0.7) return "brown"
-        }
-
-        return closestColor
-    }
-
     private fun applyFilters(types: List<String>?, colors: List<String>?) {
         // Debug logging to see color matches
         println("Color matches for current items:")
@@ -692,9 +528,10 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             println("${item.name} (${item.color}) -> $closestColor")
         }
 
-        sortedItems = allItems.filter { item ->
+        val filteredList = allItems.filter { item ->
             // Check if item matches type filter
-            val matchesType = types.isNullOrEmpty() || types.contains("None") || types.contains(item.type)
+            val matchesType =
+                types.isNullOrEmpty() || types.contains("None") || types.contains(item.type)
 
             // Check if item matches color filter using closest color matching
             val matchesColor = if (colors.isNullOrEmpty() || colors.contains("None")) {
@@ -708,10 +545,12 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
             matchesType && matchesColor
         }.toMutableList()
 
+        val alreadyChecked = allItems.filter { it.isChecked && !filteredList.contains(it) }
+        sortedItems = (filteredList + alreadyChecked).toMutableList()
         updateRecyclerView()
 
         // Reset search input
-        binding.searchInput.text.clear()
+        _binding!!.searchInput.text.clear()
     }
 
     // Override onSaveInstanceState to save filter state
@@ -750,7 +589,7 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         isSelectingMultiple = false
 
         // Reset search input and filters
-        binding.searchInput.text.clear() // Clear the search input
+        _binding!!.searchInput.text.clear() // Clear the search input
         appliedTypes = null // Reset applied types
         appliedColors = null // Reset applied colors
         resetToOriginalList() // Restore the original list of items
@@ -777,20 +616,20 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
                     item.type.contains(query, ignoreCase = true)    // Search by type
         }
 
-        // Update the RecyclerView with the filtered list
-        sortedItems = filteredList.toMutableList()
+        val alreadyChecked = allItems.filter { it.isChecked && !filteredList.contains(it) }
+        sortedItems = (filteredList + alreadyChecked).toMutableList()
         updateRecyclerView()
-        isViewingSearchResults = true  // Set the state to indicate search results are being viewed
+        isViewingSearchResults = true
     }
 
     // Method to reset search results and revert to the original list
     fun resetSearchResults() {
-        binding.searchInput.text.clear()
+        _binding!!.searchInput.text.clear()
         isViewingSearchResults = false
         resetToOriginalList()
     }
 
-    fun resetToOriginalList() {
+    override fun resetToOriginalList() {
         sortedItems = allItems.toMutableList()
         updateRecyclerView()
     }
@@ -825,10 +664,10 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
         }
 
         spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        binding.emptyMessage.text = spannableString
-        binding.emptyMessage.movementMethod = LinkMovementMethod.getInstance()
-        binding.emptyMessage.visibility = View.VISIBLE
-        binding.recyclerViewItems.visibility = View.GONE
+        _binding!!.emptyMessage.text = spannableString
+        _binding!!.emptyMessage.movementMethod = LinkMovementMethod.getInstance()
+        _binding!!.emptyMessage.visibility = View.VISIBLE
+        _binding!!.recyclerViewItems.visibility = View.GONE
     }
 
     private fun showAddItemFragment() {
@@ -836,13 +675,14 @@ class ItemsFragment : Fragment(), ItemsAdapter.SelectionCallback {
     }
 
     private fun hideEmptyMessage() {
-        binding.emptyMessage.visibility = View.GONE
-        binding.recyclerViewItems.visibility = View.VISIBLE
+        _binding!!.emptyMessage.visibility = View.GONE
+        _binding!!.recyclerViewItems.visibility = View.VISIBLE
     }
 
     @Suppress("DEPRECATION")
     private fun setStatusBarColor() {
-        requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), R.color.lbl_items)
+        requireActivity().window.statusBarColor =
+            ContextCompat.getColor(requireContext(), R.color.lbl_items)
     }
 
     override fun onDestroyView() {

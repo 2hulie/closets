@@ -11,118 +11,50 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.closets.BaseItemFragment
 import com.example.closets.R
 import com.example.closets.databinding.FragmentFavoritesBinding
-import com.example.closets.repository.AppDatabase
-import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.FilterBottomSheetDialog
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
-import com.example.closets.ui.viewmodels.ItemViewModel
-import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
-class FavoritesFragment : Fragment() {
+class FavoritesFragment : BaseItemFragment() {
 
     private var _binding: FragmentFavoritesBinding? = null
-    val binding get() = _binding!!
-
-    private lateinit var itemViewModel: ItemViewModel
+    override val binding: View
+        get() = _binding!!.root
 
     private var allFavoriteItems: List<ClothingItem> = listOf()
     private var sortedFavoriteItems: MutableList<ClothingItem> = mutableListOf()
 
-    // Tracks whether the fragment is showing search results
-    var isViewingSearchResults = false
-    private var _hasActiveFilters = false
-    private var loadingView: View? = null
-
-    // Variable to hold the currently applied filters for type
-    private var appliedTypes: List<String>? = null
-    private var appliedColors: List<String>? = null
-
-    private lateinit var adapter: FavoritesAdapter
-
-    private val typeOptions = listOf(
-        "Top", "Bottom", "Outerwear", "Dress", "Shoes", "Other"
-    )
-
-    private val colorOptions = mapOf(
-        "red" to "#ff0000",
-        "orange" to "#ffa500",
-        "yellow" to "#ffff00",
-        "green" to "#00ff00",
-        "blue" to "#0000ff",
-        "pink" to "#ff6eca",
-        "purple" to "#800080",
-        "white" to "#ffffff",
-        "beige" to "#f5f5dd",
-        "gray" to "#808080",
-        "brown" to "#5e3e2b",
-        "black" to "#000000"
-    )
-
-    companion object {
-        private var currentToast: Toast? = null
-
-        fun showToast(context: Context, message: String) {
-            currentToast?.cancel() // cancel the previous toast
-            currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
-                show() // show the new toast
-            }
-        }
-    }
-
-    fun hasActiveFilters(): Boolean {
-        return appliedTypes != null || appliedColors != null || _hasActiveFilters
-    }
-
-    fun clearAllFilters() {
-        appliedTypes = null
-        appliedColors = null
-        _hasActiveFilters = false
-        resetToOriginalList()
-        binding.searchInput.text.clear()
-    }
+    override lateinit var adapter: FavoritesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-
-        // Inflate the loading view
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding.root as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
+        (binding as ViewGroup).addView(loadingView)
 
-        // Initialize the ViewModel
-        val database = AppDatabase.getDatabase(requireContext())
-        val repository = ItemRepository(database.itemDao())
-        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+        initializeViewModel(requireContext())
 
-        return binding.root
+        return binding
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Show loading view initially
-        loadingView?.visibility = View.VISIBLE
-        binding.recyclerViewFavorites.visibility = View.GONE
+        loadingView?.visibility = View.VISIBLE // show loading view initially
+        _binding!!.recyclerViewFavorites.visibility = View.GONE
+        _binding!!.recyclerViewFavorites.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        // Initialize RecyclerView
-        binding.recyclerViewFavorites.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        // Observe favorite items
         itemViewModel.favoriteItems.observe(viewLifecycleOwner) { favoriteItems ->
             lifecycleScope.launch {
                 allFavoriteItems = favoriteItems.map { convertToClothingItem(it) }
@@ -130,7 +62,7 @@ class FavoritesFragment : Fragment() {
 
                 // Hide loading view and show RecyclerView
                 loadingView?.visibility = View.GONE
-                binding.recyclerViewFavorites.visibility = View.VISIBLE
+                _binding!!.recyclerViewFavorites.visibility = View.VISIBLE
 
                 if (sortedFavoriteItems.isEmpty()) {
                     showEmptyMessage()
@@ -138,8 +70,8 @@ class FavoritesFragment : Fragment() {
                     hideEmptyMessage()
                 }
 
-                adapter.updateItems(sortedFavoriteItems) // Update the adapter
-                updateItemsCount() // Update the item count
+                adapter.updateItems(sortedFavoriteItems)
+                updateItemsCount(sortedFavoriteItems.size)
             }
         }
 
@@ -156,7 +88,7 @@ class FavoritesFragment : Fragment() {
             },
             {
                 // Notify when an item is removed and update the title count
-                updateItemsCount()
+                updateItemsCount(sortedFavoriteItems.size)
                 if (sortedFavoriteItems.isEmpty()) {
                     showEmptyMessage()
                 } else {
@@ -165,14 +97,14 @@ class FavoritesFragment : Fragment() {
             }
         )
 
-        binding.recyclerViewFavorites.adapter = adapter
+        _binding!!.recyclerViewFavorites.adapter = adapter
 
-        binding.filterButton.setOnClickListener {
+        _binding!!.filterButton.setOnClickListener {
             showFilterBottomSheet()
         }
 
-        val searchInput: EditText = binding.searchInput
-        val searchButton: ImageView = binding.iconSearch
+        val searchInput: EditText = _binding!!.searchInput
+        val searchButton: ImageView = _binding!!.iconSearch
 
         // Initially disable the search button
         searchButton.isEnabled = false
@@ -247,12 +179,9 @@ class FavoritesFragment : Fragment() {
         )
     }
 
-
-    // Method to update the dynamic title with the item count
-    private fun updateItemsCount() {
-        val itemCount = sortedFavoriteItems.size
-        val dynamicTitle = resources.getQuantityString(R.plurals.favorite_items_count, itemCount, itemCount)
-        binding.favoriteItemsCountText.text = dynamicTitle
+    override fun updateItemsCount(count: Int) {
+        val dynamicTitle = resources.getQuantityString(R.plurals.favorite_items_count, count, count)
+        _binding!!.favoriteItemsCountText.text = dynamicTitle
     }
 
     private fun showFilterBottomSheet() {
@@ -280,91 +209,6 @@ class FavoritesFragment : Fragment() {
         )
 
         bottomSheetDialog.show(parentFragmentManager, "FilterBottomSheetDialog")
-    }
-
-    // Convert hex to HSV for better color matching
-    private fun hexToHSV(hex: String): FloatArray {
-        val cleanHex = hex.replace("#", "")
-        val r = cleanHex.substring(0, 2).toInt(16)
-        val g = cleanHex.substring(2, 4).toInt(16)
-        val b = cleanHex.substring(4, 6).toInt(16)
-        val hsv = FloatArray(3)
-        android.graphics.Color.RGBToHSV(r, g, b, hsv)
-        return hsv
-    }
-
-    // Calculate color distance using HSV values
-    private fun colorDistance(color1: FloatArray, color2: FloatArray): Double {
-        // Weight factors for Hue, Saturation, and Value
-        val hueWeight = 1.0
-        val satWeight = 2.0
-        val valWeight = 1.0
-
-        // Calculate wrapped hue difference
-        var hueDiff = abs(color1[0] - color2[0])
-        if (hueDiff > 180) hueDiff = 360 - hueDiff
-        hueDiff /= 180 // Normalize to [0,1]
-
-        // Calculate saturation and value differences
-        val satDiff = abs(color1[1] - color2[1])
-        val valDiff = abs(color1[2] - color2[2])
-
-        // Weighted distance
-        return hueDiff * hueWeight +
-                satDiff * satWeight +
-                valDiff * valWeight
-    }
-
-    private fun findClosestColor(itemHex: String, colorOptions: Map<String, String>): String {
-        val itemHSV = hexToHSV(itemHex)
-        var closestColor = colorOptions.keys.first()
-        var minDistance = Double.MAX_VALUE
-
-        val beigeHex = "#F5F5DD"
-        val beigeHSV = hexToHSV(beigeHex)
-
-        // Special case checks based on HSV values
-        when {
-            // Check for exact color matches
-            itemHex.equals(beigeHex, ignoreCase = true) -> return "beige"
-            itemHex.equals("#FFFFFF", ignoreCase = true) -> return "white"
-            itemHex.equals("#000000", ignoreCase = true) -> return "black"
-            itemHex.equals("#808080", ignoreCase = true) -> return "gray"
-            itemHex.equals("#FF0000", ignoreCase = true) -> return "red"
-            itemHex.equals("#FFA500", ignoreCase = true) -> return "orange"
-            itemHex.equals("#FFFF00", ignoreCase = true) -> return "yellow"
-            itemHex.equals("#00FF00", ignoreCase = true) -> return "green"
-            itemHex.equals("#0000FF", ignoreCase = true) -> return "blue"
-            itemHex.equals("#FF69B4", ignoreCase = true) -> return "pink"
-            itemHex.equals("#800080", ignoreCase = true) -> return "purple"
-            itemHex.equals("#5E3E2B", ignoreCase = true) -> return "brown"
-        }
-
-        // Check for beige based on HSV values
-        if (colorDistance(itemHSV, beigeHSV) < 0.1) return "beige"
-
-        // For other colors, find the closest match
-        colorOptions.forEach { (colorName, colorHex) ->
-            // Calculate the HSV for the color option
-            val optionHSV = hexToHSV(colorHex)
-            val distance = colorDistance(itemHSV, optionHSV)
-
-            // Check if the distance is within a certain threshold
-            if (distance < minDistance) {
-                minDistance = distance
-                closestColor = colorName
-            }
-        }
-
-        // Set a maximum distance threshold for fallback colors
-        if (minDistance > 1.5) {
-            // If no good match is found, fallback to gray for very desaturated colors
-            if (itemHSV[1] < 0.2) return "gray"
-            // For brown-ish colors
-            if (itemHSV[0] in 20f..40f && itemHSV[1] > 0.2 && itemHSV[2] < 0.7) return "brown"
-        }
-
-        return closestColor
     }
 
     fun applyFilters(types: List<String>?, colors: List<String>?) {
@@ -396,7 +240,11 @@ class FavoritesFragment : Fragment() {
         updateRecyclerView()
 
         // Reset search input
-        binding.searchInput.text.clear()
+        _binding!!.searchInput.text.clear()
+    }
+
+    override fun clearSearchInput() {
+        _binding!!.searchInput.text.clear()
     }
 
     // Override onSaveInstanceState to save filter state
@@ -450,12 +298,12 @@ class FavoritesFragment : Fragment() {
 
     // Method to reset search results and revert to the original list
     fun resetSearchResults() {
-        binding.searchInput.text.clear()
+        _binding!!.searchInput.text.clear()
         isViewingSearchResults = false
         resetToOriginalList()
     }
 
-    private fun resetToOriginalList() {
+    override fun resetToOriginalList() {
         sortedFavoriteItems = allFavoriteItems.toMutableList()
         updateRecyclerView()
     }
@@ -467,21 +315,19 @@ class FavoritesFragment : Fragment() {
             hideEmptyMessage()
             adapter.updateItems(sortedFavoriteItems)
         }
-
-        // Update the dynamic title (item count) after updating the list
-        updateItemsCount()
+        updateItemsCount(sortedFavoriteItems.size)
     }
 
     @SuppressLint("SetTextI18n")
     private fun showEmptyMessage() {
-        binding.emptyMessage.visibility = View.VISIBLE
-        binding.emptyMessage.text = "No items found."
-        binding.recyclerViewFavorites.visibility = View.GONE
+        _binding!!.emptyMessage.visibility = View.VISIBLE
+        _binding!!.emptyMessage.text = "No items found."
+        _binding!!.recyclerViewFavorites.visibility = View.GONE
     }
 
     private fun hideEmptyMessage() {
-        binding.emptyMessage.visibility = View.GONE
-        binding.recyclerViewFavorites.visibility = View.VISIBLE
+        _binding!!.emptyMessage.visibility = View.GONE
+        _binding!!.recyclerViewFavorites.visibility = View.VISIBLE
     }
 
     private fun setStatusBarColor() {

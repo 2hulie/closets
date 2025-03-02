@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
@@ -75,11 +76,24 @@ class ItemsAdapter(
 
         @SuppressLint("UseCompatLoadingForDrawables")
         fun bind(item: ClothingItem) {
-            // Load image using setImageURI for the image URI
             if (!item.imageUri.isNullOrEmpty()) {
-                itemImage.setImageURI(Uri.parse(item.imageUri)) // Set the image URI directly
+                try {
+                    val uri = Uri.parse(item.imageUri)
+                    itemView.context.contentResolver.openInputStream(uri)?.use {
+                        itemImage.setImageURI(uri)
+                    } ?: run {
+                        itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                    }
+                } catch (e: SecurityException) {
+                    if (itemView.context is MainActivity) {
+                        (itemView.context as MainActivity).showPermissionDeniedDialog()
+                    }
+                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                } catch (e: Exception) {
+                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
             } else {
-                itemImage.setImageResource(R.drawable.add_item_image) // Default image
+                itemImage.setImageResource(R.drawable.closets_logo_transparent)
             }
 
             favoriteIconFrame.visibility = if (item.checkedIconVisibility == View.VISIBLE) View.GONE else item.favoriteIconVisibility

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_permission_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:background="@drawable/dialog_background">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/permission_denied"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        android:textColor="#62444B"/>
+
+    <!-- Horizontal Line (Divider) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/permission_denied_content"
+        android:textSize="16sp"
+        android:lineSpacingExtra="5dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="15dp"
+        android:textColor="#9D5666"/>
+
+    <!-- Vertical container for the buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Settings Button -->
+        <ImageView
+            android:id="@+id/btn_settings"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:src="@drawable/icon_settings"
+            android:contentDescription="@string/go_to_settings"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Cancel Button -->
+        <ImageView
+            android:id="@+id/btn_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:src="@drawable/icon_cancel"
+            android:contentDescription="@string/cancel_button"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+</LinearLayout>

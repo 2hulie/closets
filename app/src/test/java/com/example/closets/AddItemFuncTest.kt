@@ -49,13 +49,11 @@ class AddItemFuncTest {
         val itemNameEditText = mockFragment.view?.findViewById<EditText>(R.id.add_name_text)
         val typeSpinner = mockFragment.view?.findViewById<Spinner>(R.id.sort_by_spinner)
         val colorCircle = mockFragment.view?.findViewById<ImageView>(R.id.color_circle)
-        val addImageView = mockFragment.view?.findViewById<ImageView>(R.id.add_image)
 
         // Simulate user input
         itemNameEditText?.setText("Cute Cap")
         typeSpinner?.setSelection(1) // Assuming the second item is a valid type
         colorCircle?.setBackgroundColor(Color.parseColor("#FFFFFF"))
-        addImageView?.setImageResource(R.drawable.cap) // Set a drawable resource for the image
 
         // Simulate clicking the "Add Item" button
         val addItemButton = mockFragment.view?.findViewById<ImageView>(R.id.icon_add_item)
