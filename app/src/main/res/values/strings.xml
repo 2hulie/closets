@@ -146,5 +146,12 @@
     <string name="or_choose_a_color">or Choose a Color</string>
     <string name="update_data">Update Data</string>
     <string name="replace_data">Replace Data</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="permission_denied_content">This app requires full access to your photos to function properly. Please go to Settings and enable full access.</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="save_outfit">Save Outfit</string>
+    <string name="reset_outfit">Reset Outfit</string>
+    <string name="save_todays_outfit">Is this your final outfit?</string>
+    <string name="save_outfit_content">Remember, you can only save today\'s outfit once, and it cannot be changed later.</string>
 
 </resources>

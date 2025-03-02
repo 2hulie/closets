@@ -10,20 +10,14 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.closets.BaseItemFragment
 import com.example.closets.R
 import com.example.closets.databinding.FragmentUnusedBinding
-import com.example.closets.repository.AppDatabase
-import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
-import com.example.closets.ui.items.ItemsFragment.Companion.showToast
-import com.example.closets.ui.viewmodels.ItemViewModel
-import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -32,31 +26,31 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 
-class UnusedFragment : Fragment() {
+class UnusedFragment : BaseItemFragment() {
 
     private var _binding: FragmentUnusedBinding? = null
-    val binding get() = _binding!!
+    override val binding: View
+        get() = _binding!!.root
 
-    private lateinit var itemViewModel: ItemViewModel
     private var allUnusedItems: List<ClothingItem> = listOf()
     private var sortedUnusedItems: MutableList<ClothingItem> = mutableListOf()
-    private lateinit var adapter: UnusedItemsAdapter
-    private var isDescImageVisible = false // Track visibility of desc_unused_image
+
+    override lateinit var adapter: UnusedItemsAdapter
+    private var isDescImageVisible = false
     private var currentSortPosition = 0
-    private var loadingView: View? = null
 
     // track if the list is currently filtered
     private var isFiltered = false
 
     // method to check if filters are active
-    fun hasActiveFilters(): Boolean {
+    override fun hasActiveFilters(): Boolean {
         return isFiltered
     }
 
     // method to clear filters
-    fun clearAllFilters() {
+    override fun clearAllFilters() {
         if (isFiltered) {
-            binding.sortBySpinner.setSelection(0)
+            _binding!!.sortBySpinner.setSelection(0)
             currentSortPosition = 0
             isFiltered = false
             resetToOriginalList()
@@ -71,14 +65,11 @@ class UnusedFragment : Fragment() {
 
         // Inflate the loading view
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding.root as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
+        (binding as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
 
-        // Initialize the ViewModel
-        val database = AppDatabase.getDatabase(requireContext())
-        val repository = ItemRepository(database.itemDao())
-        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+        initializeViewModel(requireContext())
 
-        return binding.root
+        return binding
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,13 +77,13 @@ class UnusedFragment : Fragment() {
 
         setStatusBarColor()
         setupSortSpinner()
-        updateItemsCount()
+        updateItemsCount(sortedUnusedItems.size)
 
         // Show loading view initially
         loadingView?.visibility = View.VISIBLE
-        binding.recyclerViewUnused.visibility = View.GONE
+        _binding!!.recyclerViewUnused.visibility = View.GONE
 
-        val recyclerView = binding.recyclerViewUnused
+        val recyclerView = _binding!!.recyclerViewUnused
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
         // Observe the unused items from the ViewModel
@@ -106,7 +97,7 @@ class UnusedFragment : Fragment() {
 
                 // Hide loading view and show RecyclerView
                 loadingView?.visibility = View.GONE
-                binding.recyclerViewUnused.visibility = View.VISIBLE
+                _binding!!.recyclerViewUnused.visibility = View.VISIBLE
 
                 Log.d("UnusedFragment", "Filtered Items fetched: ${sortedUnusedItems.size}")
                 Log.d("UnusedFragment", "Filtered Items: $sortedUnusedItems")
@@ -118,7 +109,7 @@ class UnusedFragment : Fragment() {
                 }
 
                 updateRecyclerView()
-                updateItemsCount()
+                updateItemsCount(sortedUnusedItems.size)
             }
         }
 
@@ -138,10 +129,10 @@ class UnusedFragment : Fragment() {
             findNavController().navigate(R.id.action_unusedFragment_to_itemInfoFragment, bundle)
         }
 
-        binding.recyclerViewUnused.adapter = adapter
+        _binding!!.recyclerViewUnused.adapter = adapter
 
         // Set up toggle for desc_unused_image
-        binding.info.setOnClickListener {
+        _binding!!.info.setOnClickListener {
             toggleDescImageVisibility()
         }
 
@@ -170,17 +161,15 @@ class UnusedFragment : Fragment() {
         )
     }
 
-    // Method to update the dynamic title with the item count
-    private fun updateItemsCount() {
-        val itemCount = sortedUnusedItems.size
-        val dynamicTitle = resources.getQuantityString(R.plurals.unused_items_count, itemCount, itemCount)
-        binding.unusedItemsCountText.text = dynamicTitle
+    override fun updateItemsCount(count: Int) {
+        val dynamicTitle = resources.getQuantityString(R.plurals.unused_items_count, count, count)
+        _binding!!.unusedItemsCountText.text = dynamicTitle
     }
 
     // Method to toggle visibility of desc_unused_image
     private fun toggleDescImageVisibility() {
         isDescImageVisible = !isDescImageVisible
-        binding.descUnusedImage.visibility = if (isDescImageVisible) View.VISIBLE else View.GONE
+        _binding!!.descUnusedImage.visibility = if (isDescImageVisible) View.VISIBLE else View.GONE
     }
 
     private fun setupSortSpinner() {
@@ -205,10 +194,10 @@ class UnusedFragment : Fragment() {
         }
 
         // Set the adapter to the Spinner
-        binding.sortBySpinner.adapter = spinnerAdapter
+        _binding!!.sortBySpinner.adapter = spinnerAdapter
 
         // Handle Spinner item selections
-        binding.sortBySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        _binding!!.sortBySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 currentSortPosition = position
                 isFiltered = position != 0 // update filter state
@@ -227,34 +216,28 @@ class UnusedFragment : Fragment() {
         }
     }
 
-
-    // Function to check if an item has been unused for at least three months
     private fun hasBeenUnusedForAtLeastThreeMonths(lastWornDate: String): Boolean {
         if (lastWornDate.isEmpty() || lastWornDate == "N/A") {
-            Log.d("UnusedFragment", "Skipping item - No valid last worn date.")
-            return false
+            return true // "N/A" as longest unused
         }
 
         val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         return try {
-            val lastWorn = formatter.parse(lastWornDate) ?: return false
+            val lastWorn = formatter.parse(lastWornDate) ?: return true
             val today = Date()
             val diffInMillis = today.time - lastWorn.time
             val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
-            val diffInMonths = diffInDays / 30 // Approximate months
+            val diffInMonths = diffInDays / 30
 
-            Log.d("UnusedFragment", "Item Last Worn: $lastWornDate -> Days Since Last Worn: $diffInDays, Months Since Last Worn: $diffInMonths")
-
-            diffInMonths >= 3 // Only return true if it's been at least 3 months
+            diffInMonths >= 3
         } catch (e: ParseException) {
             Log.e("UnusedFragment", "Error parsing date: $lastWornDate", e)
-            false // Ignore invalid dates
+            true // default to unused if there's an error
         }
     }
 
-
     private fun calculateDuration(lastWornDate: String): String {
-        if (lastWornDate.isEmpty()) return "N/A" // Handle empty case
+        if (lastWornDate.isEmpty() || lastWornDate == "N/A") return "Unused"
 
         val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
 
@@ -265,29 +248,33 @@ class UnusedFragment : Fragment() {
             val months = TimeUnit.MILLISECONDS.toDays(diff) / 30
 
             when {
-                months >= 12 -> "${months / 12} yrs."
+                months >= 12 -> {
+                    val years = months / 12
+                    if (years == 1L) "1 yr." else "$years yrs."
+                }
                 else -> "$months mos."
             }
         } catch (e: ParseException) {
             Log.e("UnusedFragment", "Error parsing lastWornDate: $lastWornDate", e)
-            "Unknown"
+            "Never Worn"
         }
     }
 
-    private fun resetToOriginalList() {
+    override fun resetToOriginalList() {
         // Reset sortedItems to the original unusedItems
-        sortedUnusedItems = allUnusedItems.toMutableList() // Assuming you have a way to get the original list
+        sortedUnusedItems = allUnusedItems.toMutableList()
         updateRecyclerView()
     }
 
     private fun sortByDuration(oldestToRecent: Boolean) {
         sortedUnusedItems.sortWith(compareBy {
-            val duration = calculateDuration(it.lastWornDate) // Calculate duration dynamically
-            val parts = duration.split(" ")
+            val duration = calculateDuration(it.lastWornDate)
+
             when {
-                parts[1].startsWith("yr") -> (parts[0].toIntOrNull() ?: 0) * 12 // Convert years to months
-                parts[1].startsWith("mos") -> (parts[0].toIntOrNull() ?: 0) // Keep months as is
-                else -> 0 // Default case
+                duration == "Unused" -> Int.MAX_VALUE
+                duration.contains("yr") -> duration.split(" ")[0].toInt() * 12
+                duration.contains("mos") -> duration.split(" ")[0].toInt()
+                else -> 0
             }
         })
 
@@ -300,8 +287,8 @@ class UnusedFragment : Fragment() {
 
     private fun updateRecyclerView() {
         val unusedItemsList = sortedUnusedItems.map { clothingItem ->
-            val duration = calculateDuration(clothingItem.lastWornDate) // Recalculate duration
-            val isUnused = duration.contains("Unused") // Determine if it's unused
+            val duration = calculateDuration(clothingItem.lastWornDate) // recalculate duration
+            val isUnused = duration.contains("Unused") // determine if it's unused
 
             UnusedItem(
                 clothingItem = clothingItem,
@@ -312,20 +299,19 @@ class UnusedFragment : Fragment() {
 
         // Update the adapter with the correct type
         adapter.updateItems(unusedItemsList)
-
-        updateItemsCount()
+        updateItemsCount(sortedUnusedItems.size)
     }
 
     @SuppressLint("SetTextI18n")
     private fun showEmptyMessage() {
-        binding.emptyMessage.visibility = View.VISIBLE
-        binding.emptyMessage.text = "No items found."
-        binding.recyclerViewUnused.visibility = View.GONE
+        _binding!!.emptyMessage.visibility = View.VISIBLE
+        _binding!!.emptyMessage.text = "No items found."
+        _binding!!.recyclerViewUnused.visibility = View.GONE
     }
 
     private fun hideEmptyMessage() {
-        binding.emptyMessage.visibility = View.GONE
-        binding.recyclerViewUnused.visibility = View.VISIBLE
+        _binding!!.emptyMessage.visibility = View.GONE
+        _binding!!.recyclerViewUnused.visibility = View.VISIBLE
     }
 
     private fun setStatusBarColor() {
@@ -335,5 +321,9 @@ class UnusedFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun clearSearchInput() {
+        // no search input in UnusedFragment
     }
 }

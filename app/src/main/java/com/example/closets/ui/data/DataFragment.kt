@@ -143,6 +143,12 @@ class DataFragment : Fragment() {
             val database = AppDatabase.getDatabase(requireContext())
             val repository = ItemRepository(database.itemDao())
             val items: List<Item> = repository.getAllItemsDirectly()
+
+            if (items.isEmpty()) {
+                showToast(requireContext(), "No items available to export.")
+                return@launch
+            }
+
             exportedJson = Gson().toJson(items)
 
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

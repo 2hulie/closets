@@ -1,25 +1,22 @@
 package com.example.closets.ui.home
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.ui.items.ClothingItem
 
 class TodayOutfitItemAdapter(
-    private var clothingItems: List<ClothingItem>, // Change to ClothingItem
-    private val clickListener: (ClothingItem) -> Unit // Change to ClothingItem
+    private var clothingItems: List<ClothingItem>,
+    private val clickListener: (ClothingItem) -> Unit
 ) : RecyclerView.Adapter<TodayOutfitItemAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemImage: ImageView = itemView.findViewById(R.id.item_image)
-
-        fun bind(clothingItem: ClothingItem) { // Change to ClothingItem
-            itemImage.setImageURI(clothingItem.getImageUri()) // Assuming ClothingItem has a method to get the image URI
-            itemView.setOnClickListener { clickListener(clothingItem) } // Change to ClothingItem
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -29,15 +26,39 @@ class TodayOutfitItemAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        holder.bind(clothingItems[position]) // Change to clothingItems
+        val clothingItem = clothingItems[position]
+        val context = holder.itemView.context
+        val uri = clothingItem.getImageUri()
+
+        if (uri != null) {
+            try {
+                context.contentResolver.openInputStream(uri)?.use {
+                    holder.itemImage.setImageURI(uri)
+                } ?: run {
+                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
+            } catch (e: SecurityException) {
+                if (context is MainActivity) {
+                    context.showPermissionDeniedDialog()
+                }
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            } catch (e: Exception) {
+                holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+            }
+        } else {
+            holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+        }
+
+        // holder.itemView.setOnClickListener { clickListener(clothingItem) }
     }
 
     override fun getItemCount(): Int {
-        return clothingItems.size // Change to clothingItems
+        return clothingItems.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateItems(newItems: List<ClothingItem>) {
         clothingItems = newItems
-        notifyDataSetChanged() // Notify the adapter to refresh the view
+        notifyDataSetChanged()
     }
 }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:background="@drawable/dialog_background">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_todays_outfit"
+        android:textSize="19sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        android:textColor="#62444B"/>
+
+    <!-- Horizontal Line (Divider) -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#9D5666"
+        android:alpha="0.3"/>
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_outfit_content"
+        android:textSize="16sp"
+        android:lineSpacingExtra="5dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="15dp"
+        android:textColor="#9D5666"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/btn_yes"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:src="@drawable/icon_yes"
+            android:contentDescription="@string/discard_button"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/btn_no"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:src="@drawable/icon_no"
+            android:contentDescription="@string/cancel_button"
+            android:padding="0dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+</LinearLayout>

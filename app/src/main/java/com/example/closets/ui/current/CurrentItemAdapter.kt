@@ -5,11 +5,11 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.databinding.CurrentItemLayoutBinding
 import com.example.closets.ui.items.ClothingItem
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 class CurrentItemAdapter(
@@ -31,15 +31,28 @@ class CurrentItemAdapter(
     inner class CurrentItemViewHolder(private val binding: CurrentItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: ClothingItem) {
-            // Load image using setImageURI for the image URI
+            val context = binding.root.context
             if (!item.imageUri.isNullOrEmpty()) {
-                binding.itemImage.setImageURI(Uri.parse(item.imageUri)) // Set the image URI directly
+                try {
+                    val uri = Uri.parse(item.imageUri)
+                    context.contentResolver.openInputStream(uri)?.use {
+                        binding.itemImage.setImageURI(uri)
+                    } ?: run {
+                        binding.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                    }
+                } catch (e: SecurityException) {
+                    if (context is MainActivity) {
+                        context.showPermissionDeniedDialog()
+                    }
+                    binding.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                } catch (e: Exception) {
+                    binding.itemImage.setImageResource(R.drawable.closets_logo_transparent)
+                }
             } else {
-                binding.itemImage.setImageResource(R.drawable.add_item_image) // Default image
+                binding.itemImage.setImageResource(R.drawable.closets_logo_transparent)
             }
 
-            // Set the icon based on the checked status
-            updateCheckedIcon(item.isChecked)
+            updateCheckedIcon(item.isChecked) // Set the icon based on the checked status
 
             // Set click listener for the check icon
             binding.checkedIcon.setOnClickListener {
@@ -92,14 +105,5 @@ class CurrentItemAdapter(
     // Method to get selected items
     fun getSelectedItems(): List<ClothingItem> {
         return items.filter { it.isChecked }
-    }
-
-    // Add this method to your CurrentItemAdapter class
-    fun getAllItems(): List<ClothingItem> {
-        return items.toList()
-    }
-
-    fun getOriginalState(itemId: Int): ItemState? {
-        return originalItemStates[itemId]
     }
 }
