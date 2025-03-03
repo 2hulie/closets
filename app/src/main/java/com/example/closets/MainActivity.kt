@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
     private var permissionDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Force light mode to prevent dark mode
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
 
@@ -82,10 +81,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (permissionDialog?.isShowing != true) {
             val previousPermissionState = hasStoragePermission
-            checkPermissions() // This updates hasStoragePermission.
-            // If the permission was previously false but is now true, refresh the activity.
+            checkPermissions() 
+            // if the permission was previously false but is now true, refresh the activity
             if (!previousPermissionState && hasStoragePermission) {
-                recreate() // Refresh the entire activity.
+                recreate() // refresh the entire activity
             }
         }
     }
@@ -101,7 +100,6 @@ class MainActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
 
         if (!hasStoragePermission) {
-            // Show our custom pre-permission dialog if permission isn't granted.
             showPrePermissionDialog()
         }
     }
@@ -151,7 +149,6 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 }
-                // If the user has permanently denied the permission, shouldShowRequestPermissionRationale returns false.
                 if (!shouldShowRequestPermissionRationale(permissionToCheck)) {
                     showPermissionDeniedDialog()
                 } else {
@@ -269,7 +266,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            // Handle main navigation destinations
+            // handle main navigation destinations
             navController.currentDestination?.id in setOf(
                 R.id.navigation_home,
                 R.id.navigation_favorites,
@@ -326,18 +323,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigationClickListeners(navController: NavController) {
         val navigationImageView = findViewById<ImageView>(R.id.navigation_image_view)
 
-        // Set a click listener for the navigation image view.
         navigationImageView.setOnClickListener {
-            // Check if storage permission is available.
             if (!hasStoragePermission) {
                 showPermissionDeniedDialog()
                 return@setOnClickListener
             }
-            // Navigate to the home screen.
             navController.navigate(R.id.navigation_home)
         }
 
-        // Set a listener for bottom navigation view item selection to update image
         @Suppress("DEPRECATION")
         navView.setOnNavigationItemSelectedListener { item ->
             if (!hasStoragePermission) {
@@ -374,18 +367,16 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
-        // Set the default image when the activity starts
-        updateNavigationImage(R.drawable.nav_home) // Set to your default PNG resource
+        updateNavigationImage(R.drawable.nav_home) // set to default PNG resource
     }
 
     fun updateNavigationImage(imageResId: Int) {
-        // Update the ImageView with the new image resource
+        // update the ImageView with the new image resource
         findViewById<ImageView>(R.id.navigation_image_view).setImageResource(imageResId)
     }
 
     override fun onDestroy() {
-        // Dismiss any dialog to prevent window leaks.
+        // dismiss any dialog to prevent window leaks
         permissionDialog?.dismiss()
         super.onDestroy()
     }
