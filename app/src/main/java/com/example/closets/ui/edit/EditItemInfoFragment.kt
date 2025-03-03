@@ -27,7 +27,7 @@ import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class EditItemFragment : BaseModifyItemFragment() {
+class EditItemInfoFragment : BaseModifyItemFragment() {
     // View declarations
     private lateinit var nameEditText: EditText
     private lateinit var wornTimesTextView: TextView
