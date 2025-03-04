@@ -81,10 +81,7 @@ class ItemInfoFragment : Fragment() {
             }
         }
 
-        // Find the favorite icon ImageView
         val favoriteIcon = view.findViewById<ImageView>(R.id.icon_favorite)
-
-        // Set up a click listener for the favorite icon
         favoriteIcon.setOnClickListener {
             // Toggle the favorite state
             isFavorite = !isFavorite // Toggle the favorited state
@@ -101,8 +98,8 @@ class ItemInfoFragment : Fragment() {
             // Update the item in the database
             item?.let {
                 val itemToUpdate = convertToItem(it)
-                itemToUpdate.isFavorite = isFavorite // Update the favorite state in the itemToUpdate
-                itemViewModel.update(itemToUpdate) // Call the ViewModel to update the item
+                itemToUpdate.isFavorite = isFavorite
+                itemViewModel.update(itemToUpdate) // call the ViewModel to update the item
             }
         }
 
@@ -111,15 +108,14 @@ class ItemInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Handle the system back button
+        
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             handleBackPress()
         }
     }
 
     private fun handleBackPress() {
-        findNavController().popBackStack() // Navigate back to the previous fragment
+        findNavController().popBackStack() 
     }
 
     private fun showToast(message: String) {
@@ -157,10 +153,7 @@ class ItemInfoFragment : Fragment() {
     }
 
     fun deleteItem() {
-        // Show "Item deleted" toast
-        showToast("Item deleted!") // Use showToast to cancel any previous toast and show the new one
-
-        // Perform the deletion logic here
+        showToast("Item deleted!") 
         itemId?.let { id ->
             item?.let {
                 val itemToDelete = convertToItem(it) // Convert ClothingItem back to Item
@@ -183,7 +176,7 @@ class ItemInfoFragment : Fragment() {
         // Update the color circle based on the item's color
         val colorCircle = view?.findViewById<View>(R.id.color_circle)
         val color = Color.parseColor(item.color) // Parse the color string to an actual color
-        colorCircle?.setBackgroundColor(color) // Set the background color of the color circle
+        colorCircle?.setBackgroundColor(color)
 
         isFavorite = item.isFavorite
         updateFavoriteIcon()
@@ -213,13 +206,13 @@ class ItemInfoFragment : Fragment() {
     private fun convertToClothingItem(item: Item): ClothingItem {
         // Convert the Item object to a ClothingItem object
         return ClothingItem(
-            id = item.id, // Ensure you have an id to pass
+            id = item.id, 
             imageUri = item.imageUri,
             name = item.name,
             type = item.type,
             color = item.color,
-            wornTimes = item.wornTimes, // Use wornTimes instead of wornCount
-            lastWornDate = item.lastWornDate, // Pass lastWornDate from Item
+            wornTimes = item.wornTimes, 
+            lastWornDate = item.lastWornDate, 
             fragmentId = R.id.action_itemInfoFragment_to_editItemInfoFragment,
             isFavorite = item.isFavorite
         )
@@ -228,12 +221,12 @@ class ItemInfoFragment : Fragment() {
     private fun convertToItem(clothingItem: ClothingItem): Item {
         // Convert the ClothingItem object back to an Item object
         return Item(
-            id = clothingItem.id, // Ensure you have an id to pass
+            id = clothingItem.id,
             name = clothingItem.name,
             type = clothingItem.type,
             color = clothingItem.color,
-            wornTimes = clothingItem.wornTimes, // Use wornTimes instead of wornCount
-            lastWornDate = clothingItem.lastWornDate ?: "", // Handle null case if necessary
+            wornTimes = clothingItem.wornTimes, 
+            lastWornDate = clothingItem.lastWornDate ?: "",
             imageUri = clothingItem.imageUri,
             isFavorite = clothingItem.isFavorite
         )
