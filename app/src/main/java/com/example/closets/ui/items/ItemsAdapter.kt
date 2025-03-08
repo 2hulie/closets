@@ -11,7 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.closets.MainActivity
+import com.bumptech.glide.Glide
 import com.example.closets.R
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
@@ -32,10 +32,9 @@ data class ClothingItem(
     var isChecked: Boolean = false,
     val fragmentId: Int,
 ) : Serializable {
-    fun getImageUri(): Uri? {
+    fun getImageAsUri(): Uri? {
         return imageUri?.let { Uri.parse(it) }
     }
-
 }
 
 class ItemsAdapter(
@@ -77,21 +76,11 @@ class ItemsAdapter(
         @SuppressLint("UseCompatLoadingForDrawables")
         fun bind(item: ClothingItem) {
             if (!item.imageUri.isNullOrEmpty()) {
-                try {
-                    val uri = Uri.parse(item.imageUri)
-                    itemView.context.contentResolver.openInputStream(uri)?.use {
-                        itemImage.setImageURI(uri)
-                    } ?: run {
-                        itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                    }
-                } catch (e: SecurityException) {
-                    if (itemView.context is MainActivity) {
-                        (itemView.context as MainActivity).showPermissionDeniedDialog()
-                    }
-                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                } catch (e: Exception) {
-                    itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                }
+                Glide.with(itemView.context)
+                    .load(item.imageUri)
+                    .placeholder(R.drawable.closets_logo_transparent)
+                    .error(R.drawable.closets_logo_transparent)
+                    .into(itemImage)
             } else {
                 itemImage.setImageResource(R.drawable.closets_logo_transparent)
             }

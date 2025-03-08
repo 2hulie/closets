@@ -27,6 +27,8 @@ import com.example.closets.ui.home.HomeFragment
 import com.example.closets.ui.items.ItemsFragment
 import com.example.closets.ui.unused.UnusedFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.FirebaseApp
+import com.google.firebase.perf.FirebasePerformance
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,9 +44,11 @@ class MainActivity : AppCompatActivity() {
     private var permissionDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Force light mode to prevent dark mode
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("mainActivity_onCreate")
+        trace.start()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -76,16 +80,18 @@ class MainActivity : AppCompatActivity() {
                 handleBackPress()
             }
         })
+
+        trace.stop()
     }
 
     override fun onResume() {
         super.onResume()
         if (permissionDialog?.isShowing != true) {
             val previousPermissionState = hasStoragePermission
-            checkPermissions() // This updates hasStoragePermission.
-            // If the permission was previously false but is now true, refresh the activity.
+            checkPermissions()
+            // if the permission was previously false but is now true, refresh the activity
             if (!previousPermissionState && hasStoragePermission) {
-                recreate() // Refresh the entire activity.
+                recreate() // refresh the entire activity
             }
         }
     }
@@ -101,7 +107,6 @@ class MainActivity : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
 
         if (!hasStoragePermission) {
-            // Show our custom pre-permission dialog if permission isn't granted.
             showPrePermissionDialog()
         }
     }
@@ -151,7 +156,6 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 }
-                // If the user has permanently denied the permission, shouldShowRequestPermissionRationale returns false.
                 if (!shouldShowRequestPermissionRationale(permissionToCheck)) {
                     showPermissionDeniedDialog()
                 } else {
@@ -374,13 +378,11 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
-        // Set the default image when the activity starts
-        updateNavigationImage(R.drawable.nav_home) // Set to your default PNG resource
+        updateNavigationImage(R.drawable.nav_home) // set to default PNG resource
     }
 
     fun updateNavigationImage(imageResId: Int) {
-        // Update the ImageView with the new image resource
+        // update the ImageView with the new image resource
         findViewById<ImageView>(R.id.navigation_image_view).setImageResource(imageResId)
     }
 
@@ -389,4 +391,5 @@ class MainActivity : AppCompatActivity() {
         permissionDialog?.dismiss()
         super.onDestroy()
     }
+
 }

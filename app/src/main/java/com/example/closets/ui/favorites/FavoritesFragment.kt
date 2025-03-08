@@ -21,6 +21,7 @@ import com.example.closets.databinding.FragmentFavoritesBinding
 import com.example.closets.ui.FilterBottomSheetDialog
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
 
 class FavoritesFragment : BaseItemFragment() {
@@ -38,18 +39,25 @@ class FavoritesFragment : BaseItemFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val trace = FirebasePerformance.getInstance().newTrace("favoritesFragment_onCreateView")
+        trace.start()
+
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
         (binding as ViewGroup).addView(loadingView)
 
         initializeViewModel(requireContext())
 
+        trace.stop()
         return binding
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("favoritesFragment_onViewCreated")
+        trace.start()
 
         loadingView?.visibility = View.VISIBLE // show loading view initially
         _binding!!.recyclerViewFavorites.visibility = View.GONE
@@ -163,6 +171,7 @@ class FavoritesFragment : BaseItemFragment() {
                 itemViewModel.clearError()
             }
         }
+        trace.stop()
     }
 
     private fun convertToClothingItem(item: Item): ClothingItem {

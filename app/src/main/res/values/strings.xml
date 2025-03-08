@@ -125,9 +125,9 @@
     <string name="color_info_title">About Color Organization</string>
     <string name="close_button">Close</string>
     <string name="tips_title">Welcome to Closets!</string>
-    <string name="tips_info">Here are some quick tips to get you started:\n\n<b>🔔 Enable notifications to remind you daily to log your outfits.</b> \n- Make sure to wear something new compared to yesterday to prevent duplicate logging.\n\n<b>♥️ Highlight your most loved pieces by marking them as favorites.</b>\n- This makes it easier to quickly find and style your go-to items.\n\n<b>📤 Regularly export your wardrobe data to a cloud service or external drive to keep a backup.</b>\n- This is important since the app works offline!\n\n<b>Happy organizing! 🥳</b></string>
+    <string name="tips_info">Here are some quick tips to get you started:\n\n<b>🔔 Enable notifications to remind you daily to log your outfits.</b> \n- Also, don’t forget to save your <i>today’s outfit</i> once you’ve finalized it.\n\n<b>♥️ Highlight your most loved pieces by marking them as favorites.</b>\n- This makes it easier to quickly find and style your go-to items.\n\n<b>📤 Regularly export your wardrobe data to a cloud service or external drive to keep a backup.</b>\n- This is important since the app works offline!\n\n<b>Happy organizing! 🥳</b></string>
     <string name="dont_show_again">Don\'t show again</string>
-    <string name="loading_cropped_image">Please wait while image is processing...</string>
+    <string name="loading_cropped_image">Please wait while image is processing…</string>
     <string name="item_name">Item Name</string>
     <string name="card_image">Card Image</string>
     <string name="item_image_desc">Item Image</string>
@@ -137,10 +137,11 @@
     <string name="details">Details</string>
     <string name="item_type">Type:</string>
     <string name="none">None</string>
+    <string name="loading_item">Loading…</string>
     <string name="item_color">Color:</string>
     <string name="last_worn">Last worn:</string>
     <string name="n_a">N/A</string>
-    <string name="loading">Preparing your closet...</string>
+    <string name="loading">Preparing your closet…</string>
     <string name="edit_color">Edit color</string>
     <string name="rotate_button">Rotate button</string>
     <string name="or_choose_a_color">or Choose a Color</string>
@@ -153,5 +154,7 @@
     <string name="reset_outfit">Reset Outfit</string>
     <string name="save_todays_outfit">Is this your final outfit?</string>
     <string name="save_outfit_content">Remember, you can only save today\'s outfit once, and it cannot be changed later.</string>
+    <string name="manage">Manage</string>
+    <string name="bg_image">Background Image</string>
 
 </resources>

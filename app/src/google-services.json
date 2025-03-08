@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "688875200051",
+    "project_id": "closets-application",
+    "storage_bucket": "closets-application.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688875200051:android:9122b38e63d4354fc78d46",
+        "android_client_info": {
+          "package_name": "com.example.closets"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAB7mY66zSmFapzhUV9v1Oe6gvk12xjpis"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,6 +24,7 @@ import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.perf.FirebasePerformance
 
 class AddItemFragment : BaseModifyItemFragment() {
     private lateinit var addItemNameEditText: EditText
@@ -39,6 +40,9 @@ class AddItemFragment : BaseModifyItemFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val trace = FirebasePerformance.getInstance().newTrace("addItemFragment_onCreateView")
+        trace.start()
+
         currentView = inflater.inflate(R.layout.fragment_add_item, container, false) ?: return requireView()
 
         setStatusBarColor()
@@ -58,6 +62,7 @@ class AddItemFragment : BaseModifyItemFragment() {
             }
         })
 
+        trace.stop()
         return currentView
     }
 
@@ -219,7 +224,6 @@ class AddItemFragment : BaseModifyItemFragment() {
     }
 
     private fun redirectBottomNavigation() {
-        // Access the NavController and redirect based on current destination
         val navController = findNavController()
         val bottomNavigationView = activity?.findViewById<BottomNavigationView>(R.id.nav_view)
 
@@ -228,7 +232,7 @@ class AddItemFragment : BaseModifyItemFragment() {
             menuItem.setOnMenuItemClickListener {
                 val currentDestination = navController.currentDestination?.id
                 if (currentDestination == R.id.addItemFragment) {
-                    showDiscardChangesDialog() // Show dialog when navigation is attempted
+                    showDiscardChangesDialog()
                     return@setOnMenuItemClickListener true // Block navigation
                 }
                 return@setOnMenuItemClickListener false // Allow normal behavior for other fragments

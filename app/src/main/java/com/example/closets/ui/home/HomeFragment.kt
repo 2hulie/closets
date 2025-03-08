@@ -1,6 +1,5 @@
 package com.example.closets.ui.home
 
-import com.example.closets.notifications.NotificationWorker
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -25,32 +24,25 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.closets.R
 import com.example.closets.SharedViewModel
+import com.example.closets.notifications.NotificationReceiver
 import com.example.closets.repository.AppDatabase
 import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.items.ClothingItem
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 class HomeFragment : Fragment() {
 
     private var isNotifIconOn: Boolean = false
-
     private val PREFS_NAME = "ClosetsPrefs"
     private val NOTIF_STATE_KEY = "notification_state"
 
     private lateinit var workManager: WorkManager
-    private val notificationWorkName = "closets_reminder_notification"
     private lateinit var requestNotifPermissionLauncher: ActivityResultLauncher<String>
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private var loadingView: View? = null
@@ -85,13 +77,13 @@ class HomeFragment : Fragment() {
         requestNotifPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 iconNotif.setImageResource(R.drawable.icon_notif_on)
-                startNotificationWorker()
+                NotificationReceiver.scheduleExactDailyNotification(requireContext())
                 saveNotificationState(true)
                 isNotifIconOn = true
                 showToast(requireContext(), "Notifications enabled.")
             } else {
                 iconNotif.setImageResource(R.drawable.icon_notif_off)
-                cancelNotifications()
+                NotificationReceiver.cancelDailyNotification(requireContext())
                 saveNotificationState(false)
                 isNotifIconOn = false
                 showToast(requireContext(), "Please enable notifications for this app in your device settings.")
@@ -104,6 +96,9 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val trace = FirebasePerformance.getInstance().newTrace("homeFragment_onCreateView")
+        trace.start()
+
         val root = inflater.inflate(R.layout.fragment_home, container, false)
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
         (root as ViewGroup).addView(loadingView)
@@ -126,12 +121,16 @@ class HomeFragment : Fragment() {
         homeUIManager.iconNotif.findViewById<ImageView>(R.id.icon_notif).setImageResource(R.drawable.icon_notif_off)
         isNotifIconOn = false
 
+        trace.stop()
         return root
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("homeFragment_onViewCreated")
+        trace.start()
 
         iconCurrentImageView = homeUIManager.iconCurrentImageView as ImageView
         workManager = WorkManager.getInstance(requireContext()) // initialize WorkManager
@@ -255,6 +254,8 @@ class HomeFragment : Fragment() {
 
         sharedViewModel.checkedItems.observe(viewLifecycleOwner) {
         }
+
+        trace.stop()
     }
 
     private fun loadNotificationState() {
@@ -263,7 +264,7 @@ class HomeFragment : Fragment() {
 
         if (isNotifIconOn) {
             iconNotif.setImageResource(R.drawable.icon_notif_on)
-            startNotificationWorker() // Start the worker if notifications are enabled
+            NotificationReceiver.scheduleExactDailyNotification(requireContext()) // Use the new method
         } else {
             iconNotif.setImageResource(R.drawable.icon_notif_off)
         }
@@ -295,43 +296,37 @@ class HomeFragment : Fragment() {
         if (isNotifIconOn) {
             // Turn off notifications
             iconNotif.setImageResource(R.drawable.icon_notif_off)
-            cancelNotifications()
-            saveNotificationState(false) // Save state as off
+            NotificationReceiver.cancelDailyNotification(requireContext())
+            saveNotificationState(false)
             isNotifIconOn = false
             showToast(requireContext(), "Notifications disabled.")
         } else {
             // Check Android version and handle permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // For Android 13+, check and request permission
                 when {
                     ContextCompat.checkSelfPermission(
                         requireContext(),
                         Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED -> {
-                        // Permission already granted
-                        iconNotif.setImageResource(R.drawable.icon_notif_on)
-                        startNotificationWorker()
-                        saveNotificationState(true)
-                        isNotifIconOn = true
-                        scheduleNotifications()
-                        showToast(requireContext(), "Notifications enabled.")
+                        enableNotifications()
                     }
-
                     else -> {
                         // Directly request the permission
                         requestNotifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
             } else {
-                // for versions below Android 13
-                iconNotif.setImageResource(R.drawable.icon_notif_on)
-                startNotificationWorker()
-                saveNotificationState(true)
-                isNotifIconOn = true
-                scheduleNotifications()
-                showToast(requireContext(), "Notifications enabled.")
+                enableNotifications()
             }
         }
+    }
+
+    private fun enableNotifications() {
+        iconNotif.setImageResource(R.drawable.icon_notif_on)
+        NotificationReceiver.scheduleExactDailyNotification(requireContext())
+        saveNotificationState(true)
+        isNotifIconOn = true
+        showToast(requireContext(), "Notifications enabled.")
     }
 
     override fun onResume() {
@@ -339,22 +334,25 @@ class HomeFragment : Fragment() {
         checkNotificationPermission() // Check notification permission status when the fragment resumes
     }
 
+
     private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Permission denied, update the icon to off
+                // Permission denied, turn off notifications
                 iconNotif.setImageResource(R.drawable.icon_notif_off)
+                NotificationReceiver.cancelDailyNotification(requireContext())
                 isNotifIconOn = false
-                saveNotificationState(false) // Save state as off
+                saveNotificationState(false)
             } else {
-                // Permission granted, ensure the icon is on
-                iconNotif.setImageResource(R.drawable.icon_notif_on)
-                isNotifIconOn = true
-                saveNotificationState(true) // Save state as on
+                // Permission granted, ensure notifications can be scheduled if previously enabled
+                if (isNotifIconOn) {
+                    iconNotif.setImageResource(R.drawable.icon_notif_on)
+                    NotificationReceiver.scheduleExactDailyNotification(requireContext())
+                    saveNotificationState(true)
+                }
             }
         }
     }
-
     private fun saveNotificationState(isEnabled: Boolean) {
         val sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
@@ -363,71 +361,15 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun scheduleNotifications() {
-        // Request notification permission for Android 13 and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestNotificationPermission()
-        } else {
-            startNotificationWorker()
-        }
-    }
-
-    @SuppressLint("InlinedApi")
-    private fun requestNotificationPermission() {
-        requestNotifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-    }
-
-    private fun startNotificationWorker() {
-        // Calculate initial delay until 9 AM
-        val calendar = Calendar.getInstance()
-        val now = calendar.timeInMillis
-
-        calendar.set(Calendar.HOUR_OF_DAY, 9)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-
-        if (calendar.timeInMillis <= now) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1)
-        }
-
-        val initialDelay = calendar.timeInMillis - now
-
-        // Create work request for daily notifications
-        val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
-            1, TimeUnit.DAYS,  // Repeat every day
-            PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS
-        )
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .build()
-            )
-            .build()
-
-        // Enqueue the work
-        workManager.enqueueUniquePeriodicWork(
-            notificationWorkName,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            notificationWorkRequest
-        )
-    }
-
-    private fun cancelNotifications() {
-        workManager.cancelUniqueWork(notificationWorkName)
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-
-        // Hide the icon when navigating away from HomeFragment
+        // hide the icon when navigating away from HomeFragment
         val iconCurrentImageView = view?.findViewById<ImageView>(R.id.icon_current)
-        iconCurrentImageView?.visibility = View.GONE // Set icon_current visibility to gone
+        iconCurrentImageView?.visibility = View.GONE
 
     }
 
     private fun setStatusBarColor() {
-        // Change the status bar color
         requireActivity().window.statusBarColor = ContextCompat.getColor(requireContext(), R.color.lbl_home)
     }
 }

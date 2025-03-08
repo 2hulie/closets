@@ -6,13 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.ui.items.ClothingItem
 
 class TodayOutfitItemAdapter(
     private var clothingItems: List<ClothingItem>,
-    private val clickListener: (ClothingItem) -> Unit
+    // private val clickListener: (ClothingItem) -> Unit
 ) : RecyclerView.Adapter<TodayOutfitItemAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,15 +29,15 @@ class TodayOutfitItemAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val clothingItem = clothingItems[position]
         val context = holder.itemView.context
-        val uri = clothingItem.getImageUri()
+        val uri = clothingItem.getImageAsUri()
 
         if (uri != null) {
             try {
-                context.contentResolver.openInputStream(uri)?.use {
-                    holder.itemImage.setImageURI(uri)
-                } ?: run {
-                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                }
+                Glide.with(context)
+                    .load(uri)
+                    .placeholder(R.drawable.closets_logo_transparent)
+                    .error(R.drawable.closets_logo_transparent)
+                    .into(holder.itemImage)
             } catch (e: SecurityException) {
                 if (context is MainActivity) {
                     context.showPermissionDeniedDialog()

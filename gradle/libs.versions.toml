@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.3"
+agp = "8.8.2"
 androidImageCropper = "2.8.0"
 androidImageCropperVersion = "4.6.0"
 androidxEspressoCore = "3.5.1"
@@ -12,13 +12,16 @@ blurrylayout = "2.0.0"
 byteBuddy = "1.14.8"
 colorpickerview = "2.3.0"
 commonsMath3 = "3.6.1"
+compiler = "4.14.2"
 core = "1.6.1"
 coreVersion = "1.5.0"
 cropper = "1.0.0"
 espressoCoreVersion = "3.4.0"
+firebaseBom = "33.10.0"
 fragmentTesting = "1.8.5"
 fragmentTestingVersion = "1.5.0"
 glide = "4.12.0"
+glideVersion = "4.14.2"
 gson = "2.12.1"
 kotlin = "2.1.0"
 coreKtx = "1.13.1"
@@ -44,6 +47,7 @@ navigationUiKtx = "2.8.2"
 foundationAndroid = "1.7.5"
 navigationUiKtxVersion = "2.7.4"
 orgRobolectricRobolectric = "4.14.1"
+playServicesLocation = "21.3.0"
 removebg = "1.0.4"
 renderscript = "1.0.0"
 robolectric = "4.6.1"
@@ -59,6 +63,7 @@ skeletonlayout = "1.0.0"
 workRuntimeKtx = "2.10.0"
 navigationTesting = "2.8.6"
 media3CommonKtx = "1.5.1"
+firebaseFirestoreKtx = "25.1.2"
 
 [libraries]
 android-image-cropper = { module = "com.theartofdev.edmodo:android-image-cropper", version.ref = "androidImageCropper" }
@@ -95,8 +100,13 @@ byte-buddy-agent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "b
 colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorpickerview" }
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commonsMath3" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
+compiler-v4142 = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
 cropper = { module = "com.github.Hanselmann:Cropper", version.ref = "cropper" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-perf = { module = "com.google.firebase:firebase-perf" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-v4142 = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -117,6 +127,7 @@ mockito-inline-v400 = { module = "org.mockito:mockito-inline", version.ref = "mo
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-v1137 = { module = "io.mockk:mockk", version.ref = "mockkVersion" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 removebg = { module = "com.github.erenalpaslan:removebg", version.ref = "removebg" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 robolectric-v413 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
@@ -127,6 +138,7 @@ skeletonlayout = { module = "com.github.rohitgohil:SkeletonLayout", version.ref 
 vanniktech-android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "androidImageCropperVersion" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "navigationTesting" }
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 
 
 [plugins]

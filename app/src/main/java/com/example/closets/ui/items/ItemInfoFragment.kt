@@ -19,6 +19,7 @@ import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
+import com.google.firebase.perf.FirebasePerformance
 
 class ItemInfoFragment : Fragment() {
 
@@ -34,30 +35,27 @@ class ItemInfoFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_item_info, container, false)
+        val trace = FirebasePerformance.getInstance().newTrace("itemInfoFragment_onCreateView")
+        trace.start()
 
-        // Initialize the ViewModel
+        val view = inflater.inflate(R.layout.fragment_item_info, container, false)
         val database = AppDatabase.getDatabase(requireContext())
         val repository = ItemRepository(database.itemDao())
         itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository)).get(ItemViewModel::class.java)
 
         setStatusBarColor()
 
-        // Set up the back button click listener
         val backButton = view.findViewById<ImageView>(R.id.icon_back)
         backButton.setOnClickListener {
             findNavController().popBackStack() // Navigate back to the previous fragment
         }
 
-        // Set up the edit button click listener
         val editItemButton = view.findViewById<ImageView>(R.id.icon_edit_item)
         editItemButton.setOnClickListener {
             item?.let {
-                // Create a Bundle to pass the item ID
                 val bundle = Bundle().apply {
-                    putInt("item_id", it.id) // Pass the item ID to the edit fragment
+                    putInt("item_id", it.id) // pass the item ID to the edit fragment
                 }
-                // Navigate to EditItemInfoFragment with the Bundle
                 findNavController().navigate(R.id.action_itemInfoFragment_to_editItemInfoFragment, bundle)
             }
         }
@@ -101,25 +99,29 @@ class ItemInfoFragment : Fragment() {
             // Update the item in the database
             item?.let {
                 val itemToUpdate = convertToItem(it)
-                itemToUpdate.isFavorite = isFavorite // Update the favorite state in the itemToUpdate
-                itemViewModel.update(itemToUpdate) // Call the ViewModel to update the item
+                itemToUpdate.isFavorite = isFavorite
+                itemViewModel.update(itemToUpdate)
             }
         }
 
+        trace.stop()
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Handle the system back button
+        val trace = FirebasePerformance.getInstance().newTrace("itemInfoFragment_onViewCreated")
+        trace.start()
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             handleBackPress()
         }
+        trace.stop()
     }
 
     private fun handleBackPress() {
-        findNavController().popBackStack() // Navigate back to the previous fragment
+        findNavController().popBackStack()
     }
 
     private fun showToast(message: String) {
@@ -157,10 +159,7 @@ class ItemInfoFragment : Fragment() {
     }
 
     fun deleteItem() {
-        // Show "Item deleted" toast
-        showToast("Item deleted!") // Use showToast to cancel any previous toast and show the new one
-
-        // Perform the deletion logic here
+        showToast("Item deleted!")
         itemId?.let { id ->
             item?.let {
                 val itemToDelete = convertToItem(it) // Convert ClothingItem back to Item
@@ -178,7 +177,7 @@ class ItemInfoFragment : Fragment() {
 
         itemNameTextView?.text = item.name
         itemTypeTextView?.text = item.type
-        itemImageView?.setImageURI(item.getImageUri()) // Set the image URI
+        itemImageView?.setImageURI(item.getImageAsUri()) // Set the image URI
 
         // Update the color circle based on the item's color
         val colorCircle = view?.findViewById<View>(R.id.color_circle)
@@ -213,13 +212,13 @@ class ItemInfoFragment : Fragment() {
     private fun convertToClothingItem(item: Item): ClothingItem {
         // Convert the Item object to a ClothingItem object
         return ClothingItem(
-            id = item.id, // Ensure you have an id to pass
+            id = item.id,
             imageUri = item.imageUri,
             name = item.name,
             type = item.type,
             color = item.color,
-            wornTimes = item.wornTimes, // Use wornTimes instead of wornCount
-            lastWornDate = item.lastWornDate, // Pass lastWornDate from Item
+            wornTimes = item.wornTimes,
+            lastWornDate = item.lastWornDate,
             fragmentId = R.id.action_itemInfoFragment_to_editItemInfoFragment,
             isFavorite = item.isFavorite
         )
@@ -228,12 +227,12 @@ class ItemInfoFragment : Fragment() {
     private fun convertToItem(clothingItem: ClothingItem): Item {
         // Convert the ClothingItem object back to an Item object
         return Item(
-            id = clothingItem.id, // Ensure you have an id to pass
+            id = clothingItem.id,
             name = clothingItem.name,
             type = clothingItem.type,
             color = clothingItem.color,
-            wornTimes = clothingItem.wornTimes, // Use wornTimes instead of wornCount
-            lastWornDate = clothingItem.lastWornDate ?: "", // Handle null case if necessary
+            wornTimes = clothingItem.wornTimes,
+            lastWornDate = clothingItem.lastWornDate ?: "",
             imageUri = clothingItem.imageUri,
             isFavorite = clothingItem.isFavorite
         )

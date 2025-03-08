@@ -36,6 +36,7 @@ import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -87,6 +88,9 @@ class CurrentItemFragment : BaseItemFragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        val trace = FirebasePerformance.getInstance().newTrace("currentItemFragment_onCreateView")
+        trace.start()
+
         redirectBottomNavigation()
         _binding = FragmentCurrentItemBinding.inflate(inflater, container, false)
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
@@ -94,12 +98,17 @@ class CurrentItemFragment : BaseItemFragment() {
         val database = AppDatabase.getDatabase(requireContext())
         val repository = ItemRepository(database.itemDao())
         itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
+
+        trace.stop()
         return binding
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("currentItemFragment_onViewCreated")
+        trace.start()
 
         loadingView?.visibility = View.VISIBLE
         _binding!!.recyclerViewCurrentItems.visibility = View.GONE
@@ -212,6 +221,7 @@ class CurrentItemFragment : BaseItemFragment() {
                 itemViewModel.clearError()
             }
         }
+        trace.stop()
     }
 
     private fun loadSavedState() {

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.databinding.CurrentItemLayoutBinding
@@ -34,12 +35,11 @@ class CurrentItemAdapter(
             val context = binding.root.context
             if (!item.imageUri.isNullOrEmpty()) {
                 try {
-                    val uri = Uri.parse(item.imageUri)
-                    context.contentResolver.openInputStream(uri)?.use {
-                        binding.itemImage.setImageURI(uri)
-                    } ?: run {
-                        binding.itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                    }
+                    Glide.with(context)
+                        .load(item.imageUri)
+                        .placeholder(R.drawable.closets_logo_transparent)
+                        .error(R.drawable.closets_logo_transparent)
+                        .into(binding.itemImage)
                 } catch (e: SecurityException) {
                     if (context is MainActivity) {
                         context.showPermissionDeniedDialog()
