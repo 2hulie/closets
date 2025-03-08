@@ -13,6 +13,7 @@
         android:id="@+id/bg_image"
         android:layout_width="2000dp"
         android:layout_height="220dp"
+        android:contentDescription="@string/bg_image"
         android:scaleType="fitXY"
         android:src="@drawable/bg_pink"
         app:layout_constraintTop_toTopOf="parent"
@@ -30,12 +31,12 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="18dp" />
 
-    <!-- TextView for the Cap Name -->
+    <!-- TextView for the Name -->
     <TextView
         android:id="@+id/item_name_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="S"
         android:textStyle="bold"
         android:textSize="21sp"
         android:textColor="#F0EDED"
@@ -90,7 +91,7 @@
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/worn_times_default"
+        android:text="@string/loading_item"
         android:textSize="17sp"
         android:textColor="#DF9097"
         app:layout_constraintTop_toBottomOf="@id/card_image"
@@ -158,7 +159,7 @@
                         android:id="@+id/type_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/none"
+                        android:text="@string/loading_item"
                         android:textSize="15sp"
                         android:textColor="#62444B"
                         android:layout_weight="1"
@@ -222,7 +223,7 @@
                         android:id="@+id/last_worn_value"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/n_a"
+                        android:text="@string/loading_item"
                         android:textSize="15sp"
                         android:textColor="#62444B"
                         android:layout_weight="1"

@@ -18,6 +18,7 @@ import com.example.closets.R
 import com.example.closets.databinding.FragmentUnusedBinding
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -61,32 +62,34 @@ class UnusedFragment : BaseItemFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val trace = FirebasePerformance.getInstance().newTrace("unusedFragment_onCreateView")
+        trace.start()
+
         _binding = FragmentUnusedBinding.inflate(inflater, container, false)
-
-        // Inflate the loading view
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding as ViewGroup).addView(loadingView) // Add loading view to the fragment's view
-
+        (binding as ViewGroup).addView(loadingView)
         initializeViewModel(requireContext())
 
+        trace.stop()
         return binding
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val trace = FirebasePerformance.getInstance().newTrace("unusedFragment_onViewCreated")
+        trace.start()
+
         setStatusBarColor()
         setupSortSpinner()
         updateItemsCount(sortedUnusedItems.size)
 
-        // Show loading view initially
         loadingView?.visibility = View.VISIBLE
         _binding!!.recyclerViewUnused.visibility = View.GONE
 
         val recyclerView = _binding!!.recyclerViewUnused
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
 
-        // Observe the unused items from the ViewModel
         itemViewModel.items.observe(viewLifecycleOwner) { unusedItems ->
             lifecycleScope.launch {
                 // Process items in the background
@@ -95,7 +98,6 @@ class UnusedFragment : BaseItemFragment() {
 
                 sortedUnusedItems = allUnusedItems.toMutableList()
 
-                // Hide loading view and show RecyclerView
                 loadingView?.visibility = View.GONE
                 _binding!!.recyclerViewUnused.visibility = View.VISIBLE
 
@@ -145,6 +147,7 @@ class UnusedFragment : BaseItemFragment() {
                 itemViewModel.clearError()
             }
         }
+        trace.stop()
     }
 
     private fun convertToClothingItem(item: Item): ClothingItem {

@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.example.closets.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.perf.FirebasePerformance
 
 class FilterBottomSheetDialog(
     private val typeOptions: List<String>,
@@ -35,6 +36,9 @@ class FilterBottomSheetDialog(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("filterBottomSheetDialog_onViewCreated")
+        trace.start()
 
         // Initialize the back button
         backButton = view.findViewById(R.id.icon_back)
@@ -128,6 +132,7 @@ class FilterBottomSheetDialog(
         view.findViewById<ImageView>(R.id.btn_reset).setOnClickListener {
             resetFilters()
         }
+        trace.stop()
     }
 
 

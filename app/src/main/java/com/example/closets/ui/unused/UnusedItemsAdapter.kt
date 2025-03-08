@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.ui.items.ClothingItem
@@ -48,15 +49,14 @@ class UnusedItemsAdapter(
         val currentItem = items[position]
         val context = holder.itemView.context
 
-        val imageUri = currentItem.clothingItem.getImageUri() // if type is Uri?
+        val imageUri = currentItem.clothingItem.getImageAsUri() // if type is Uri?
         if (imageUri != null) {
             try {
-                // Use the URI directly.
-                context.contentResolver.openInputStream(imageUri)?.use {
-                    holder.itemImage.setImageURI(imageUri)
-                } ?: run {
-                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                }
+                Glide.with(context)
+                    .load(imageUri)
+                    .placeholder(R.drawable.closets_logo_transparent)
+                    .error(R.drawable.closets_logo_transparent)
+                    .into(holder.itemImage)
             } catch (e: SecurityException) {
                 if (context is MainActivity) {
                     context.showPermissionDeniedDialog()
@@ -71,7 +71,6 @@ class UnusedItemsAdapter(
 
         holder.itemDuration.text = currentItem.duration
     }
-
 
     override fun getItemCount(): Int {
         return items.size

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+    id("com.google.gms.google-services")
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
@@ -60,10 +62,17 @@ dependencies {
     implementation (libs.androidx.navigation.ui.ktx.v274)
     implementation (libs.androidx.room.runtime)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.firebase.firestore.ktx)
     ksp (libs.androidx.room.compiler.v250)
     implementation (libs.androidx.room.ktx)
     implementation (libs.glide)
     implementation (libs.gson)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation (libs.glide.v4142)
+    implementation (libs.play.services.location)
+    implementation(libs.firebase.perf)
+    annotationProcessor (libs.compiler.v4142)
     annotationProcessor (libs.compiler)
     testImplementation(libs.junit)
     testImplementation (libs.mockito.core)

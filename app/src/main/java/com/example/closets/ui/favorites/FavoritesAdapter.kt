@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.MainActivity
 import com.example.closets.R
 import com.example.closets.repository.AppDatabase
@@ -53,12 +54,11 @@ class FavoritesAdapter(
             val context = itemView.context
             if (!item.imageUri.isNullOrEmpty()) {
                 try {
-                    val uri = Uri.parse(item.imageUri)
-                    context.contentResolver.openInputStream(uri)?.use {
-                        itemImage.setImageURI(uri)
-                    } ?: run {
-                        itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                    }
+                    Glide.with(context)
+                        .load(item.imageUri)
+                        .placeholder(R.drawable.closets_logo_transparent)
+                        .error(R.drawable.closets_logo_transparent)
+                        .into(itemImage)
                 } catch (e: SecurityException) {
                     if (context is MainActivity) {
                         context.showPermissionDeniedDialog()

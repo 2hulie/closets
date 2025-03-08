@@ -22,6 +22,7 @@ import com.example.closets.databinding.FragmentDataBinding
 import com.example.closets.repository.AppDatabase
 import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.entities.Item
+import com.google.firebase.perf.FirebasePerformance
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -62,6 +63,9 @@ class DataFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val trace = FirebasePerformance.getInstance().newTrace("dataFragment_onCreateView")
+        trace.start()
+
         val dataViewModel = ViewModelProvider(this).get(DataViewModel::class.java)
 
         _binding = FragmentDataBinding.inflate(inflater, container, false)
@@ -76,6 +80,7 @@ class DataFragment : Fragment() {
         importClosetIcon = binding.iconImport
         exportClosetIcon = binding.iconExport
 
+        trace.stop()
         return root
     }
 
@@ -87,6 +92,9 @@ class DataFragment : Fragment() {
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("dataFragment_onViewCreated")
+        trace.start()
 
         setStatusBarColor()
 
@@ -101,6 +109,8 @@ class DataFragment : Fragment() {
             it.startAnimation(scaleAnimation) // Start animation
             exportData()
         }
+
+        trace.stop()
     }
 
     private fun showImportDialog() {

@@ -9,6 +9,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
@@ -98,29 +99,29 @@ class HomeUIManager(
 
     private fun setupSeeAllButtons(root: View) {
         // Find "See All" TextViews
-        val itemsSeeAll = root.findViewById<TextView>(R.id.items_see_all)
-        val favoritesSeeAll = root.findViewById<TextView>(R.id.favorites_see_all)
-        val idleItemsSeeAll = root.findViewById<TextView>(R.id.idle_items_see_all)
+        val itemsManage = root.findViewById<TextView>(R.id.items_manage)
+        val favoritesManage = root.findViewById<TextView>(R.id.favorites_manage)
+        val idleItemsManage = root.findViewById<TextView>(R.id.idle_items_manage)
 
         // Hide "See All" until data is loaded
-        itemsSeeAll.visibility = View.GONE
-        favoritesSeeAll.visibility = View.GONE
-        idleItemsSeeAll.visibility = View.GONE
+        itemsManage.visibility = View.GONE
+        favoritesManage.visibility = View.GONE
+        idleItemsManage.visibility = View.GONE
 
         // Set click listeners for "See All" with navigation image updates
-        itemsSeeAll.setOnClickListener {
+        itemsManage.setOnClickListener {
             (context as? MainActivity)?.findViewById<BottomNavigationView>(R.id.nav_view)?.apply {
                 selectedItemId = R.id.navigation_items
             }
         }
 
-        favoritesSeeAll.setOnClickListener {
+        favoritesManage.setOnClickListener {
             (context as? MainActivity)?.findViewById<BottomNavigationView>(R.id.nav_view)?.apply {
                 selectedItemId = R.id.navigation_favorites
             }
         }
 
-        idleItemsSeeAll.setOnClickListener {
+        idleItemsManage.setOnClickListener {
             (context as? MainActivity)?.findViewById<BottomNavigationView>(R.id.nav_view)?.apply {
                 selectedItemId = R.id.navigation_unused
             }
@@ -175,8 +176,7 @@ class HomeUIManager(
                 sortedUnusedItems = items
                     .filter { item -> hasBeenUnusedForAtLeastThreeMonths(item.lastWornDate) }
                     .sortedByDescending { item ->
-                        val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-                        val lastWornDate = formatter.parse(item.lastWornDate) ?: Date()
+                        val lastWornDate = parseLastWornDate(item.lastWornDate)
                         Date().time - lastWornDate.time
                     }
                     .take(5)
@@ -196,11 +196,11 @@ class HomeUIManager(
     }
 
     private fun updateRecentItemsUI(root: View) {
-        val itemsSeeAll = root.findViewById<TextView>(R.id.items_see_all)
+        val itemsManage = root.findViewById<TextView>(R.id.items_manage)
 
         if (sortedRecentItems.isNotEmpty()) {
             itemsTitle.visibility = View.VISIBLE
-            itemsSeeAll.visibility = View.VISIBLE
+            itemsManage.visibility = View.VISIBLE
             itemsRecyclerView.visibility = View.VISIBLE
 
             val adapter = HomeItemAdapter(sortedRecentItems) { homeItem ->
@@ -213,17 +213,17 @@ class HomeUIManager(
             itemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         } else {
             itemsTitle.visibility = View.GONE
-            itemsSeeAll.visibility = View.GONE
+            itemsManage.visibility = View.GONE
             itemsRecyclerView.visibility = View.GONE
         }
     }
 
     private fun updateFavoriteItemsUI(root: View) {
-        val favoritesSeeAll = root.findViewById<TextView>(R.id.favorites_see_all)
+        val favoritesManage = root.findViewById<TextView>(R.id.favorites_manage)
 
         if (sortedFavoriteItems.isNotEmpty()) {
             favoritesTitle.visibility = View.VISIBLE
-            favoritesSeeAll.visibility = View.VISIBLE
+            favoritesManage.visibility = View.VISIBLE
             favoritesRecyclerView.visibility = View.VISIBLE
 
             val adapter = HomeItemAdapter(sortedFavoriteItems) { homeItem ->
@@ -236,17 +236,17 @@ class HomeUIManager(
             favoritesRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         } else {
             favoritesTitle.visibility = View.GONE
-            favoritesSeeAll.visibility = View.GONE
+            favoritesManage.visibility = View.GONE
             favoritesRecyclerView.visibility = View.GONE
         }
     }
 
     private fun updateUnusedItemsUI(root: View) {
-        val idleItemsSeeAll = root.findViewById<TextView>(R.id.idle_items_see_all)
+        val idleItemsManage = root.findViewById<TextView>(R.id.idle_items_manage)
 
         if (sortedUnusedItems.isNotEmpty()) {
             idleItemsTitle.visibility = View.VISIBLE
-            idleItemsSeeAll.visibility = View.VISIBLE
+            idleItemsManage.visibility = View.VISIBLE
             idleItemsRecyclerView.visibility = View.VISIBLE
 
             val adapter = HomeItemAdapter(sortedUnusedItems) { homeItem ->
@@ -259,23 +259,41 @@ class HomeUIManager(
             idleItemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         } else {
             idleItemsTitle.visibility = View.GONE
-            idleItemsSeeAll.visibility = View.GONE
+            idleItemsManage.visibility = View.GONE
             idleItemsRecyclerView.visibility = View.GONE
         }
     }
 
     private fun hasBeenUnusedForAtLeastThreeMonths(lastWornDate: String): Boolean {
-        if (lastWornDate.isEmpty() || lastWornDate == "N/A") return false
+        if (lastWornDate.isEmpty() || lastWornDate == "N/A") {
+            return true // "N/A" as longest unused
+        }
 
         val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
         return try {
-            val lastWorn = formatter.parse(lastWornDate) ?: return false
-            val diffInMillis = Date().time - lastWorn.time
+            val lastWorn = formatter.parse(lastWornDate) ?: return true
+            val today = Date()
+            val diffInMillis = today.time - lastWorn.time
             val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
-            val diffInMonths = diffInDays / 30 // Approximate conversion
+            val diffInMonths = diffInDays / 30
+
             diffInMonths >= 3
         } catch (e: ParseException) {
-            false
+            Log.e("UnusedFragment", "Error parsing date: $lastWornDate", e)
+            true // default to unused if there's an error
+        }
+    }
+
+    private fun parseLastWornDate(dateStr: String): Date {
+        return if (dateStr.equals("N/A", ignoreCase = true) || dateStr.isEmpty()) {
+            Date(0)
+        } else {
+            try {
+                val formatter = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                formatter.parse(dateStr) ?: Date(0)
+            } catch (e: ParseException) {
+                Date(0)
+            }
         }
     }
 
@@ -406,7 +424,7 @@ class HomeUIManager(
         animatorY.start()
     }
 
-    fun showEmptyMessage(root: View) {
+    private fun showEmptyMessage(root: View) {
         val fullMessage = context.getString(R.string.no_items_available)
 
         val start = fullMessage.indexOf("Add a new item?")

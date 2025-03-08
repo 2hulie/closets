@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.MainActivity
 import com.example.closets.R
 
@@ -46,24 +47,17 @@ class HomeItemAdapter(
 
         if (!homeItem.imageUri.isNullOrEmpty()) {
             try {
-                val uri = Uri.parse(homeItem.imageUri)
-
-                // Try to open the image to check if it's accessible
-                context.contentResolver.openInputStream(uri)?.use {
-                    // If successful, set the image
-                    holder.itemImage.setImageURI(uri)
-                } ?: run {
-                    // If the image is not accessible, set a placeholder
-                    holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
-                }
+                Glide.with(context)
+                    .load(homeItem.imageUri)
+                    .placeholder(R.drawable.closets_logo_transparent)
+                    .error(R.drawable.closets_logo_transparent)
+                    .into(holder.itemImage)
             } catch (e: SecurityException) {
-                // Handle limited access scenario
                 if (context is MainActivity) {
-                    context.showPermissionDeniedDialog() // Show dialog to ask for full access
+                    context.showPermissionDeniedDialog()
                 }
                 holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
             } catch (e: Exception) {
-                // Handle other errors (e.g., file not found)
                 holder.itemImage.setImageResource(R.drawable.closets_logo_transparent)
             }
         } else {

@@ -67,12 +67,12 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/items_see_all"
+                android:id="@+id/items_manage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="1dp"
-                android:text="@string/see_all"
+                android:text="@string/manage"
                 android:textColor="#DF9097"
                 android:textSize="15sp"
                 android:textStyle="normal"
@@ -109,12 +109,12 @@
 
             <!-- "See all" TextView for Favorites -->
             <TextView
-                android:id="@+id/favorites_see_all"
+                android:id="@+id/favorites_manage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="1dp"
-                android:text="@string/see_all"
+                android:text="@string/manage"
                 android:textColor="#DF9097"
                 android:textSize="15sp"
                 android:textStyle="normal"
@@ -153,12 +153,12 @@
 
             <!-- "See all" TextView for Items -->
             <TextView
-                android:id="@+id/idle_items_see_all"
+                android:id="@+id/idle_items_manage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:layout_marginEnd="1dp"
-                android:text="@string/see_all"
+                android:text="@string/manage"
                 android:textColor="#DF9097"
                 android:textSize="15sp"
                 android:textStyle="normal"

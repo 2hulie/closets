@@ -30,6 +30,7 @@ import com.example.closets.R
 import com.example.closets.databinding.FragmentItemsBinding
 import com.example.closets.ui.FilterBottomSheetDialog
 import com.example.closets.ui.entities.Item
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
 
 class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
@@ -51,6 +52,9 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val trace = FirebasePerformance.getInstance().newTrace("itemsFragment_onCreateView")
+        trace.start()
+
         _binding = FragmentItemsBinding.inflate(inflater, container, false)
 
         loadingView = inflater.inflate(R.layout.loading_view, container, false)
@@ -58,12 +62,16 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
         initializeViewModel(requireContext())
 
+        trace.stop()
         return binding
     }
 
     @SuppressLint("ResourceType")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val trace = FirebasePerformance.getInstance().newTrace("itemsFragment_onViewCreated")
+        trace.start()
 
         loadingView?.visibility = View.VISIBLE
         _binding!!.recyclerViewItems.visibility = View.GONE
@@ -220,6 +228,8 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
                 itemViewModel.clearError()
             }
         }
+
+        trace.stop()
     }
 
     private fun convertToClothingItem(item: Item): ClothingItem {
@@ -314,7 +324,7 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
         }
 
         updateDeleteButtonVisibility() // Refresh delete button visibility
-        updateItemsCount() // Optional, if item count needs updating
+        updateItemsCount()
     }
 
     private fun toggleSelectMultipleMode(textView: TextView) {

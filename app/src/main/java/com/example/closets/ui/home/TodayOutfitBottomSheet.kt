@@ -24,6 +24,7 @@ import com.example.closets.repository.AppDatabase
 import com.example.closets.ui.entities.Item
 import com.example.closets.ui.items.ClothingItem
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,6 +72,9 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val trace = FirebasePerformance.getInstance().newTrace("todayOutfitBottomSheet_onViewCreated")
+        trace.start()
+
         initializeUI(view)
         updateTimeAndDate()
         resetForNewDayIfNeeded()
@@ -89,6 +93,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
 
         setUpRecyclerView()
         setClickListeners()
+
+        trace.stop()
     }
 
     private fun updateCheckedItemsInPrefs(items: List<ClothingItem>) {
@@ -159,7 +165,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
     }
     private fun setUpRecyclerView() {
         Log.d(TAG, "Setting up RecyclerView with ${checkedItems.size} items")
-        outfitItemAdapter = TodayOutfitItemAdapter(checkedItems) { /* Do nothing */ }
+        outfitItemAdapter = TodayOutfitItemAdapter(checkedItems)
 
         recyclerView.apply {
             adapter = outfitItemAdapter

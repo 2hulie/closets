@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.forEach
@@ -26,8 +25,9 @@ import com.example.closets.ui.items.ClothingItem
 import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.perf.FirebasePerformance
 
-class EditItemFragment : BaseModifyItemFragment() {
+class EditItemInfoFragment : BaseModifyItemFragment() {
     // View declarations
     private lateinit var nameEditText: EditText
     private lateinit var wornTimesTextView: TextView
@@ -45,6 +45,9 @@ class EditItemFragment : BaseModifyItemFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val trace = FirebasePerformance.getInstance().newTrace("editItemInfoFragment_onCreateView")
+        trace.start()
+
         currentView = inflater.inflate(R.layout.fragment_item_info_edit, container, false)
 
         // Initialize the ViewModel
@@ -81,6 +84,7 @@ class EditItemFragment : BaseModifyItemFragment() {
             }
         })
 
+        trace.stop()
         return currentView
     }
 
@@ -159,25 +163,22 @@ class EditItemFragment : BaseModifyItemFragment() {
 
     fun saveItemChanges() {
         if (validateInputs()) {
-            // Check for duplicate item name
+            // check for duplicate item name
             val itemName = nameEditText.text.toString()
             itemViewModel.items.observe(viewLifecycleOwner) { existingItems ->
                 val isDuplicate = existingItems.any { it.name.equals(itemName, ignoreCase = true) && it.id != (item?.id ?: 0) }
                 if (isDuplicate) {
                     showToast(requireContext(), "Name already exists.")
-                    return@observe // Exit the function if duplicate found
+                    return@observe // exit the function if duplicate found
                 }
 
-                // Proceed to save the item if no duplicates
+                // proceed to save the item if no duplicates
                 try {
                     val itemType = typeSpinner.selectedItem.toString()
                     val wornTimes = wornTimesTextView.text.toString().replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
                     val lastWornDate = lastWornTextView.text.toString()
-
                     val itemColor = (colorCircle.background as? ColorDrawable)?.color ?: Color.GRAY
                     val formattedColor = String.format("#%06X", (0xFFFFFF and itemColor))
-
-                    // Get the image URI from the ImageView
                     val imageUriString = imageUri?.toString() ?: run {
                         showToast(requireContext(), "Error: No image selected")
                         return@observe
@@ -185,19 +186,17 @@ class EditItemFragment : BaseModifyItemFragment() {
 
                     // Create a new Item object
                     val updatedItem = Item(
-                        id = item?.id ?: 0, // Use existing ID for the item being edited
+                        id = item?.id ?: 0,
                         name = itemName,
                         type = itemType,
                         color = formattedColor,
                         wornTimes = wornTimes,
                         lastWornDate = lastWornDate,
                         imageUri = imageUriString,
-                        isFavorite = item?.isFavorite ?: false // Keep the favorite status
+                        isFavorite = item?.isFavorite ?: false
                     )
 
-                    // Update the item using the ViewModel
                     itemViewModel.update(updatedItem)
-
                     Log.d(
                         "SaveItemChanges",
                         "Item Name: $itemName, Type: $itemType, Worn Times: $wornTimes, Last Worn: $lastWornDate, Color: $formattedColor"
