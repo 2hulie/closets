@@ -12,22 +12,4 @@ class SharedViewModel : ViewModel() {
     fun setCheckedItems(items: List<ClothingItem>) {
         _checkedItems.value = items
     }
-
-    fun addCheckedItem(item: ClothingItem) {
-        val currentItems = _checkedItems.value?.toMutableList() ?: mutableListOf()
-        if (!currentItems.contains(item)) {
-            currentItems.add(item)
-            _checkedItems.value = currentItems
-        }
-    }
-
-    fun removeCheckedItem(item: ClothingItem) {
-        val currentItems = _checkedItems.value?.toMutableList() ?: mutableListOf()
-        currentItems.removeIf { it.id == item.id }
-        _checkedItems.value = currentItems
-    }
-
-    fun clearCheckedItems() {
-        _checkedItems.value = emptyList()
-    }
 }

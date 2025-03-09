@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -100,8 +101,6 @@ class HomeFragment : Fragment() {
         trace.start()
 
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (root as ViewGroup).addView(loadingView)
         iconNotif = root.findViewById(R.id.icon_notif)
         iconOutfit = root.findViewById(R.id.icon_outfit)
 
@@ -114,7 +113,7 @@ class HomeFragment : Fragment() {
         )
 
         // Initialize views through the manager
-        homeUIManager.initializeViews(root, loadingView)
+        homeUIManager.initializeViews(root)
         homeUIManager.setupObservers(root)
 
         // Set the initial notification icon state
@@ -136,6 +135,15 @@ class HomeFragment : Fragment() {
         workManager = WorkManager.getInstance(requireContext()) // initialize WorkManager
 
         loadNotificationState() // load notification state after initializing workManager
+        val slideInAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_in)
+        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
+        val homeImageView = view.findViewById<ImageView>(R.id.home_image)
+        val homeText = view.findViewById<TextView>(R.id.home_text)
+
+        iconCurrentImageView.visibility = View.VISIBLE
+        iconCurrentImageView.startAnimation(slideInAnimation)
+        homeImageView.startAnimation(slideDownAnimation)
+        homeText.startAnimation(slideDownAnimation)
 
         darkOverlay = View(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
@@ -39,6 +40,7 @@ class UnusedFragment : BaseItemFragment() {
     override lateinit var adapter: UnusedItemsAdapter
     private var isDescImageVisible = false
     private var currentSortPosition = 0
+    private var dataLoaded = false
 
     // track if the list is currently filtered
     private var isFiltered = false
@@ -66,8 +68,6 @@ class UnusedFragment : BaseItemFragment() {
         trace.start()
 
         _binding = FragmentUnusedBinding.inflate(inflater, container, false)
-        loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding as ViewGroup).addView(loadingView)
         initializeViewModel(requireContext())
 
         trace.stop()
@@ -84,7 +84,6 @@ class UnusedFragment : BaseItemFragment() {
         setupSortSpinner()
         updateItemsCount(sortedUnusedItems.size)
 
-        loadingView?.visibility = View.VISIBLE
         _binding!!.recyclerViewUnused.visibility = View.GONE
 
         val recyclerView = _binding!!.recyclerViewUnused
@@ -97,8 +96,7 @@ class UnusedFragment : BaseItemFragment() {
                     .filter { item -> hasBeenUnusedForAtLeastThreeMonths(item.lastWornDate) } // Filter items
 
                 sortedUnusedItems = allUnusedItems.toMutableList()
-
-                loadingView?.visibility = View.GONE
+                dataLoaded = true
                 _binding!!.recyclerViewUnused.visibility = View.VISIBLE
 
                 Log.d("UnusedFragment", "Filtered Items fetched: ${sortedUnusedItems.size}")
@@ -132,8 +130,8 @@ class UnusedFragment : BaseItemFragment() {
         }
 
         _binding!!.recyclerViewUnused.adapter = adapter
+        startSlideDownAnimation(_binding!!.unusedImage, _binding!!.unusedItemsCountText)
 
-        // Set up toggle for desc_unused_image
         _binding!!.info.setOnClickListener {
             toggleDescImageVisibility()
         }
@@ -176,10 +174,7 @@ class UnusedFragment : BaseItemFragment() {
     }
 
     private fun setupSortSpinner() {
-        // Array of sort options from resources
         val options = resources.getStringArray(R.array.sort_options)
-
-        // Create a custom ArrayAdapter using the default spinner layout
         val spinnerAdapter = object : ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, options) {
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent)
@@ -193,7 +188,7 @@ class UnusedFragment : BaseItemFragment() {
                 return view
             }
         }.apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) // Use default dropdown layout
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
         // Set the adapter to the Spinner
@@ -302,6 +297,8 @@ class UnusedFragment : BaseItemFragment() {
 
         // Update the adapter with the correct type
         adapter.updateItems(unusedItemsList)
+        val fadeInAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
+        _binding!!.recyclerViewUnused.startAnimation(fadeInAnimation)
         updateItemsCount(sortedUnusedItems.size)
     }
 

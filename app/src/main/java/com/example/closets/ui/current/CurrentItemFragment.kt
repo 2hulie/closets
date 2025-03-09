@@ -519,7 +519,6 @@ class CurrentItemFragment : BaseItemFragment() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         customView.findViewById<ImageView>(R.id.btn_discard).setOnClickListener {
-            // Restore the checked states in your adapter:
             sortedCurrentItems.forEach { item ->
                 item.isChecked = originalCheckedItems.any { orig -> orig.id == item.id }
             }

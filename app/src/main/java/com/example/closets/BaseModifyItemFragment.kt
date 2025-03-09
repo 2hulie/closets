@@ -344,8 +344,6 @@ abstract class BaseModifyItemFragment : Fragment() {
 
     fun setupSortSpinner() {
         val sortOptions = resources.getStringArray(R.array.filter_options)
-
-        // Custom adapter for spinner with custom layout
         val spinnerAdapter = object : ArrayAdapter<String>(requireContext(), R.layout.spinner_item, sortOptions) {
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getDropDownView(position, convertView, parent)

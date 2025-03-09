@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.CheckBox
 import android.widget.EditText
@@ -45,6 +46,8 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
     private lateinit var selectAllCheckbox: CheckBox
     var isSelectingMultiple = false
     private var isSelectionMode = false
+    private var dataLoaded = false
+    var skipFadeAnimation = false
 
     override lateinit var adapter: ItemsAdapter
 
@@ -56,10 +59,6 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
         trace.start()
 
         _binding = FragmentItemsBinding.inflate(inflater, container, false)
-
-        loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding as ViewGroup).addView(loadingView)
-
         initializeViewModel(requireContext())
 
         trace.stop()
@@ -73,7 +72,6 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
         val trace = FirebasePerformance.getInstance().newTrace("itemsFragment_onViewCreated")
         trace.start()
 
-        loadingView?.visibility = View.VISIBLE
         _binding!!.recyclerViewItems.visibility = View.GONE
         _binding!!.recyclerViewItems.layoutManager = GridLayoutManager(requireContext(), 3)
 
@@ -81,8 +79,8 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
             lifecycleScope.launch {
                 allItems = items.map { convertToClothingItem(it) }
                 sortedItems = allItems.toMutableList()
+                dataLoaded = true
 
-                loadingView?.visibility = View.GONE
                 _binding!!.recyclerViewItems.visibility = View.VISIBLE
 
                 Log.d("ItemsFragment", "Items fetched: ${sortedItems.size}")
@@ -90,10 +88,19 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
                 adapter.updateItems(sortedItems) // Update the adapter
                 updateItemsCount() // Update the item count
+                // Only apply fade-in animation if it's not a favorite toggle update
+                if (!skipFadeAnimation) {
+                    val fadeInAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
+                    _binding!!.recyclerViewItems.startAnimation(fadeInAnimation)
+                } else {
+                    // Reset flag after handling
+                    skipFadeAnimation = false
+                }
             }
         }
 
         initializeViews(view)
+        startSlideDownAnimation(_binding!!.itemsImage, _binding!!.itemsCountText)
 
         _binding!!.iconAdd.setOnClickListener {
             val currentCount = itemViewModel.items.value?.size ?: 0
@@ -114,7 +121,8 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
                 findNavController().navigate(R.id.action_itemsFragment_to_itemInfoFragment, bundle)
             },
             this,
-            itemViewModel
+            itemViewModel,
+            onFavoriteToggle = { skipFadeAnimation = true }
         )
 
         _binding!!.recyclerViewItems.adapter = adapter
@@ -198,7 +206,6 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
             }
         }
 
-        // Trigger search when "Enter" key is pressed on the keyboard
         searchInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
                 actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH
@@ -206,25 +213,22 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
                 val query = searchInput.text.toString()
                 if (query.isNotEmpty()) {
                     filterItems(query) // Call the filter method if there is input
-                    // Optionally close the keyboard
                     val imm =
                         context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
                     imm?.hideSoftInputFromWindow(searchInput.windowToken, 0)
                 } else {
                     resetSearchResults()
                 }
-                true // Indicating the action was handled
+                true
             } else {
-                false // Otherwise, let the system handle it
+                false
             }
         }
 
         // Observe errors
         itemViewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                // Show error message
                 showToast(requireContext(), it)
-                // Clear the error after showing it
                 itemViewModel.clearError()
             }
         }
@@ -261,7 +265,6 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
         val selectMultipleTextView = LayoutInflater.from(requireContext())
             .inflate(R.layout.menu_item, null) as TextView
 
-        // Set initial text based on current state
         selectMultipleTextView.text = if (isSelectingMultiple) {
             getString(R.string.close_select_multiple)
         } else {
@@ -278,19 +281,13 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
         selectMultipleTextView.setOnClickListener {
             popupWindow.dismiss()
-
-            // Toggle the select multiple mode
             toggleSelectMultipleMode(selectMultipleTextView)
-
-            // Check if the text is "close_select_multiple" and make btnFilter visible
             if (selectMultipleTextView.text == getString(R.string.close_select_multiple)) {
                 _binding!!.btnFilter.visibility = View.VISIBLE
             }
         }
 
         linearLayout.addView(selectMultipleTextView)
-
-        // Show the PopupWindow
         popupWindow.showAsDropDown(view)
     }
 
@@ -428,9 +425,13 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
     // method to update item count
     private fun updateItemsCount() {
-        val itemCount = sortedItems.size
-        val dynamicTitle = resources.getQuantityString(R.plurals.items_count, itemCount, itemCount)
-        _binding!!.itemsCountText.text = dynamicTitle  // Update the TextView with the dynamic count
+        if (!dataLoaded) {
+            _binding!!.itemsCountText.text = ""
+        } else {
+            val itemCount = sortedItems.size
+            val dynamicTitle = resources.getQuantityString(R.plurals.items_count, itemCount, itemCount)
+            _binding!!.itemsCountText.text = dynamicTitle
+        }
     }
 
     private fun showDeleteConfirmationDialog(selectedItemsToDelete: Set<ClothingItem>) {
@@ -482,7 +483,6 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
 
         // Perform the deletion in the database
         lifecycleScope.launch {
-            // Assuming you have a method in your repository to delete items
             itemViewModel.deleteItems(selectedItemsToDelete.map { it.id }) // Pass the IDs of the items to delete
         }
 
@@ -645,13 +645,13 @@ class ItemsFragment : BaseItemFragment(), ItemsAdapter.SelectionCallback {
     }
 
     private fun updateRecyclerView() {
-        if (sortedItems.isEmpty()) {
+        updateItemsCount()
+        if (dataLoaded && sortedItems.isEmpty()) {
             showEmptyMessage()
         } else {
             hideEmptyMessage()
             adapter.updateItems(sortedItems)
         }
-        updateItemsCount()  // Update the item count when the list is updated
     }
 
     private fun showEmptyMessage() {

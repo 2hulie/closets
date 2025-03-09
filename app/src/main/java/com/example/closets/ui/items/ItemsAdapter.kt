@@ -17,6 +17,7 @@ import com.example.closets.ui.entities.Item
 import com.example.closets.ui.viewmodels.ItemViewModel
 import java.io.Serializable
 
+
 data class ClothingItem(
     val id: Int,
     var imageUri: String?,
@@ -41,7 +42,8 @@ class ItemsAdapter(
     private var _items: MutableList<ClothingItem> = mutableListOf(),
     val itemClickListener: (ClothingItem) -> Unit,
     private val selectionCallback: SelectionCallback? = null,
-    private val itemViewModel: ItemViewModel
+    private val itemViewModel: ItemViewModel,
+    private val onFavoriteToggle: () -> Unit
 ) : RecyclerView.Adapter<ItemsAdapter.ItemViewHolder>() {
 
     // Backing property to ensure thread safety
@@ -168,9 +170,12 @@ class ItemsAdapter(
                     }
                     showToast(favoriteIcon, message) // Show toast message
 
+                    onFavoriteToggle()
+
                     // Update the item in the database
                     val itemToUpdate = convertToItem(currentItem) // Convert currentItem to Item
                     itemViewModel.update(itemToUpdate) // Call the ViewModel to update the item
+                    notifyItemChanged(position, "favorite_toggle")
                 }
             }
         }
@@ -185,7 +190,7 @@ class ItemsAdapter(
             wornTimes = clothingItem.wornTimes,
             lastWornDate = clothingItem.lastWornDate ?: "", // Handle null case if necessary
             imageUri = clothingItem.imageUri,
-            isFavorite = clothingItem.isFavorite // Ensure this matches your Item entity
+            isFavorite = clothingItem.isFavorite
         )
     }
 

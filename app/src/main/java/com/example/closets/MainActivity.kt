@@ -1,8 +1,8 @@
 package com.example.closets
 
-import android.content.Context
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -27,7 +27,6 @@ import com.example.closets.ui.home.HomeFragment
 import com.example.closets.ui.items.ItemsFragment
 import com.example.closets.ui.unused.UnusedFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.FirebaseApp
 import com.google.firebase.perf.FirebasePerformance
 
 class MainActivity : AppCompatActivity() {

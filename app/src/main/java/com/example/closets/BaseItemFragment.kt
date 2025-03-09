@@ -2,6 +2,7 @@ package com.example.closets
 
 import android.content.Context
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -60,12 +61,18 @@ abstract class BaseItemFragment : Fragment() {
         itemViewModel = ViewModelProvider(this, ItemViewModelFactory(repository))[ItemViewModel::class.java]
     }
 
-    // A simpler toast method if needed.
     protected fun showToast(context: Context, message: String) {
         currentToast?.cancel()
         currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
             show()
         }
+    }
+
+    protected fun startSlideDownAnimation(vararg views: View) {
+        // Get the slide-down animation from resources
+        val slideDownAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down)
+        // Apply the animation to each view passed in
+        views.forEach { it.startAnimation(slideDownAnimation) }
     }
 
     open fun hasActiveFilters(): Boolean {
