@@ -96,10 +96,15 @@ class DataFragment : Fragment() {
         val trace = FirebasePerformance.getInstance().newTrace("dataFragment_onViewCreated")
         trace.start()
 
+        val slideDownAnimation = AnimationUtils.loadAnimation(context, R.anim.slide_down)
+        val dataImageView = view.findViewById<ImageView>(R.id.data_image)
+        val dataText = view.findViewById<TextView>(R.id.data_text)
+        dataImageView.startAnimation(slideDownAnimation)
+        dataText.startAnimation(slideDownAnimation)
+
         setStatusBarColor()
 
         val scaleAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_animation)
-
         importClosetIcon.setOnClickListener {
             it.startAnimation(scaleAnimation) // Start animation
             showImportDialog()

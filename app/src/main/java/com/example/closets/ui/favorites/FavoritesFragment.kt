@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
@@ -32,6 +33,7 @@ class FavoritesFragment : BaseItemFragment() {
 
     private var allFavoriteItems: List<ClothingItem> = listOf()
     private var sortedFavoriteItems: MutableList<ClothingItem> = mutableListOf()
+    private var dataLoaded = false
 
     override lateinit var adapter: FavoritesAdapter
 
@@ -43,9 +45,6 @@ class FavoritesFragment : BaseItemFragment() {
         trace.start()
 
         _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
-        loadingView = inflater.inflate(R.layout.loading_view, container, false)
-        (binding as ViewGroup).addView(loadingView)
-
         initializeViewModel(requireContext())
 
         trace.stop()
@@ -59,7 +58,6 @@ class FavoritesFragment : BaseItemFragment() {
         val trace = FirebasePerformance.getInstance().newTrace("favoritesFragment_onViewCreated")
         trace.start()
 
-        loadingView?.visibility = View.VISIBLE // show loading view initially
         _binding!!.recyclerViewFavorites.visibility = View.GONE
         _binding!!.recyclerViewFavorites.layoutManager = GridLayoutManager(requireContext(), 3)
 
@@ -67,9 +65,8 @@ class FavoritesFragment : BaseItemFragment() {
             lifecycleScope.launch {
                 allFavoriteItems = favoriteItems.map { convertToClothingItem(it) }
                 sortedFavoriteItems = allFavoriteItems.toMutableList()
+                dataLoaded = true
 
-                // Hide loading view and show RecyclerView
-                loadingView?.visibility = View.GONE
                 _binding!!.recyclerViewFavorites.visibility = View.VISIBLE
 
                 if (sortedFavoriteItems.isEmpty()) {
@@ -106,7 +103,7 @@ class FavoritesFragment : BaseItemFragment() {
         )
 
         _binding!!.recyclerViewFavorites.adapter = adapter
-
+        startSlideDownAnimation(_binding!!.favoritesImage, _binding!!.favoriteItemsCountText)
         _binding!!.filterButton.setOnClickListener {
             showFilterBottomSheet()
         }
@@ -280,7 +277,6 @@ class FavoritesFragment : BaseItemFragment() {
         resetToOriginalList() // Restore the original list of items
     }
 
-    // Modify your onResume to preserve filters
     override fun onResume() {
         super.onResume()
         // Only reset if there are no applied filters
@@ -318,13 +314,15 @@ class FavoritesFragment : BaseItemFragment() {
     }
 
     private fun updateRecyclerView() {
-        if (sortedFavoriteItems.isEmpty()) {
+        updateItemsCount(sortedFavoriteItems.size)
+        if (dataLoaded && sortedFavoriteItems.isEmpty()) {
             showEmptyMessage()
         } else {
             hideEmptyMessage()
             adapter.updateItems(sortedFavoriteItems)
+            val fadeInAnimation = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in)
+            _binding!!.recyclerViewFavorites.startAnimation(fadeInAnimation)
         }
-        updateItemsCount(sortedFavoriteItems.size)
     }
 
     @SuppressLint("SetTextI18n")

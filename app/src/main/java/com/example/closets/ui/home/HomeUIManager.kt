@@ -57,12 +57,9 @@ class HomeUIManager(
     private var sortedRecentItems: List<HomeItem> = emptyList()
     private var sortedFavoriteItems: List<HomeItem> = emptyList()
     private var sortedUnusedItems: List<HomeItem> = emptyList()
-    private var loadingView: View? = null
     private var isIconCurrentExpanded = false
 
-    fun initializeViews(root: View, loadingViewParam: View?) {
-        loadingView = loadingViewParam
-
+    fun initializeViews(root: View) {
         // Initialize RecyclerViews and TextViews
         itemsRecyclerView = root.findViewById(R.id.recycler_view)
         favoritesRecyclerView = root.findViewById(R.id.favorites_recycler_view)
@@ -77,7 +74,6 @@ class HomeUIManager(
         iconNotif = root.findViewById(R.id.icon_notif)
         iconOutfit = root.findViewById(R.id.icon_outfit)
 
-        // Show loading state initially
         val emptyMessage = root.findViewById<TextView>(R.id.homeEmptyMessage)
         emptyMessage.visibility = View.GONE
 
@@ -145,7 +141,6 @@ class HomeUIManager(
 
                 updateRecentItemsUI(root)
                 updateEmptyState(root)
-                loadingView?.visibility = View.GONE
             }
         }
 
@@ -165,7 +160,6 @@ class HomeUIManager(
 
                 updateFavoriteItemsUI(root)
                 updateEmptyState(root)
-                loadingView?.visibility = View.GONE
             }
         }
 
@@ -190,7 +184,6 @@ class HomeUIManager(
 
                 updateUnusedItemsUI(root)
                 updateEmptyState(root)
-                loadingView?.visibility = View.GONE
             }
         }
     }
@@ -211,6 +204,7 @@ class HomeUIManager(
             }
             itemsRecyclerView.adapter = adapter
             itemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            applyFadeInAnimation(itemsRecyclerView)
         } else {
             itemsTitle.visibility = View.GONE
             itemsManage.visibility = View.GONE
@@ -234,6 +228,7 @@ class HomeUIManager(
             }
             favoritesRecyclerView.adapter = adapter
             favoritesRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            applyFadeInAnimation(favoritesRecyclerView)
         } else {
             favoritesTitle.visibility = View.GONE
             favoritesManage.visibility = View.GONE
@@ -257,6 +252,7 @@ class HomeUIManager(
             }
             idleItemsRecyclerView.adapter = adapter
             idleItemsRecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            applyFadeInAnimation(idleItemsRecyclerView)
         } else {
             idleItemsTitle.visibility = View.GONE
             idleItemsManage.visibility = View.GONE
@@ -460,5 +456,10 @@ class HomeUIManager(
         } else {
             emptyMessage.visibility = View.GONE
         }
+    }
+
+    private fun applyFadeInAnimation(view: View) {
+        val fadeInAnimation = AnimationUtils.loadAnimation(context, R.anim.fade_in)
+        view.startAnimation(fadeInAnimation)
     }
 }
