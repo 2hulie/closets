@@ -78,6 +78,7 @@ class NotificationReceiver : BroadcastReceiver() {
         }
 
         fun scheduleExactDailyNotification(context: Context) {
+            Log.d("NotificationSchedule", "scheduleExactDailyNotification function CALLED") // ADDED LOG 1
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
             // Create an intent for the BroadcastReceiver
@@ -98,6 +99,16 @@ class NotificationReceiver : BroadcastReceiver() {
             val isNotificationStillValid =
                 lastNotifDate == 0L || !isSameDay(lastNotifDate, System.currentTimeMillis())
 
+            // --- TEMPORARY TEST SCHEDULING LOGIC ---
+            /*val notificationTime = Calendar.getInstance().apply {
+                // Set notification to trigger in 1 minute from now for testing
+                add(Calendar.MINUTE, 1)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            Log.d("NotificationSchedule", "Notification time calculated: ${notificationTime.time}") // ADDED LOG 2*/
+
             // - If before 9 AM, schedule at 9 AM today.
             // - If between 9 AM and 9 PM, schedule at 9 PM today.
             // - If 9 PM or later, schedule at 9 AM tomorrow.
@@ -109,12 +120,14 @@ class NotificationReceiver : BroadcastReceiver() {
                         set(Calendar.SECOND, 0)
                         set(Calendar.MILLISECOND, 0)
                     }
-                    currentTime.get(Calendar.HOUR_OF_DAY) in 9 until 21 -> {
+
+                    /*currentTime.get(Calendar.HOUR_OF_DAY) in 9 until 21 -> {
                         set(Calendar.HOUR_OF_DAY, 21)
                         set(Calendar.MINUTE, 0)
                         set(Calendar.SECOND, 0)
                         set(Calendar.MILLISECOND, 0)
-                    }
+                    }*/
+
                     else -> {
                         set(Calendar.HOUR_OF_DAY, 9)
                         set(Calendar.MINUTE, 0)
@@ -124,6 +137,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     }
                 }
             }
+            Log.d("NotificationSchedule", "Notification time calculated: ${notificationTime.time}") // ADDED LOG 2
 
             // Only schedule if no notification has been sent today
             if (isNotificationStillValid) {
@@ -132,7 +146,12 @@ class NotificationReceiver : BroadcastReceiver() {
                     notificationTime.timeInMillis,
                     pendingIntent
                 )
+            } else {
+                Log.d(
+                    "NotificationSchedule",
+                    "Notification NOT scheduled - already sent today") // ADDED LOG 5
             }
+
         }
 
         private fun isSameDay(timestamp1: Long, timestamp2: Long): Boolean {

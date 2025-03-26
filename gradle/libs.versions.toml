@@ -13,6 +13,7 @@ byteBuddy = "1.14.8"
 colorpickerview = "2.3.0"
 commonsMath3 = "3.6.1"
 compiler = "4.14.2"
+converterGson = "2.11.0"
 core = "1.6.1"
 coreVersion = "1.5.0"
 cropper = "1.0.0"
@@ -50,6 +51,7 @@ orgRobolectricRobolectric = "4.14.1"
 playServicesLocation = "21.3.0"
 removebg = "1.0.4"
 renderscript = "1.0.0"
+retrofit = "2.11.0"
 robolectric = "4.6.1"
 robolectricRobolectric = "4.14"
 robolectricRobolectricVersion = "4.9"
@@ -101,6 +103,7 @@ colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref 
 commons-math3 = { module = "org.apache.commons:commons-math3", version.ref = "commonsMath3" }
 compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 compiler-v4142 = { module = "com.github.bumptech.glide:compiler", version.ref = "compiler" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 cropper = { module = "com.github.Hanselmann:Cropper", version.ref = "cropper" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -129,6 +132,7 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-v1137 = { module = "io.mockk:mockk", version.ref = "mockkVersion" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 removebg = { module = "com.github.erenalpaslan:removebg", version.ref = "removebg" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 robolectric-v413 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 robolectric-v414 = { module = "org.robolectric:robolectric", version.ref = "robolectricRobolectric" }

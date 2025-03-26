@@ -9,7 +9,7 @@
     <!-- FrameLayout containing ImageView and dynamic TextView -->
     <FrameLayout
         android:id="@+id/unused_image_frame"
-        android:layout_width="330dp"
+        android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,6 +23,8 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/unused_image"
             android:scaleType="fitCenter"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
             android:src="@drawable/lbl_unused" />
 
         <!-- TextView to display dynamic text inside ImageView -->
@@ -41,7 +43,9 @@
     <!-- ImageView for desc_unused.png -->
     <ImageView
         android:id="@+id/desc_unused_image"
-        android:layout_width="380dp"
+        android:layout_width="wrap_content"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
         android:layout_height="140dp"
         android:contentDescription="@string/desc_unused_image"
         android:src="@drawable/desc_unused"
@@ -57,6 +61,8 @@
         android:id="@+id/sort_by_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
         android:orientation="horizontal"
         android:layout_marginTop="15dp"
         android:gravity="center"

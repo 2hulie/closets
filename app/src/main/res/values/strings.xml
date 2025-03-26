@@ -156,5 +156,7 @@
     <string name="save_outfit_content">Remember, you can only save today\'s outfit once, and it cannot be changed later.</string>
     <string name="manage">Manage</string>
     <string name="bg_image">Background Image</string>
+    <string name="lucky_color_image_desc">Lucky Color Image</string>
+    <string name="lucky_color">Lucky Color:</string>
 
 </resources>
