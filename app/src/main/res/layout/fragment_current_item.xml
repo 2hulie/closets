@@ -10,9 +10,9 @@
     <!-- FrameLayout containing ImageView and dynamic TextViews -->
     <FrameLayout
         android:id="@+id/current_items_image_frame"
-        android:layout_width="350dp"
+        android:layout_width="wrap_content"
         android:layout_height="70dp"
-        android:layout_marginTop="-5dp"
+        android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,15 +20,13 @@
         <!-- ImageView for lbl_current.png -->
         <ImageView
             android:id="@+id/current_items_image"
-            android:layout_width="350dp"
-            android:layout_height="70dp"
-            android:layout_marginTop="-5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:contentDescription="@string/current_items_image"
             android:scaleType="fitCenter"
             android:src="@drawable/lbl_items"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp" />
 
         <!-- TextView for the current date -->
         <TextView
@@ -39,7 +37,7 @@
             android:textSize="11sp"
             android:textColor="#FFFFFF"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="15dp"
             tools:ignore="HardcodedText" />
 
         <!-- TextView for the "What are you wearing today?" text -->
@@ -48,19 +46,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="What are you wearing today?"
-            android:textSize="18sp"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="16dp"
+            android:gravity="center"
             tools:ignore="HardcodedText" />
-
 
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/search_and_filter_layout"
-        android:layout_width="357dp"
+        android:layout_width="wrap_content"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
         android:layout_height="50dp"
         android:orientation="horizontal"
         android:layout_marginTop="15dp"

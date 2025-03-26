@@ -6,7 +6,7 @@
     android:id="@+id/bottom_sheet_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/faded_pink"
+    android:background="@color/color_items"
     app:layout_constraintHeight_percent="0.5"
     app:layout_constraintBottom_toBottomOf="parent">
 
@@ -14,8 +14,8 @@
     <ImageView
         android:id="@+id/todays_outfit_background"
         android:layout_width="match_parent"
-        android:layout_height="420dp"
-        android:src="@drawable/bg_todays_outfit"
+        android:layout_height="350dp"
+        android:background="@color/color_items"
         android:scaleType="center"
         android:clipToOutline="true"
         tools:ignore="MissingConstraints" />
@@ -67,6 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:layout_marginBottom="4dp"
         android:text="Updating..."
         android:textColor="@color/faded_pink"
         android:textSize="13sp"
@@ -76,12 +77,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/todays_outfit_title" />
 
+    <!-- Lucky Color Container -->
+    <LinearLayout
+        android:id="@+id/lucky_color_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/current_time_date">
+
+        <TextView
+            android:id="@+id/lucky_color_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lucky_color"
+            android:textSize="13sp"
+            android:textColor="@color/faded_pink"
+            android:layout_marginEnd="6dp"
+            android:background="@android:color/transparent" />
+
+        <ImageView
+            android:id="@+id/lucky_color_image"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/lucky_color_image_desc" />
+    </LinearLayout>
+
     <!-- RecyclerView for Today's Outfit Items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/todays_outfit_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/current_time_date"
+        app:layout_constraintTop_toBottomOf="@id/lucky_color_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/icon_save_outfit"
@@ -110,10 +143,10 @@
     <ImageView
         android:id="@+id/icon_save_outfit"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="35dp"
         android:contentDescription="@string/save_outfit"
         android:src="@drawable/icon_save_outfit"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -10,7 +10,7 @@
     <!-- FrameLayout containing ImageView and dynamic TextView -->
     <FrameLayout
         android:id="@+id/home_image_frame"
-        android:layout_width="330dp"
+        android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,6 +24,8 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/home_image"
             android:scaleType="fitCenter"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
             android:src="@drawable/lbl_home" />
 
         <!-- TextView to display dynamic text inside ImageView -->
@@ -207,13 +209,13 @@
         android:id="@+id/icon_current"
         android:layout_width="85dp"
         android:layout_height="85dp"
-        android:layout_marginStart="320dp"
         android:contentDescription="@string/icon_current"
         android:src="@drawable/icon_current"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="110dp" />
+        android:layout_marginBottom="110dp"
+        android:layout_marginEnd="0dp"
+        android:scaleType="centerCrop" />
 
     <!-- Notification Icon Button (Initially GONE) -->
     <ImageView

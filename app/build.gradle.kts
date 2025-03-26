@@ -63,6 +63,8 @@ dependencies {
     implementation (libs.androidx.room.runtime)
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
     ksp (libs.androidx.room.compiler.v250)
     implementation (libs.androidx.room.ktx)
     implementation (libs.glide)

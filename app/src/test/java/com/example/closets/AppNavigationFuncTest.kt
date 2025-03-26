@@ -146,7 +146,7 @@ class AppNavigationFuncTest {
         val mockFragment = mock(HomeFragment::class.java)
 
         // Simulate the user tapping the "See all" button
-        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.items_see_all)
+        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.items_manage)
         seeAllButton?.performClick() // Simulate clicking the "See all" button
 
         mockNavController.navigate(R.id.navigation_items)
@@ -164,7 +164,7 @@ class AppNavigationFuncTest {
         val mockFragment = mock(HomeFragment::class.java)
 
         // Simulate the user tapping the "See all" button
-        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.favorites_see_all)
+        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.favorites_manage)
         seeAllButton?.performClick() // Simulate clicking the "See all" button
 
         mockNavController.navigate(R.id.navigation_favorites)
@@ -191,7 +191,7 @@ class AppNavigationFuncTest {
         val mockFragment = mock(HomeFragment::class.java)
 
         // Simulate the user tapping the "See all" button
-        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.idle_items_see_all)
+        val seeAllButton: TextView? = mockFragment.view?.findViewById(R.id.idle_items_manage)
         seeAllButton?.performClick() // Simulate clicking the "See all" button
 
         mockNavController.navigate(R.id.navigation_unused)

@@ -15,7 +15,7 @@
         <!-- FrameLayout containing ImageView and dynamic TextView -->
         <FrameLayout
             android:id="@+id/items_image_frame"
-            android:layout_width="330dp"
+            android:layout_width="wrap_content"
             android:layout_height="70dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-10dp">
@@ -27,6 +27,8 @@
                 android:layout_height="match_parent"
                 android:contentDescription="@string/items_image"
                 android:scaleType="fitCenter"
+                android:paddingStart="40dp"
+                android:paddingEnd="40dp"
                 android:src="@drawable/lbl_items" />
 
             <!-- TextView to display dynamic text inside ImageView -->
@@ -48,7 +50,7 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_toEndOf="@id/items_image_frame"
-            android:layout_marginStart="0dp"
+            android:layout_marginStart="-40dp"
             android:layout_alignTop="@id/items_image_frame"
             android:layout_alignBottom="@id/items_image_frame">
 
@@ -66,7 +68,9 @@
 
     <LinearLayout
         android:id="@+id/search_and_filter_layout"
-        android:layout_width="370dp"
+        android:layout_width="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:layout_height="50dp"
         android:orientation="horizontal"
         android:layout_marginTop="15dp"

@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.closets.R
 import com.example.closets.SharedViewModel
 import com.example.closets.repository.AppDatabase
@@ -31,6 +32,8 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 
 class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : BottomSheetDialogFragment() {
 
@@ -39,6 +42,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
     private lateinit var backButton: ImageView
     private lateinit var pencilIcon: ImageView
     private lateinit var saveOutfitButton: ImageView
+    private lateinit var luckyColorImage: ImageView
+    private lateinit var luckyColorContainer: View
     private lateinit var emptyStateText: TextView
     private lateinit var currentTimeDate: TextView
     private var currentDay = ""
@@ -47,9 +52,15 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         override fun run() {
             updateTimeAndDate()
             checkForDayChange()
+            val now = System.currentTimeMillis()
+            if (now - lastLuckyColorCheckTime > 1000L) {
+                updateLuckyColor()
+                lastLuckyColorCheckTime = now
+            }
             timeHandler.postDelayed(this, 1000)
         }
     }
+    private var lastLuckyColorCheckTime: Long = 0L
 
     companion object {
         private var currentToast: Toast? = null
@@ -93,6 +104,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
 
         setUpRecyclerView()
         setClickListeners()
+        updateLuckyColor()
 
         trace.stop()
     }
@@ -112,6 +124,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         pencilIcon = view.findViewById(R.id.icon_pencil)
         emptyStateText = view.findViewById(R.id.empty_state_text)
         currentTimeDate = view.findViewById(R.id.current_time_date)
+        luckyColorImage = view.findViewById(R.id.lucky_color_image)
+        luckyColorContainer = view.findViewById(R.id.lucky_color_container)
         saveOutfitButton = view.findViewById(R.id.icon_save_outfit)
     }
 
@@ -130,6 +144,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
             // Day has changed
             currentDay = today
             resetForNewDay()
+            updateLuckyColor()
         }
     }
 
@@ -139,6 +154,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         checkedPrefs.edit().clear().apply()
         outfitItemAdapter.updateItems(emptyList())
         updateUIState()
+        val sharedViewModel: SharedViewModel by activityViewModels()
+        sharedViewModel.setCheckedItems(emptyList())
         showToast(requireContext(), "A new day has begun! Your outfit has been reset.")
     }
 
@@ -163,6 +180,56 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
             }
         }
     }
+
+    private fun isInternetAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun updateLuckyColor() {
+        if (!isInternetAvailable(requireContext())) {
+            // Hide the entire lucky color container if there's no internet.
+            luckyColorContainer.visibility = View.GONE
+            return
+        } else {
+            luckyColorContainer.visibility = View.VISIBLE
+        }
+
+        // Use SharedPreferences to cache the lucky color for today.
+        val prefs = requireContext().getSharedPreferences("ClosetsPrefs", Context.MODE_PRIVATE)
+        val today = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(Date())
+        val storedDate = prefs.getString("lucky_color_date", null)
+        val storedColor = prefs.getString("lucky_color", null)
+
+        // If today's color is cached, load the image and return.
+        if (storedDate == today && !storedColor.isNullOrEmpty()) {
+            loadLuckyColorImage(storedColor)
+            return
+        }
+
+        val randomColor = generateRandomHexColor()
+        prefs.edit()
+            .putString("lucky_color", randomColor)
+            .putString("lucky_color_date", today)
+            .apply()
+        loadLuckyColorImage(randomColor)
+    }
+
+    private fun generateRandomHexColor(): String {
+        val randomInt = (0..0xFFFFFF).random()
+        return String.format("%06x", randomInt)
+    }
+
+    private fun loadLuckyColorImage(hexColor: String) {
+        val cleanHex = hexColor.replace("#", "")
+        val imageUrl = "https://singlecolorimage.com/get/$cleanHex/15x15.png"
+        Glide.with(requireContext())
+            .load(imageUrl)
+            .into(luckyColorImage)
+    }
+
     private fun setUpRecyclerView() {
         Log.d(TAG, "Setting up RecyclerView with ${checkedItems.size} items")
         outfitItemAdapter = TodayOutfitItemAdapter(checkedItems)

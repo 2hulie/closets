@@ -10,7 +10,7 @@
     <!-- FrameLayout containing ImageView and dynamic TextView -->
     <FrameLayout
         android:id="@+id/favorites_image_frame"
-        android:layout_width="330dp"
+        android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_marginTop="-10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,6 +24,8 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/favorites_image"
             android:scaleType="fitCenter"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
             android:src="@drawable/lbl_favorites" />
 
         <!-- TextView to display dynamic text inside ImageView -->
@@ -41,7 +43,9 @@
 
     <LinearLayout
         android:id="@+id/search_and_filter_layout"
-        android:layout_width="357dp"
+        android:layout_width="wrap_content"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
         android:layout_height="50dp"
         android:orientation="horizontal"
         android:layout_marginTop="15dp"

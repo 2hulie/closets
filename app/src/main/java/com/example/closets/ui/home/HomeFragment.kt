@@ -1,5 +1,6 @@
 package com.example.closets.ui.home
 
+import NotificationWorker
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -25,7 +26,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import java.util.Calendar
 import com.example.closets.R
 import com.example.closets.SharedViewModel
 import com.example.closets.notifications.NotificationReceiver
@@ -36,6 +43,7 @@ import com.example.closets.ui.viewmodels.ItemViewModel
 import com.example.closets.ui.viewmodels.ItemViewModelFactory
 import com.google.firebase.perf.FirebasePerformance
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class HomeFragment : Fragment() {
 
@@ -44,9 +52,9 @@ class HomeFragment : Fragment() {
     private val NOTIF_STATE_KEY = "notification_state"
 
     private lateinit var workManager: WorkManager
+    private val notificationWorkName = "closets_reminder_notification"
     private lateinit var requestNotifPermissionLauncher: ActivityResultLauncher<String>
     private val sharedViewModel: SharedViewModel by activityViewModels()
-    private var loadingView: View? = null
     private lateinit var itemViewModel: ItemViewModel
     private lateinit var homeUIManager: HomeUIManager
     private lateinit var darkOverlay: View
@@ -78,13 +86,15 @@ class HomeFragment : Fragment() {
         requestNotifPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 iconNotif.setImageResource(R.drawable.icon_notif_on)
-                NotificationReceiver.scheduleExactDailyNotification(requireContext())
+                // NotificationReceiver.scheduleExactDailyNotification(requireContext())
+                startNotificationWorker()
                 saveNotificationState(true)
                 isNotifIconOn = true
                 showToast(requireContext(), "Notifications enabled.")
             } else {
                 iconNotif.setImageResource(R.drawable.icon_notif_off)
-                NotificationReceiver.cancelDailyNotification(requireContext())
+                // NotificationReceiver.cancelDailyNotification(requireContext())
+                cancelNotifications()
                 saveNotificationState(false)
                 isNotifIconOn = false
                 showToast(requireContext(), "Please enable notifications for this app in your device settings.")
@@ -272,7 +282,8 @@ class HomeFragment : Fragment() {
 
         if (isNotifIconOn) {
             iconNotif.setImageResource(R.drawable.icon_notif_on)
-            NotificationReceiver.scheduleExactDailyNotification(requireContext()) // Use the new method
+            // NotificationReceiver.scheduleExactDailyNotification(requireContext())
+            startNotificationWorker()
         } else {
             iconNotif.setImageResource(R.drawable.icon_notif_off)
         }
@@ -304,27 +315,41 @@ class HomeFragment : Fragment() {
         if (isNotifIconOn) {
             // Turn off notifications
             iconNotif.setImageResource(R.drawable.icon_notif_off)
-            NotificationReceiver.cancelDailyNotification(requireContext())
-            saveNotificationState(false)
+            cancelNotifications()
+            saveNotificationState(false) // Save state as off
             isNotifIconOn = false
             showToast(requireContext(), "Notifications disabled.")
         } else {
             // Check Android version and handle permission
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // For Android 13+, check and request permission
                 when {
                     ContextCompat.checkSelfPermission(
                         requireContext(),
                         Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED -> {
-                        enableNotifications()
+                        // Permission already granted
+                        iconNotif.setImageResource(R.drawable.icon_notif_on)
+                        startNotificationWorker()
+                        saveNotificationState(true)
+                        isNotifIconOn = true
+                        scheduleNotifications()
+                        showToast(requireContext(), "Notifications enabled.")
                     }
+
                     else -> {
                         // Directly request the permission
                         requestNotifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
             } else {
-                enableNotifications()
+                // For versions below Android 13
+                iconNotif.setImageResource(R.drawable.icon_notif_on)
+                startNotificationWorker()
+                saveNotificationState(true)
+                isNotifIconOn = true
+                scheduleNotifications()
+                showToast(requireContext(), "Notifications enabled.")
             }
         }
     }
@@ -348,14 +373,15 @@ class HomeFragment : Fragment() {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 // Permission denied, turn off notifications
                 iconNotif.setImageResource(R.drawable.icon_notif_off)
-                NotificationReceiver.cancelDailyNotification(requireContext())
+                // NotificationReceiver.cancelDailyNotification(requireContext())
                 isNotifIconOn = false
                 saveNotificationState(false)
             } else {
                 // Permission granted, ensure notifications can be scheduled if previously enabled
                 if (isNotifIconOn) {
                     iconNotif.setImageResource(R.drawable.icon_notif_on)
-                    NotificationReceiver.scheduleExactDailyNotification(requireContext())
+                    // NotificationReceiver.scheduleExactDailyNotification(requireContext())
+                    isNotifIconOn = true
                     saveNotificationState(true)
                 }
             }
@@ -367,6 +393,60 @@ class HomeFragment : Fragment() {
             putBoolean(NOTIF_STATE_KEY, isEnabled)
             apply() // Apply changes asynchronously
         }
+    }
+
+    private fun scheduleNotifications() {
+        // Request notification permission for Android 13 and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission()
+        } else {
+            startNotificationWorker()
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun requestNotificationPermission() {
+        requestNotifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    private fun startNotificationWorker() {
+        // Calculate initial delay until 9 AM
+        val calendar = Calendar.getInstance()
+        val now = calendar.timeInMillis
+
+        calendar.set(Calendar.HOUR_OF_DAY, 9)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+
+        if (calendar.timeInMillis <= now) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val initialDelay = calendar.timeInMillis - now
+
+        // Create work request for daily notifications
+        val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
+            1, TimeUnit.DAYS,  // Repeat every day
+            PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS
+        )
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                    .build()
+            )
+            .build()
+
+        // Enqueue the work
+        workManager.enqueueUniquePeriodicWork(
+            notificationWorkName,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            notificationWorkRequest
+        )
+    }
+
+    private fun cancelNotifications() {
+        workManager.cancelUniqueWork(notificationWorkName)
     }
 
     override fun onDestroyView() {
