@@ -157,6 +157,7 @@
     <string name="manage">Manage</string>
     <string name="bg_image">Background Image</string>
     <string name="lucky_color_image_desc">Lucky Color Image</string>
-    <string name="lucky_color">Lucky Color:</string>
+    <string name="lucky_color">Getting lucky color for today…</string>
+    <string name="what_do_you_want_to_do">What do you want to do?</string>
 
 </resources>

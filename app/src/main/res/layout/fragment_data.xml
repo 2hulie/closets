@@ -40,13 +40,28 @@
             tools:ignore="HardcodedText" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/question_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/what_do_you_want_to_do"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/color_items"
+        app:layout_constraintTop_toBottomOf="@id/data_image_frame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"/>
+
     <LinearLayout
         android:id="@+id/import_export_container"
-        android:layout_width="match_parent"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/data_image_frame"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintTop_toBottomOf="@id/question_text"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -54,9 +69,9 @@
         <!-- ImageView for Import Closet icon -->
         <ImageView
             android:id="@+id/icon_import"
-            android:layout_width="0dp"
-            android:layout_height="160dp"
-            android:layout_marginEnd="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:src="@drawable/icon_import"
             android:contentDescription="@string/import_icon"
@@ -66,9 +81,9 @@
         <!-- ImageView for Export Closet icon -->
         <ImageView
             android:id="@+id/icon_export"
-            android:layout_width="0dp"
-            android:layout_height="160dp"
-            android:layout_marginStart="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:src="@drawable/icon_export"
             android:contentDescription="@string/export_icon"

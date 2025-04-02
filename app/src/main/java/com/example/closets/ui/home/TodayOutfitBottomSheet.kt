@@ -1,7 +1,12 @@
 package com.example.closets.ui.home
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +39,10 @@ import java.util.Date
 import java.util.Locale
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.request.target.CustomTarget
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 
 class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : BottomSheetDialogFragment() {
 
@@ -42,7 +51,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
     private lateinit var backButton: ImageView
     private lateinit var pencilIcon: ImageView
     private lateinit var saveOutfitButton: ImageView
-    private lateinit var luckyColorImage: ImageView
+    private lateinit var luckyColorLabel: TextView
     private lateinit var luckyColorContainer: View
     private lateinit var emptyStateText: TextView
     private lateinit var currentTimeDate: TextView
@@ -124,7 +133,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         pencilIcon = view.findViewById(R.id.icon_pencil)
         emptyStateText = view.findViewById(R.id.empty_state_text)
         currentTimeDate = view.findViewById(R.id.current_time_date)
-        luckyColorImage = view.findViewById(R.id.lucky_color_image)
+        luckyColorLabel = view.findViewById(R.id.lucky_color_label)
         luckyColorContainer = view.findViewById(R.id.lucky_color_container)
         saveOutfitButton = view.findViewById(R.id.icon_save_outfit)
     }
@@ -157,6 +166,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         val sharedViewModel: SharedViewModel by activityViewModels()
         sharedViewModel.setCheckedItems(emptyList())
         showToast(requireContext(), "A new day has begun! Your outfit has been reset.")
+        val closetPrefs = requireContext().getSharedPreferences("ClosetsPrefs", Context.MODE_PRIVATE)
+        closetPrefs.edit().remove("lucky_color").remove("lucky_color_date").apply()
     }
 
     private fun resetForNewDayIfNeeded() {
@@ -170,11 +181,8 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
             checkedItems = emptyList()
             val checkedPrefs = requireContext().getSharedPreferences("CheckedItemsPrefs", Context.MODE_PRIVATE)
             checkedPrefs.edit().clear().apply()
-
-            // Also clear the outfit saved date to ensure consistency
             outfitPrefs.edit().remove("outfit_saved_date").apply()
 
-            // Update the adapter
             if (::outfitItemAdapter.isInitialized) {
                 outfitItemAdapter.updateItems(emptyList())
             }
@@ -190,22 +198,19 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
 
     private fun updateLuckyColor() {
         if (!isInternetAvailable(requireContext())) {
-            // Hide the entire lucky color container if there's no internet.
             luckyColorContainer.visibility = View.GONE
             return
         } else {
             luckyColorContainer.visibility = View.VISIBLE
         }
 
-        // Use SharedPreferences to cache the lucky color for today.
         val prefs = requireContext().getSharedPreferences("ClosetsPrefs", Context.MODE_PRIVATE)
         val today = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(Date())
         val storedDate = prefs.getString("lucky_color_date", null)
         val storedColor = prefs.getString("lucky_color", null)
 
-        // If today's color is cached, load the image and return.
         if (storedDate == today && !storedColor.isNullOrEmpty()) {
-            loadLuckyColorImage(storedColor)
+            loadLuckyColor(storedColor)
             return
         }
 
@@ -214,7 +219,7 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
             .putString("lucky_color", randomColor)
             .putString("lucky_color_date", today)
             .apply()
-        loadLuckyColorImage(randomColor)
+        loadLuckyColor(randomColor)
     }
 
     private fun generateRandomHexColor(): String {
@@ -222,12 +227,61 @@ class TodayOutfitBottomSheet(private var checkedItems: List<ClothingItem>) : Bot
         return String.format("%06x", randomInt)
     }
 
-    private fun loadLuckyColorImage(hexColor: String) {
+    private fun loadLuckyColor(hexColor: String) {
         val cleanHex = hexColor.replace("#", "")
         val imageUrl = "https://singlecolorimage.com/get/$cleanHex/15x15.png"
+        Log.d(TAG, "Loading lucky color image from URL: $imageUrl")
+
         Glide.with(requireContext())
+            .asBitmap()
             .load(imageUrl)
-            .into(luckyColorImage)
+            .into(object : CustomTarget<Bitmap>() {
+                @SuppressLint("SetTextI18n")
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    if (!isAdded() || context == null) return
+
+                    val drawable = BitmapDrawable(resources, resource)
+                    luckyColorLabel.background = drawable
+                    luckyColorLabel.text = "  Lucky Color for today!  "
+
+                    // Parse the color from the hex string
+                    val colorString = "#$cleanHex"
+                    try {
+                        val bgColor = Color.parseColor(colorString)
+                        // Calculate luminance (0 = dark, 1 = light)
+                        val luminance = ColorUtils.calculateLuminance(bgColor)
+                        if (luminance > 0.5) {
+                            luckyColorLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.base_text))
+                        } else {
+                            luckyColorLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.faded_pink))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        luckyColorLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.base_text))
+                    }
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    luckyColorLabel.background = null
+                }
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    // Fallback: If Glide fails, set the background directly from the hex color.
+                    Log.d(TAG, "Glide load failed; using fallback color: #$cleanHex")
+                    try {
+                        val colorString = "#$cleanHex"
+                        val bgColor = Color.parseColor(colorString)
+                        luckyColorLabel.setBackgroundColor(bgColor)
+                        luckyColorLabel.text = "  Lucky Color for Today!  "
+                        val luminance = ColorUtils.calculateLuminance(bgColor)
+                        if (luminance > 0.5) {
+                            luckyColorLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.base_text))
+                        } else {
+                            luckyColorLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.faded_pink))
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            })
     }
 
     private fun setUpRecyclerView() {

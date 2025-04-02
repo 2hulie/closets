@@ -81,7 +81,7 @@
         android:id="@+id/worn_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/last_worn"
+        android:text="@string/loading_item"
         android:textSize="17sp"
         android:textColor="#DF9097"
         android:alpha="0.7"

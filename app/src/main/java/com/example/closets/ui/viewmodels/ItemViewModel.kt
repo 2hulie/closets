@@ -1,20 +1,19 @@
 package com.example.closets.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.closets.repository.ItemRepository
 import com.example.closets.ui.entities.Item
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 class ItemViewModel(val repository: ItemRepository) : ViewModel() {
 
     // LiveData for error handling
-    val _error = MutableLiveData<String>()
-    val error: LiveData<String> = _error
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
 
     // LiveData to hold the list of items
     val items: LiveData<List<Item>> = repository.getAllItems()
@@ -73,7 +72,7 @@ class ItemViewModel(val repository: ItemRepository) : ViewModel() {
     fun deleteItems(itemIds: List<Int>) {
         viewModelScope.launch {
             try {
-                repository.deleteItemsByIds(itemIds) // Call the repository method to delete items
+                repository.deleteItemsByIds(itemIds)
             } catch (e: Exception) {
                 _error.value = "Error deleting items: ${e.message}"
             }
