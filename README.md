@@ -58,12 +58,6 @@ cd closets</code></pre>
   <li>Tap <strong>✎</strong> to edit, pick items, <strong>Save</strong>, then <strong>Save Outfit</strong>.</li>
 </ol>
 
-<pre><code>// Example: ViewModel insertion
-viewModel.insert(
-  Item(name="Blue Jeans", type="Bottom", color="#006CD1", imageUri=uriString)
-)
-</code></pre>
-
 <h3>2. Wardrobe Management</h3>
 <ul>
   <li><strong>Add Item:</strong> Wardrobe tab → <strong>+</strong> → fill details → <strong>Add Item to Closet</strong></li>
