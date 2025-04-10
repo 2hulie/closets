@@ -43,8 +43,6 @@ cd closets</code></pre>
   </li>
   <li><strong>Open in Android Studio</strong><br/>
     <em>File &gt; Open</em> → select project root. Let Gradle sync.</li>
-  <li><strong>Configure Firebase (optional)</strong><br/>
-    Place <code>google-services.json</code> in <code>app/</code> and enable the plugin.</li>
   <li><strong>Run the app</strong><br/>
     <pre><code>./gradlew installDebug</code></pre>
   </li>
