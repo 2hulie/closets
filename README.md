@@ -1,5 +1,5 @@
-<h1 align="center">Closets: Your Personal Wardrobe Manager</h1>
-<p align="center">
+<h1>Closets: Your Personal Wardrobe Manager</h1>
+<p>
   <em>Organize, track, and style your wardrobe with ease.</em>
 </p>
 
