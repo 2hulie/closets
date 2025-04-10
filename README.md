@@ -44,7 +44,6 @@ cd closets</code></pre>
   <li><strong>Open in Android Studio</strong><br/>
     <em>File &gt; Open</em> → select project root. Let Gradle sync.</li>
   <li><strong>Run the app</strong><br/>
-    <pre><code>./gradlew installDebug</code></pre>
   </li>
 </ol>
 
