@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/QeCE3gg.png" alt="Navigate to Items Page" width="800"/>
+  <img src="https://i.imgur.com/UTKFBZF.png" alt="Navigate to Items Page" width="800"/>
 </p>
 <h1>Closets: Your Personal Wardrobe Manager</h1>
 <p>
